@@ -78,6 +78,14 @@ td.na{color:#aaa}
 /* Chart */
 .chart-container{margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
 .chart-title{font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;text-align:center}
+.dwg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.dwg-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;transition:.2s}
+.dwg-card:hover{border-color:var(--primary);box-shadow:0 2px 8px rgba(37,99,168,.12)}
+.dwg-icon{font-size:28px;text-align:center}
+.dwg-name{font-size:13px;font-weight:700;color:var(--text);text-align:center;line-height:1.5}
+.dwg-eng{font-size:10px;color:var(--muted);text-align:center;line-height:1.4}
+.dwg-btn{text-align:center;text-decoration:none;display:block;margin-top:auto;font-size:12px;padding:7px 10px}
+.dwg-card.hidden{display:none}
 canvas{max-width:100%;height:300px!important}
 /* History */
 .history-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:20px}
@@ -180,6 +188,8 @@ function showSection(id){
     <button class="nav-item" onclick="showSection('s8')" data-sec="s8"><span class="nav-icon">👁️</span>مسافة الرؤية SSD</button>
     <button class="nav-item" onclick="showSection('s9')" data-sec="s9"><span class="nav-icon">🛣️</span>مسافة الرؤية للتجاوز PSD</button>
     <button class="nav-item" onclick="showSection('s10')" data-sec="s10"><span class="nav-icon">🚀</span>حارات التسارع والتباطؤ</button>
+    <button class="nav-item" onclick="showSection('s12')" data-sec="s12"><span class="nav-icon">📚</span>المراجع</button>
+    <button class="nav-item" onclick="showSection('s11')" data-sec="s11"><span class="nav-icon">📐</span>المخططات القياسية</button>
     <button class="nav-item" onclick="showSection('shist')" data-sec="shist"><span class="nav-icon">📋</span>سجل الحسابات</button>
   </div>
 </nav>
@@ -195,6 +205,8 @@ function showSection(id){
   <a class="mob-btn"        id="mob-s8"    href="#s8"    onclick="showSection('s8');return false;">👁️ SSD</a>
   <a class="mob-btn"        id="mob-s9"    href="#s9"    onclick="showSection('s9');return false;">🛣️ PSD</a>
   <a class="mob-btn"        id="mob-s10"   href="#s10"   onclick="showSection('s10');return false;">🚀 التسارع</a>
+  <a class="mob-btn" id="mob-s12" href="#s12" onclick="showSection('s12');return false;">📚 المراجع</a>
+  <a class="mob-btn" id="mob-s11" href="#s11" onclick="showSection('s11');return false;">📐 المخططات</a>
   <a class="mob-btn"        id="mob-shist" href="#shist" onclick="showSection('shist');return false;">📋 السجل</a>
 </div>
 <!-- MAIN -->
@@ -429,6 +441,108 @@ function showSection(id){
     </div>
     <div class="alert" id="lt-alert"></div>
   </div>
+
+  <!-- LR Reference Table -->
+  <div class="calc-card">
+    <div class="calc-title">جدول قيم LR — طول الانسياب وأبعاد الفلير</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي — Barrier Design</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
+      * الفلير يمكن أن يكون أكثر انبساطاً (a:b أكبر) &nbsp;|&nbsp; ** LR = Runout Length
+    </p>
+    <div class="table-wrap">
+      <table style="font-size:12px;text-align:center">
+        <thead>
+          <tr>
+            <th rowspan="2" style="background:#1a3a5c;color:#fff;vertical-align:middle">سرعة التصميم<br>km/h</th>
+            <th rowspan="2" style="background:#1a3a5c;color:#fff;vertical-align:middle">طول الانسياب**<br>LR (م)</th>
+            <th rowspan="2" style="background:#1a3a5c;color:#fff;vertical-align:middle">مسافة الخجل<br>LS (م)</th>
+            <th colspan="2" style="background:#2563a8;color:#fff">أقصى معدل فلير (a:b)*</th>
+          </tr>
+          <tr>
+            <th style="background:#2d72c8;color:#fff">حاجز معدني<br>Metal-Beam</th>
+            <th style="background:#2d72c8;color:#fff">حاجز خرساني<br>Concrete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>110</strong></td><td>145</td><td>3.0</td><td>15:1</td><td>20:1</td></tr>
+          <tr><td><strong>100</strong></td><td>130</td><td>2.6</td><td>14:1</td><td>18:1</td></tr>
+          <tr><td><strong>90</strong></td><td>115</td><td>2.3</td><td>13:1</td><td>16:1</td></tr>
+          <tr><td><strong>80</strong></td><td>100</td><td>2.0</td><td>11:1</td><td>13:1</td></tr>
+          <tr><td><strong>70</strong></td><td>85</td><td>1.7</td><td>10:1</td><td>12:1</td></tr>
+          <tr><td><strong>60</strong></td><td>70</td><td>1.4</td><td>9:1</td><td>11:1</td></tr>
+          <tr><td><strong>50</strong></td><td>50</td><td>1.2</td><td>9:1</td><td>10:1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LC Calculator using AASHTO CZ Chart -->
+  <div class="calc-card" style="margin-top:20px;border-top:2px solid var(--primary)">
+    <div class="calc-title">حاسبة LC — الخلوص الجانبي للحواجز</div>
+    <div class="source-tag">المصدر: AASHTO Roadside Design Guide — الخلوص الجانبي يُستخرج من شارت Clear Zone</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">
+      LC هو المسافة من حافة الحارة المرورية إلى الحاجز — يُحدَّد بناءً على سرعة التصميم وطبيعة الأرض وميلها.
+      الشارت أدناه هو نفس شارت AASHTO المستخدم في Clear Zone.
+    </p>
+    <div class="form-row">
+      <div class="field">
+        <label>سرعة التصميم (كم/س)</label>
+        <select id="lcs-speed">
+          <option value="">اختر</option>
+          <option value="50">50</option><option value="60">60</option>
+          <option value="70">70</option><option value="80">80</option>
+          <option value="90">90</option><option value="100">100</option>
+          <option value="110">110</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>نوع الأرض</label>
+        <select id="lcs-terrain" onchange="toggleLCSlope()">
+          <option value="fill">ردم — Embankment</option>
+          <option value="flat">مستوية — Flat</option>
+          <option value="cut">قطع — Cut Slope</option>
+        </select>
+      </div>
+      <div class="field" id="lcs-slope-wrap">
+        <label>نسبة الميل</label>
+        <select id="lcs-slope">
+          <option value="3">3:1 (الأشد)</option>
+          <option value="4">4:1</option>
+          <option value="5">5:1</option>
+          <option value="6">6:1</option>
+          <option value="8">8:1</option>
+          <option value="10">10:1 (الأخف)</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcLC()">احسب LC</button>
+      <button class="btn btn-reset" onclick="resetLCCalc()">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('lcs-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="lcs-result">
+      <div><span class="result-value" id="lcs-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="lcs-steps"></div>
+    </div>
+    <div class="alert" id="lcs-alert"></div>
+  </div>
+
+  <!-- LC Chart (same AASHTO CZ chart, shared data) -->
+  <div class="chart-container" style="padding:20px;margin-top:16px">
+    <div class="chart-title">شارت LC — استخراج الخلوص الجانبي للحواجز من منحنيات AASHTO</div>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">المحور الأفقي: LC المطلوب (م) | المحور الرأسي: نوع وميل الأرض | كل خط = سرعة تصميم</p>
+    <div style="position:relative;height:500px;width:100%">
+      <canvas id="lcChart"></canvas>
+    </div>
+  </div>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12px;font-family:Cairo,sans-serif">
+    <span style="color:#15803d;font-weight:700">▲ منطقة الردم — Embankment</span>
+    <span style="color:#1d4ed8;font-weight:700">— أرض مستوية — Flat</span>
+    <span style="color:#c2410c;font-weight:700">▼ منطقة القطع — Cut Slope</span>
+  </div>
+  <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:6px">
+    النسبة 3:1 = أشد ميلاً | النسبة 10:1 = أخف ميلاً | المحور الأفقي = LC (م)
+  </div>
 </section>
 
 <!-- SECTION 5: Clear Zone -->
@@ -488,12 +602,53 @@ function showSection(id){
 
   <div class="calc-card">
     <div class="calc-title">حاسبة تعديل الخلوص الجانبي بمعامل ADT</div>
-    <div class="eq-box">Clear Zone Final = Base Clear Zone × Adjustment Factor</div>
-    <div class="source-tag">المصدر: ص 34 — كود الطرق السعودي</div>
-    <div class="alert alert-warn show">⚠️ معاملات تعديل ADT غير موجودة في الجدول المصدر المتاح. أدخل المعامل يدوياً إن كان متوفراً من المرجع.</div>
+    <div class="eq-box">Clear Zone Final = Base Clear Zone × Adjustment Factor (ADT)</div>
+    <div class="source-tag">المصدر: AASHTO Roadside Design Guide — كود الطرق السعودي</div>
+
+    <!-- ADT Selection Table -->
+    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">اختر نطاق حجم الحركة اليومية — يتحدد المعامل تلقائياً:</p>
+    <div style="overflow-x:auto;margin-bottom:14px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;font-family:Cairo,sans-serif;text-align:center">
+        <thead>
+          <tr style="background:var(--primary);color:#fff">
+            <th style="padding:8px 12px;border:1px solid var(--border)">حجم الحركة اليومي (ADT)</th>
+            <th style="padding:8px 12px;border:1px solid var(--border)">معامل التعديل</th>
+            <th style="padding:8px 12px;border:1px solid var(--border)">اختر</th>
+          </tr>
+        </thead>
+        <tbody id="adt-table-body">
+          <tr class="adt-row" data-factor="1.00" onclick="selectADT(this,'6,000 مركبة/يوم فأكثر','1.00')">
+            <td style="padding:7px 12px;border:1px solid var(--border)">6,000 مركبة/يوم فأكثر</td>
+            <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700">1.00</td>
+            <td style="padding:7px 12px;border:1px solid var(--border)"><span class="adt-radio">◯</span></td>
+          </tr>
+          <tr class="adt-row" data-factor="0.90" onclick="selectADT(this,'2,000 – 6,000','0.90')">
+            <td style="padding:7px 12px;border:1px solid var(--border)">2,000 – 6,000</td>
+            <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700">0.90</td>
+            <td style="padding:7px 12px;border:1px solid var(--border)"><span class="adt-radio">◯</span></td>
+          </tr>
+          <tr class="adt-row" data-factor="0.80" onclick="selectADT(this,'800 – 2,000','0.80')">
+            <td style="padding:7px 12px;border:1px solid var(--border)">800 – 2,000</td>
+            <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700">0.80</td>
+            <td style="padding:7px 12px;border:1px solid var(--border)"><span class="adt-radio">◯</span></td>
+          </tr>
+          <tr class="adt-row" data-factor="0.75" onclick="selectADT(this,'250 – 800','0.75')">
+            <td style="padding:7px 12px;border:1px solid var(--border)">250 – 800</td>
+            <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700">0.75</td>
+            <td style="padding:7px 12px;border:1px solid var(--border)"><span class="adt-radio">◯</span></td>
+          </tr>
+          <tr class="adt-row" data-factor="0.65" onclick="selectADT(this,'أقل من 250','0.65')">
+            <td style="padding:7px 12px;border:1px solid var(--border)">أقل من 250</td>
+            <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700">0.65</td>
+            <td style="padding:7px 12px;border:1px solid var(--border)"><span class="adt-radio">◯</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <div class="form-row">
-      <div class="field"><label>Base Clear Zone (متر)</label><input type="number" id="czadj-base" placeholder="مثال: 33" min="0" step="0.1"></div>
-      <div class="field"><label>معامل التعديل Adjustment Factor</label><input type="number" id="czadj-factor" placeholder="مثال: 1.2" min="0" step="0.01"></div>
+      <div class="field"><label>Base Clear Zone (متر)</label><input type="number" id="czadj-base" placeholder="مثال: 14" min="0" step="0.1"></div>
+      <div class="field"><label>معامل التعديل (ADT Factor)</label><input type="number" id="czadj-factor" placeholder="اختر من الجدول أعلاه" min="0" step="0.01" readonly style="background:var(--bg);cursor:not-allowed"></div>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" onclick="calcCZAdj()">احسب</button>
@@ -504,9 +659,70 @@ function showSection(id){
     <div class="alert" id="czadj-alert"></div>
   </div>
 
-  <div class="chart-container">
-    <div class="chart-title">شارت Clear Zone — العلاقة بين السرعة والخلوص الجانبي</div>
-    <canvas id="czChart"></canvas>
+  <!-- Clear Zone Slope Calculator -->
+  <div class="calc-card">
+    <div class="calc-title">حاسبة Clear Zone — بالسرعة والميل</div>
+    <div class="source-tag">المصدر: AASHTO Roadside Design Guide — كود الطرق السعودي</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">اختر سرعة التصميم ونوع الأرض والميل — تظهر القيمة مع تمييزها على الشارت</p>
+    <div class="form-row">
+      <div class="field">
+        <label>سرعة التصميم (كم/س)</label>
+        <select id="czs-speed">
+          <option value="">اختر</option>
+          <option value="50">50</option><option value="60">60</option>
+          <option value="70">70</option><option value="80">80</option>
+          <option value="90">90</option><option value="100">100</option>
+          <option value="110">110</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>نوع الأرض</label>
+        <select id="czs-terrain" onchange="toggleCZSlope()">
+          <option value="fill">ردم — Embankment</option>
+          <option value="flat">مستوية — Flat</option>
+          <option value="cut">قطع — Cut Slope</option>
+        </select>
+      </div>
+      <div class="field" id="czs-slope-wrap">
+        <label>نسبة الميل</label>
+        <select id="czs-slope">
+          <option value="3">3:1 (الأشد)</option>
+          <option value="4">4:1</option>
+          <option value="5">5:1</option>
+          <option value="6">6:1</option>
+          <option value="8">8:1</option>
+          <option value="10">10:1 (الأخف)</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcCZSlope()">احسب Clear Zone</button>
+      <button class="btn btn-reset" onclick="resetCalc('czs')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('czs-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="czs-result">
+      <div><span class="result-value" id="czs-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="czs-steps"></div>
+    </div>
+    <div class="alert" id="czs-alert"></div>
+  </div>
+
+  <!-- Proper Clear Zone Chart: X=CZ width, Y=slope, 7 speed curves -->
+  <div class="chart-container" style="padding:20px">
+    <div class="chart-title">شارت Clear Zone — الميل والسرعة وعرض الخلوص المطلوب</div>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">المحور الأفقي: عرض Clear Zone (م) | المحور الرأسي: نوع وميل الأرض | كل خط = سرعة تصميم</p>
+    <div style="position:relative;height:520px;width:100%">
+      <canvas id="czChart"></canvas>
+    </div>
+  </div>
+  <!-- Zone legend -->
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12px;font-family:Cairo,sans-serif">
+    <span style="color:#15803d;font-weight:700">▲ منطقة الردم — Embankment</span>
+    <span style="color:#1d4ed8;font-weight:700">— أرض مستوية — Flat</span>
+    <span style="color:#c2410c;font-weight:700">▼ منطقة القطع — Cut Slope</span>
+  </div>
+  <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:6px">
+    النسبة 3:1 = أشد ميلاً | النسبة 10:1 = أخف ميلاً | المحور الأفقي = عرض Clear Zone المطلوب بالمتر
   </div>
 </section>
 <!-- SECTION 6: Horizontal Curves -->
@@ -609,6 +825,103 @@ function showSection(id){
   <div class="chart-container">
     <div class="chart-title">شارت السرعة على المنحنيات — R مقابل سرعة التصميم</div>
     <canvas id="cvChart"></canvas>
+  </div>
+
+  <!-- Sight Distance on Curves -->
+  <div class="calc-card" style="margin-top:20px;border-top:2px solid var(--primary)">
+    <div class="calc-title">مسافة الرؤية عند المنحنيات الأفقية — Sight Distance on Curves</div>
+    <div class="eq-box" style="font-size:13px;line-height:2">
+      m = R · (1 − cos(Sₐ / 2R)) &nbsp;|&nbsp; Sₐ = 2R · cos⁻¹(1 − m/R)
+    </div>
+    <div class="source-tag">المصدر: Figure 4-11 — كود الطرق السعودي</div>
+
+    <!-- Field data warning -->
+    <div style="background:rgba(245,158,11,0.1);border:1.5px solid #f59e0b;border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13px;font-family:Cairo,sans-serif">
+      <div style="font-weight:700;color:#b45309;margin-bottom:6px">⚠️ تنبيه — بيانات ميدانية مطلوبة قبل استخدام هذه المعادلة</div>
+      <div style="color:var(--text);line-height:1.9">
+        يجب جمع البيانات التالية من الموقع أو المخططات قبل الحساب:
+        <ul style="margin:6px 0 0 0;padding-right:18px">
+          <li><strong>R</strong> — نصف قطر مسار الحارة الأقرب للعائق (م) — من مخططات التصميم أو القياس الميداني</li>
+          <li><strong>m</strong> — المسافة الجانبية بين محور الحارة والعائق (م) — تُقاس من محور الحارة الداخلية حتى العائق (حاجز / ميل / قطع)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Mode selector -->
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <button id="sdc-mode1-btn" class="btn btn-primary" onclick="setSdcMode(1)" style="flex:1;min-width:140px">
+        أحسب Sₐ (أعرف R و m)
+      </button>
+      <button id="sdc-mode2-btn" class="btn btn-reset" onclick="setSdcMode(2)" style="flex:1;min-width:140px">
+        أحسب m (أعرف R و Sₐ)
+      </button>
+    </div>
+
+    <!-- Mode 1: R + m → Sₐ -->
+    <div id="sdc-mode1">
+      <div class="form-row">
+        <div class="field">
+          <label>R — نصف قطر المنحنى (م)</label>
+          <input type="number" id="sdc1-R" placeholder="مثال: 300" min="10" step="1">
+        </div>
+        <div class="field">
+          <label>m — المسافة الجانبية للعائق (م)</label>
+          <input type="number" id="sdc1-m" placeholder="مثال: 6" min="0.1" step="0.1">
+        </div>
+        <div class="field">
+          <label>SSD المطلوبة (م) — للمقارنة</label>
+          <input type="number" id="sdc1-ssd" placeholder="مثال: 160" min="0" step="1">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calcSdc1()">احسب Sₐ وتحقق</button>
+        <button class="btn btn-reset" onclick="resetSdc(1)">إعادة تعيين</button>
+        <button class="btn btn-copy" onclick="copyResult('sdc1-result-val')">نسخ</button>
+      </div>
+      <div class="result-box" id="sdc1-result">
+        <div><span class="result-value" id="sdc1-result-val">—</span><span class="result-unit">م</span></div>
+        <div class="result-steps" id="sdc1-steps"></div>
+      </div>
+      <div class="alert" id="sdc1-alert"></div>
+    </div>
+
+    <!-- Mode 2: R + Sₐ → m -->
+    <div id="sdc-mode2" style="display:none">
+      <div class="form-row">
+        <div class="field">
+          <label>R — نصف قطر المنحنى (م)</label>
+          <input type="number" id="sdc2-R" placeholder="مثال: 300" min="10" step="1">
+        </div>
+        <div class="field">
+          <label>Sₐ — مسافة الرؤية المطلوبة (م)</label>
+          <input type="number" id="sdc2-Sa" placeholder="مثال: 160" min="1" step="1">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calcSdc2()">احسب m المطلوبة</button>
+        <button class="btn btn-reset" onclick="resetSdc(2)">إعادة تعيين</button>
+        <button class="btn btn-copy" onclick="copyResult('sdc2-result-val')">نسخ</button>
+      </div>
+      <div class="result-box" id="sdc2-result">
+        <div><span class="result-value" id="sdc2-result-val">—</span><span class="result-unit">م</span></div>
+        <div class="result-steps" id="sdc2-steps"></div>
+      </div>
+      <div class="alert" id="sdc2-alert"></div>
+    </div>
+  </div>
+
+  <!-- SDC Chart -->
+  <div class="chart-container" style="padding:20px;margin-top:16px">
+    <div class="chart-title">شارت مسافة الرؤية في المنحنيات — Figure 4-11</div>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">
+      المحور الأفقي: مسافة الرؤية المتاحة Sₐ (م) &nbsp;|&nbsp; المحور الرأسي: المسافة الجانبية للعائق m (م) &nbsp;|&nbsp; كل خط = نصف قطر R
+    </p>
+    <div style="position:relative;height:480px;width:100%">
+      <canvas id="sdcChart"></canvas>
+    </div>
+    <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px">
+      ● النقطة الصفراء = نتيجة الحساب &nbsp;|&nbsp; إذا كانت النقطة يمين منحنى R → Sₐ كافية ✅
+    </div>
   </div>
 </section>
 
@@ -774,6 +1087,25 @@ function showSection(id){
       </table>
     </div>
   </div>
+
+  <!-- PSD Warning -->
+  <div style="background:rgba(220,38,38,0.08);border:2px solid #dc2626;border-radius:10px;padding:14px 18px;margin-top:18px;font-family:Cairo,sans-serif">
+    <div style="font-weight:700;color:#b91c1c;font-size:14px;margin-bottom:8px">🚫 تنبيه — إذا كانت مسافة الرؤية المتاحة أقل من PSD المطلوبة يجب:</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(220,38,38,0.06);border-radius:6px;padding:8px 12px">
+        <span style="font-size:20px">🚧</span>
+        <span style="font-weight:600;color:var(--text)">منع التجاوز في هذا القطاع</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(220,38,38,0.06);border-radius:6px;padding:8px 12px">
+        <span style="font-size:20px">🎨</span>
+        <span style="font-weight:600;color:var(--text)">استخدام خط دهان متصل (خط أصفر متصل لا قطعي)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(220,38,38,0.06);border-radius:6px;padding:8px 12px">
+        <span style="font-size:20px">🪧</span>
+        <span style="font-weight:600;color:var(--text)">وضع لوحات منع التجاوز بالمواصفات المعتمدة</span>
+      </div>
+    </div>
+  </div>
 </section>
 <!-- SECTION 10: Speed Change Lanes -->
 <section id="s10" class="section">
@@ -858,6 +1190,25 @@ function showSection(id){
     </div>
   </div>
 
+  <!-- Acceleration Lane Notes -->
+  <div style="background:rgba(37,99,168,0.07);border:1.5px solid var(--primary);border-radius:10px;padding:14px 18px;margin-top:4px;font-family:Cairo,sans-serif">
+    <div style="font-weight:700;color:var(--primary);font-size:14px;margin-bottom:10px">📌 ملاحظات تصميمية — حارة التسارع</div>
+    <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;line-height:1.8;color:var(--text)">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">①</span>
+        <span>إذا تجاوزت سرعة التصميم <strong>110 كم/س</strong> أو تجاوز طول حارة التسارع <strong>400 م</strong>، فيجب استخدام نسبة انتقال <strong>Taper = 70:1</strong></span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">②</span>
+        <span>للسرعات <strong>≥ 80 كم/س</strong>: نسبة انتقال حارة التسارع <strong>50:1</strong> — وللسرعات الأقل يمكن استخدام <strong>25:1</strong></span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">③</span>
+        <span>يُوصى بـ <strong>Taper Type</strong> في الطرق ذات السرعة ≥ 80 كم/س أو الأحجام المرورية المرتفعة — ويمكن استخدام <strong>Parallel Type</strong> في غير ذلك</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Deceleration Lookup -->
   <div class="calc-card">
     <div class="calc-title">Lookup — حارة التباطؤ (Minimum Deceleration Length)</div>
@@ -925,6 +1276,29 @@ function showSection(id){
       </table>
     </div>
     <p style="font-size:11px;color:var(--muted);margin-top:6px">* القيم بين قوسين في المصدر الأصلي — تُستخدم بحذر وتتطلب مراجعة هندسية.</p>
+
+    <!-- Deceleration Lane Notes -->
+    <div style="background:rgba(37,99,168,0.07);border:1.5px solid var(--primary);border-radius:10px;padding:14px 18px;margin-top:14px;font-family:Cairo,sans-serif">
+      <div style="font-weight:700;color:var(--primary);font-size:14px;margin-bottom:10px">📌 ملاحظات تصميمية — حارة التباطؤ</div>
+      <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;line-height:1.8;color:var(--text)">
+        <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+          <span style="color:var(--primary);font-size:16px;flex-shrink:0">①</span>
+          <span>إذا تجاوزت سرعة التصميم <strong>110 كم/س</strong> أو تجاوز طول حارة التباطؤ <strong>400 م</strong>، فيجب استخدام نسبة انتقال <strong>Taper = 70:1</strong></span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+          <span style="color:var(--primary);font-size:16px;flex-shrink:0">②</span>
+          <span>للسرعات <strong>≥ 80 كم/س</strong>: نسبة انتقال حارة التباطؤ <strong>50:1</strong> — وللسرعات الأقل يمكن استخدام <strong>25:1</strong></span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+          <span style="color:var(--primary);font-size:16px;flex-shrink:0">③</span>
+          <span>يُفضّل استخدام <strong>Parallel Type</strong> في مخارج الطرق ذات السرعات العالية، لضمان خروج المركبات من المسار الرئيسي قبل بدء التباطؤ</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+          <span style="color:var(--primary);font-size:16px;flex-shrink:0">④</span>
+          <span>تُقاس أطوال حارات التباطؤ من <strong>نقطة بداية الانفصال</strong> عن الطريق الرئيسي وحتى نهاية منطقة الانتقال</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Grade Adjustment Table -->
@@ -1088,9 +1462,298 @@ function showSection(id){
     <div class="result-box" id="gadj-result"><div><span class="result-value" id="gadj-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="gadj-steps"></div></div>
     <div class="alert" id="gadj-alert"></div>
   </div>
+
+  <!-- Grade Adjustment Notes -->
+  <div style="background:rgba(37,99,168,0.07);border:1.5px solid var(--primary);border-radius:10px;padding:14px 18px;margin-top:4px;font-family:Cairo,sans-serif">
+    <div style="font-weight:700;color:var(--primary);font-size:14px;margin-bottom:10px">📌 ملاحظات — تأثير الانحدار الطولي على أطوال الحارات</div>
+    <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;line-height:1.8;color:var(--text)">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">①</span>
+        <span>تُستخدم معاملات التعديل لتعديل أطوال حارات التسارع أو التباطؤ عند وجود <strong>انحدار طولي (صعود أو نزول)</strong></span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">②</span>
+        <span><strong>الطول المعدّل = الطول الأساسي (من جدول التسارع/التباطؤ) × معامل التعديل</strong></span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">③</span>
+        <span>يجب مراعاة <strong>اتجاه الانحدار</strong> — تختلف معاملات التعديل بين الصعود والنزول</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">④</span>
+        <span>تُطبّق المعاملات على <strong>طول الحارة فقط</strong> — ولا تشمل منطقة الانتقال <strong>(Taper)</strong></span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">⑤</span>
+        <span>في حال <strong>عدم وجود انحدار طولي</strong>، يُستخدم الطول الأساسي للحارة دون أي تعديل (معامل = 1.00)</span>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- HISTORY -->
+<section id="s12" class="section">
+  <div class="section-title">📚 المراجع</div>
+
+  <div style="margin-bottom:16px">
+    <input type="text" id="ref-search" placeholder="🔍 ابحث باسم المرجع..." oninput="filterRefs()"
+      style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:Cairo,sans-serif;font-size:13px;background:var(--card);color:var(--text)">
+  </div>
+
+  <!-- Saudi Road Code -->
+  <div class="dwg-category" data-cat="كود سعودي">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🇸🇦 كود الطرق السعودي — Saudi Road Code</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="301 كود الطرق السعودي">
+        <div class="dwg-icon">📘</div>
+        <div class="dwg-name">كود الطرق السعودي — القسم 301</div>
+        <div class="dwg-eng">Saudi Road Code — Section 301</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/301 AR.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="305 تصميم منطقة أعمال الطرق">
+        <div class="dwg-icon">📘</div>
+        <div class="dwg-name">تصميم منطقة أعمال الطرق — القسم 305</div>
+        <div class="dwg-eng">Work Zone Design — Section 305</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/305 AR  تصميم منطقة أعمال الطرق.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="401 كود الطرق السعودي">
+        <div class="dwg-icon">📘</div>
+        <div class="dwg-name">كود الطرق السعودي — القسم 401</div>
+        <div class="dwg-eng">Saudi Road Code — Section 401</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/401 AR.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="602 كود الطرق السعودي">
+        <div class="dwg-icon">📘</div>
+        <div class="dwg-name">كود الطرق السعودي — القسم 602</div>
+        <div class="dwg-eng">Saudi Road Code — Section 602</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/602 AR (1).pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="603 سلامة الطرق">
+        <div class="dwg-icon">📘</div>
+        <div class="dwg-name">سلامة الطرق — القسم 603</div>
+        <div class="dwg-eng">Road Safety — Section 603</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/603 AR  سلامة الطرق (1).pdf" target="_blank">فتح المرجع</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- English References -->
+  <div class="dwg-category" data-cat="مراجع انجليزية" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">📖 مراجع دولية — International References</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="الكتاب الأخضر AASHTO Green Book">
+        <div class="dwg-icon">📗</div>
+        <div class="dwg-name">الكتاب الأخضر — AASHTO</div>
+        <div class="dwg-eng">A Policy on Geometric Design of Highways</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/THE_GREEN_BOOK_A_Policy_on_Geometric_Des.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="Work Zone التحكم المروري مناطق العمل">
+        <div class="dwg-icon">📙</div>
+        <div class="dwg-name">التحكم المروري في مناطق العمل</div>
+        <div class="dwg-eng">Work Zone Traffic Control</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/Work Zone Traffic Control_100.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="Traffic Barriers الحواجز المرورية">
+        <div class="dwg-icon">📙</div>
+        <div class="dwg-name">الحواجز المرورية — Section 1.15</div>
+        <div class="dwg-eng">Traffic Barriers — Section 1.15</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/07 - Section1.15 Traffic Barriers.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="Volume 2 General القواعد العامة">
+        <div class="dwg-icon">📙</div>
+        <div class="dwg-name">القواعد العامة — Vol.2 Sec.3.01</div>
+        <div class="dwg-eng">Volume 2, Book 2, Part 3, Section 3.01 General</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/12 - Volume 2, Book 2, Part 3, Section 3.01 General.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="Highway Design Manual دليل تصميم الطرق مخططات قياسية">
+        <div class="dwg-icon">📙</div>
+        <div class="dwg-name">دليل تصميم الطرق — المخططات القياسية Vol.4</div>
+        <div class="dwg-eng">Highway Design Manual Vol.4 — Standard Drawings</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/فتح Highway-Design-Manua-vol.-4-Standard-Drawings 2.pdf" target="_blank">فتح المرجع</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arabic References -->
+  <div class="dwg-category" data-cat="مراجع عربية" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">📝 مراجع عربية</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="المنحنيات الرأسية">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">المنحنيات الرأسية</div>
+        <div class="dwg-eng">Vertical Curves</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/المنحنيات الرأسية.pdf" target="_blank">فتح المرجع</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="s11" class="section">
+  <div class="section-title">📐 المخططات القياسية</div>
+
+  <!-- Search bar -->
+  <div style="margin-bottom:16px">
+    <input type="text" id="dwg-search" placeholder="🔍 ابحث باسم المخطط..." oninput="filterDrawings()"
+      style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:Cairo,sans-serif;font-size:13px;background:var(--card);color:var(--text)">
+  </div>
+
+  <!-- Category: T-Intersections -->
+  <div class="dwg-category" data-cat="تقاطعات">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🔀 تقاطعات T — T-Intersections</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="تقاطع T على طريق ريفي مع حارة يسار">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تقاطع T — طريق ريفي مع حارة يسار</div>
+        <div class="dwg-eng">T-Intersection Rural Road with Left Turn Lanes</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL T INTERSECTION ON RURAL LOCAL ROAD WITH LEFT TURN LANES-1.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="تقاطع T طريق فردي مع حارة يسار">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تقاطع T — طريق فردي مع حارة يسار</div>
+        <div class="dwg-eng">T-Intersection Single Highway with Left-Turn Lanes</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL T-INTERSECTION ON SINGLE HIGHWAY WITH LEFT-TURN LANES.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="تقاطع T طريق فردي مع طريق محلي مزدوج">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تقاطع T — طريق فردي مع طريق محلي مزدوج</div>
+        <div class="dwg-eng">T-Intersection Single Highway with Local Divided Road</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL T-INTERSECTION ON SINGLE HIGHWAY WITH LOCAL DIVIDED ROAD.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="تقاطع T مع طريق سريع مزدوج">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تقاطع T — طريق فرعي مع طريق سريع مزدوج</div>
+        <div class="dwg-eng">T-Intersection Branch Road and Divided Highways</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL T-INTERSECTION DETAILS BETWEEN BRANCH ROAD AND DIVIDED HIGHWAYS .pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="ربط طريق فرعي بطريق سريع مزدوج">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">ربط طريق فرعي بطريق سريع مزدوج</div>
+        <div class="dwg-eng">Connection Details Branch Road and Divided Freeway</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL CONNECTION DETAILS BETWEEN BRANCH  ROAD AND DIVIDED FREEWAY.pdf" target="_blank">فتح المخطط</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category: U-Turn -->
+  <div class="dwg-category" data-cat="التفاف" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🔄 الالتفاف — U-Turns</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="تفاصيل تصميم الالتفاف للسيارات">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تفاصيل تصميم الالتفاف — سيارات</div>
+        <div class="dwg-eng">U-Turn Design Details for Passenger Car</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/U-TURN DESIGN DETAILS FOR PASSENGER CAR.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="مخطط اللافتات عند الالتفاف طريق 65">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">مخطط اللافتات والدهانات — الالتفاف طريق 65</div>
+        <div class="dwg-eng">Sign & Marking Plan U-Turn RD.65 STA.1333+050</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/02-SING & MARKING PLAN U-TURN RD.65 STA.1333+050.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="مواصفات مناطق الالتفاف">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">المواصفات الخاصة بمناطق الالتفاف</div>
+        <div class="dwg-eng">Specifications for U-Turn Areas</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/المواصفات+الخاصة+بمناطق+الالتفاف_1.0.0 (1).pdf" target="_blank">فتح المخطط</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category: Service Stations -->
+  <div class="dwg-category" data-cat="محطات خدمة" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">⛽ محطات الخدمة — Service Stations</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="تفاصيل محطة خدمة طريق مزدوج حارتان">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">محطة خدمة — طريق مزدوج (حارتان)</div>
+        <div class="dwg-eng">Service Station on Divided Highway - 2 Lanes</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL DETAILS OF SERVICE STATION ON DIVIDED HIGHWAY-2 lanes.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="مداخل ومخارج محطة خدمة طريق أحادي">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">مداخل ومخارج محطة خدمة — طريق أحادي</div>
+        <div class="dwg-eng">Service Station Ingress/Egress Single Highway</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL SERVICE STATION INGRESS EGRESS DETAILS ON SINGLE HIGHWAYS.pdf" target="_blank">فتح المخطط</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category: Types A-F -->
+  <div class="dwg-category" data-cat="أنواع" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🗂️ مخططات نقاط التفتيش — TYPE A to TYPE F</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="نوع A"><div class="dwg-icon">📄</div><div class="dwg-name">النوع A</div><div class="dwg-eng">TYPE A</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE A.pdf" target="_blank">فتح</a></div>
+      <div class="dwg-card" data-name="نوع B"><div class="dwg-icon">📄</div><div class="dwg-name">النوع B</div><div class="dwg-eng">TYPE B</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE B.pdf" target="_blank">فتح</a></div>
+      <div class="dwg-card" data-name="نوع C"><div class="dwg-icon">📄</div><div class="dwg-name">النوع C</div><div class="dwg-eng">TYPE C</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE C.pdf" target="_blank">فتح</a></div>
+      <div class="dwg-card" data-name="نوع D"><div class="dwg-icon">📄</div><div class="dwg-name">النوع D</div><div class="dwg-eng">TYPE D</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE D.pdf" target="_blank">فتح</a></div>
+      <div class="dwg-card" data-name="نوع E"><div class="dwg-icon">📄</div><div class="dwg-name">النوع E</div><div class="dwg-eng">TYPE E</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE E.pdf" target="_blank">فتح</a></div>
+      <div class="dwg-card" data-name="نوع F"><div class="dwg-icon">📄</div><div class="dwg-name">النوع F</div><div class="dwg-eng">TYPE F</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE F.pdf" target="_blank">فتح</a></div>
+    </div>
+  </div>
+
+  <!-- Category: Signs & Details -->
+  <div class="dwg-category" data-cat="لافتات وتفاصيل" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🪧 لافتات وتفاصيل — Signs & Details</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="لافتة شيفرون Chevron">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">لافتة الشيفرون — Chevron Alignment Sign</div>
+        <div class="dwg-eng">Chevron Alignment Sign REV.2</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/CHEVRON ALIGNEMT SIGN-REV.2 (1).pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="تفاصيل إنشائية">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">التفاصيل الإنشائية</div>
+        <div class="dwg-eng">Construction Details</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/DETAILS- (1).pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="نهاية الطريق end of roadway">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تفاصيل نهاية الطريق</div>
+        <div class="dwg-eng">Typical Details for End of Roadway</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL DETAILS  FOR END OF ROADWAY (1).pdf" target="_blank">فتح المخطط</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category: Arabic Drawings -->
+  <div class="dwg-category" data-cat="مخططات عربية" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🗺️ مخططات متنوعة</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="الإغلاق الطارئ على الطرق السريعة">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">المخطط النموذجي للإغلاق الطارئ — طرق سريعة</div>
+        <div class="dwg-eng">Emergency Road Closure - Freeway</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/المخطط النموذجي للاغلاق الطاريء على الطرق السريعة.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="المدارس مخطط نموذجي">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">المخطط النموذجي للمدارس</div>
+        <div class="dwg-eng">School Zone Typical Drawing</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/المخطط النموذجي للمدارس (1).pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="مخطط الميزان والسلامة">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">مخطط الميزان والسلامة</div>
+        <div class="dwg-eng">Balance & Safety Drawing</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/مخططالميزانومخططالسلامة.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="المطبات الاهتزازية">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">المطبات الاهتزازية</div>
+        <div class="dwg-eng">Rumble Strips</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/الكتب.pdf" target="_blank">فتح</a>
+      </div>
+      <div class="dwg-card" data-name="اللافتات والمطبات للتقاطع الرباعي">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">اللافتات والمطبات للتقاطع الرباعي</div>
+        <div class="dwg-eng">Signs & Rumble Strips for 4-Way Intersection</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/المخطط القياسي لتقاطع رباعي.pdf" target="_blank">فتح</a>
+      </div>
+      
+  </div>
+</section>
+
 <section id="shist" class="section">
   <div class="section-title">سجل الحسابات</div>
   <div class="history-panel">
@@ -1176,9 +1839,21 @@ function resetCalc(prefix){
   const res = document.getElementById(prefix+'-result');
   if(res) res.classList.remove('show');
   clearAlert(prefix);
-  // clear inputs in parent card
   const card = res ? res.closest('.calc-card') : null;
   if(card) card.querySelectorAll('input').forEach(i=>i.value='');
+  // czs-specific reset
+  if(prefix==='czs'){
+    var spd=document.getElementById('czs-speed'); if(spd) spd.value='';
+    var rv=document.getElementById('czs-result-val'); if(rv) rv.textContent='—';
+    var rs=document.getElementById('czs-steps'); if(rs) rs.innerHTML='';
+    var al=document.getElementById('czs-alert'); if(al) al.textContent='';
+    czMarkerPoint=null;
+    if(czChartInst){
+      var ds=czChartInst.data.datasets;
+      ds[ds.length-1].data=[];
+      czChartInst.update();
+    }
+  }
 }
 
 function copyResult(id){
@@ -1393,6 +2068,22 @@ function lookupCZ(){
   showResult('cz', val, `Clear Zone عند سرعة ${spd} كم/س وزمن إدراك ${prt} ث = ${val} م`);
   addHistory('Clear Zone Lookup', `V=${spd}، PRT=${prt}ث`, `${val} م`);
 }
+function selectADT(row, label, factor) {
+  // Deselect all
+  document.querySelectorAll('.adt-row').forEach(function(r){
+    r.classList.remove('selected');
+    var radio = r.querySelector('.adt-radio');
+    if(radio) radio.textContent = '◯';
+  });
+  // Select clicked
+  row.classList.add('selected');
+  var radio = row.querySelector('.adt-radio');
+  if(radio) radio.textContent = '●';
+  // Fill factor input
+  var inp = document.getElementById('czadj-factor');
+  if(inp) inp.value = factor;
+}
+
 function calcCZAdj(){
   const base=parseFloat(document.getElementById('czadj-base').value);
   const factor=parseFloat(document.getElementById('czadj-factor').value);
@@ -1757,16 +2448,475 @@ function resetGradeAdj(){
 }
 
 // ── Charts ──
+// ============================================================
+// SIGHT DISTANCE ON CURVES — Figure 4-11
+// m = R(1 - cos(Sa/2R))   Sa = 2R*acos(1 - m/R)
+// ============================================================
+var sdcChartInst = null;
+var sdcMarkerPoint = null;
+var sdcMode = 1;
+
+function setSdcMode(mode) {
+  sdcMode = mode;
+  document.getElementById('sdc-mode1').style.display = mode===1 ? '' : 'none';
+  document.getElementById('sdc-mode2').style.display = mode===2 ? '' : 'none';
+  document.getElementById('sdc-mode1-btn').className = mode===1 ? 'btn btn-primary' : 'btn btn-reset';
+  document.getElementById('sdc-mode2-btn').className = mode===2 ? 'btn btn-primary' : 'btn btn-reset';
+}
+
+function calcSdc1() {
+  var R = parseFloat(document.getElementById('sdc1-R').value);
+  var m = parseFloat(document.getElementById('sdc1-m').value);
+  var ssd = parseFloat(document.getElementById('sdc1-ssd').value);
+  var al = document.getElementById('sdc1-alert'); al.textContent='';
+  if(isNaN(R)||R<=0){al.textContent='⚠️ أدخل R';return;}
+  if(isNaN(m)||m<=0){al.textContent='⚠️ أدخل m';return;}
+  if(m>=R){al.textContent='⚠️ m يجب أن تكون أصغر من R';return;}
+  var Sa = 2*R*Math.acos(1 - m/R) * (180/Math.PI);
+  // convert: acos returns radians, formula needs degrees converted to arc
+  // Actually formula is in radians for cos, Sa in meters:
+  // Sa = 2R * arccos(1 - m/R)  where arccos in radians, result in meters
+  Sa = 2*R*Math.acos(1 - m/R);
+  Sa = Math.round(Sa*10)/10;
+  document.getElementById('sdc1-result-val').textContent = Sa;
+  var status = '';
+  var steps = 'R = '+R+' م | m = '+m+' م<br>Sₐ = 2 × '+R+' × cos⁻¹(1 − '+m+'/'+R+') = <strong>'+Sa+' م</strong>';
+  if(!isNaN(ssd) && ssd>0){
+    if(Sa >= ssd){
+      status = '<span style="color:#16a34a;font-weight:700">✅ آمن — Sₐ ('+Sa+' م) ≥ SSD المطلوبة ('+ssd+' م)</span>';
+    } else {
+      status = '<span style="color:#dc2626;font-weight:700">❌ غير آمن — Sₐ ('+Sa+' م) < SSD المطلوبة ('+ssd+' م) → يجب إزالة العائق أو تعديل التصميم</span>';
+    }
+  }
+  document.getElementById('sdc1-steps').innerHTML = steps + (status ? '<br>'+status : '');
+  // Update chart marker
+  if(sdcChartInst){
+    sdcMarkerPoint = {x: Sa, y: m};
+    var ds = sdcChartInst.data.datasets;
+    ds[ds.length-1].data = [sdcMarkerPoint];
+    sdcChartInst.update();
+  }
+  // History
+  calcHistory.push({id:Date.now(),section:'مسافة الرؤية في المنحنيات',
+    inputs:'R='+R+'م | m='+m+'م',result:'Sₐ='+Sa+'م'+(ssd?' | SSD='+ssd+'م':''),
+    time:new Date().toLocaleString('ar-SA')});
+  try{localStorage.setItem('calcHistory',JSON.stringify(calcHistory));}catch(e){}
+  renderHistory();
+}
+
+function calcSdc2() {
+  var R = parseFloat(document.getElementById('sdc2-R').value);
+  var Sa = parseFloat(document.getElementById('sdc2-Sa').value);
+  var al = document.getElementById('sdc2-alert'); al.textContent='';
+  if(isNaN(R)||R<=0){al.textContent='⚠️ أدخل R';return;}
+  if(isNaN(Sa)||Sa<=0){al.textContent='⚠️ أدخل Sₐ';return;}
+  var m = R*(1 - Math.cos(Sa/(2*R)));
+  m = Math.round(m*100)/100;
+  document.getElementById('sdc2-result-val').textContent = m;
+  document.getElementById('sdc2-steps').innerHTML =
+    'R = '+R+' م | Sₐ = '+Sa+' م<br>m = '+R+' × (1 − cos('+Sa+'/(2×'+R+'))) = <strong>'+m+' م</strong><br>'+
+    '<span style="color:var(--muted);font-size:12px">يجب إبقاء المسافة الجانبية للعائق ≥ '+m+' م لضمان مسافة الرؤية</span>';
+  if(sdcChartInst){
+    sdcMarkerPoint = {x: Sa, y: m};
+    var ds = sdcChartInst.data.datasets;
+    ds[ds.length-1].data = [sdcMarkerPoint];
+    sdcChartInst.update();
+  }
+  calcHistory.push({id:Date.now(),section:'مسافة الرؤية في المنحنيات',
+    inputs:'R='+R+'م | Sₐ='+Sa+'م',result:'m مطلوبة='+m+'م',
+    time:new Date().toLocaleString('ar-SA')});
+  try{localStorage.setItem('calcHistory',JSON.stringify(calcHistory));}catch(e){}
+  renderHistory();
+}
+
+function resetSdc(mode){
+  if(mode===1){
+    ['sdc1-R','sdc1-m','sdc1-ssd'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+    var rv=document.getElementById('sdc1-result-val');if(rv)rv.textContent='—';
+    var rs=document.getElementById('sdc1-steps');if(rs)rs.innerHTML='';
+    document.getElementById('sdc1-alert').textContent='';
+  } else {
+    ['sdc2-R','sdc2-Sa'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+    var rv=document.getElementById('sdc2-result-val');if(rv)rv.textContent='—';
+    var rs=document.getElementById('sdc2-steps');if(rs)rs.innerHTML='';
+    document.getElementById('sdc2-alert').textContent='';
+  }
+  sdcMarkerPoint=null;
+  if(sdcChartInst){var ds=sdcChartInst.data.datasets;ds[ds.length-1].data=[];sdcChartInst.update();}
+}
+
+// ============================================================
+// CLEAR ZONE SLOPE DATA (AASHTO Roadside Design Guide)
+// Y-axis index: 13=Fill3:1 ... 7=Flat ... 1=Cut3:1
+// X-axis: Clear Zone width in meters
+// ============================================================
+const CZ_SLOPE_DATA = {
+  50:  { fill:{3:3,4:3.5,5:4,6:4.5,8:5,10:5.5},  flat:6,  cut:{10:5.5,8:5,6:4.5,5:4,4:3.5,3:3} },
+  60:  { fill:{3:4,4:5,5:5.5,6:6,8:7,10:7.5},    flat:8,  cut:{10:7,8:6,6:5.5,5:5,4:4.5,3:4} },
+  70:  { fill:{3:5,4:6,5:7,6:8,8:9,10:10},        flat:11, cut:{10:9,8:7.5,6:7,5:6,4:5.5,3:5} },
+  80:  { fill:{3:6,4:7,5:8.5,6:10,8:11,10:12},    flat:14, cut:{10:11,8:9,6:8,5:7,4:6.5,3:6} },
+  90:  { fill:{3:6.5,4:8,5:10,6:11,8:13,10:14},   flat:16, cut:{10:13,8:11,6:9.5,5:8,4:7,3:6.5} },
+  100: { fill:{3:7,4:9,5:11,6:13,8:15,10:16},     flat:18, cut:{10:14.5,8:12,6:10,5:9,4:8,3:7} },
+  110: { fill:{3:8,4:10,5:12,6:14,8:16,10:18},    flat:20, cut:{10:16,8:13,6:11,5:10,4:9,3:8} }
+};
+
+// Slope index mapping (Y-axis of chart)
+const CZ_Y_LABELS = {
+  13:'▲ ردم 3:1 (شديد)', 12:'▲ ردم 4:1', 11:'▲ ردم 5:1', 10:'▲ ردم 6:1',
+  9:'▲ ردم 8:1', 8:'▲ ردم 10:1 (خفيف)', 7:'— مستوي (Flat)',
+  6:'▼ قطع 10:1 (خفيف)', 5:'▼ قطع 8:1', 4:'▼ قطع 6:1',
+  3:'▼ قطع 5:1', 2:'▼ قطع 4:1', 1:'▼ قطع 3:1 (شديد)'
+};
+
+function getYIndex(terrain, slope) {
+  if (terrain === 'flat') return 7;
+  if (terrain === 'fill') {
+    const m = {3:13,4:12,5:11,6:10,8:9,10:8}; return m[parseInt(slope)] || 7;
+  }
+  const m = {10:6,8:5,6:4,5:3,4:2,3:1}; return m[parseInt(slope)] || 7;
+}
+
+function getCZWidth(speed, terrain, slope) {
+  var d = CZ_SLOPE_DATA[parseInt(speed)];
+  if (!d) return null;
+  if (terrain === 'flat') return d.flat;
+  if (terrain === 'fill') return d.fill[parseInt(slope)] || null;
+  return d.cut[parseInt(slope)] || null;
+}
+
+function filterRefs() {
+  var q = document.getElementById('ref-search').value.trim().toLowerCase();
+  document.querySelectorAll('#s12 .dwg-card').forEach(function(card) {
+    var name = (card.getAttribute('data-name') || '').toLowerCase();
+    var eng = (card.querySelector('.dwg-eng') ? card.querySelector('.dwg-eng').textContent : '').toLowerCase();
+    card.classList.toggle('hidden', q && !name.includes(q) && !eng.includes(q));
+  });
+  document.querySelectorAll('#s12 .dwg-category').forEach(function(cat) {
+    var visible = cat.querySelectorAll('.dwg-card:not(.hidden)').length;
+    cat.style.display = visible === 0 && q ? 'none' : '';
+  });
+}
+
+function filterDrawings() {
+  var q = document.getElementById('dwg-search').value.trim().toLowerCase();
+  document.querySelectorAll('.dwg-card').forEach(function(card) {
+    var name = (card.getAttribute('data-name') || '').toLowerCase();
+    var eng = (card.querySelector('.dwg-eng') ? card.querySelector('.dwg-eng').textContent : '').toLowerCase();
+    card.classList.toggle('hidden', q && !name.includes(q) && !eng.includes(q));
+  });
+  // Hide empty categories
+  document.querySelectorAll('.dwg-category').forEach(function(cat) {
+    var visible = cat.querySelectorAll('.dwg-card:not(.hidden)').length;
+    cat.style.display = visible === 0 && q ? 'none' : '';
+  });
+}
+
+function toggleCZSlope() {
+  var t = document.getElementById('czs-terrain').value;
+  document.getElementById('czs-slope-wrap').style.display = (t === 'flat') ? 'none' : '';
+}
+
+var czChartInst = null;
+var czMarkerPoint = null;
+var lcChartInst = null;
+var lcMarkerPoint = null;
+
+function toggleLCSlope() {
+  var t = document.getElementById('lcs-terrain').value;
+  document.getElementById('lcs-slope-wrap').style.display = (t === 'flat') ? 'none' : '';
+}
+
+function calcLC() {
+  var speed = document.getElementById('lcs-speed').value;
+  var terrain = document.getElementById('lcs-terrain').value;
+  var slope = document.getElementById('lcs-slope').value;
+  var alert = document.getElementById('lcs-alert');
+  alert.textContent = '';
+  if (!speed) { alert.textContent = 'اختر سرعة التصميم'; return; }
+  var w = getCZWidth(speed, terrain, slope);
+  if (!w) { alert.textContent = 'لا توجد قيمة لهذا الاختيار'; return; }
+  var terrainAr = terrain==='fill'?'ردم':terrain==='cut'?'قطع':'مستوي';
+  var slopeAr = terrain==='flat'?'':(' — ميل '+slope+':1');
+  document.getElementById('lcs-result-val').textContent = w;
+  document.getElementById('lcs-steps').innerHTML =
+    'سرعة التصميم: <strong>'+speed+' كم/س</strong> | نوع الأرض: <strong>'+terrainAr+'</strong>'+slopeAr+'<br>'+
+    '<strong>LC المطلوب = '+w+' م</strong> (من شارت AASHTO Clear Zone)';
+  if (lcChartInst) {
+    lcMarkerPoint = { x: w, y: getYIndex(terrain, slope) };
+    var ds = lcChartInst.data.datasets;
+    ds[ds.length-1].data = [lcMarkerPoint];
+    lcChartInst.update();
+  }
+  var entry = {
+    id: Date.now(),
+    section: 'LC الحواجز',
+    inputs: 'سرعة '+speed+' كم/س | '+terrainAr+slopeAr,
+    result: 'LC = '+w+' م',
+    time: new Date().toLocaleString('ar-SA')
+  };
+  calcHistory.push(entry);
+  try { localStorage.setItem('calcHistory', JSON.stringify(calcHistory)); } catch(e){}
+  renderHistory();
+}
+
+function resetLCCalc() {
+  document.getElementById('lcs-speed').value = '';
+  document.getElementById('lcs-result-val').textContent = '—';
+  document.getElementById('lcs-steps').innerHTML = '';
+  document.getElementById('lcs-alert').textContent = '';
+  lcMarkerPoint = null;
+  if (lcChartInst) {
+    var ds = lcChartInst.data.datasets;
+    ds[ds.length-1].data = [];
+    lcChartInst.update();
+  }
+}
+
+function calcCZSlope() {
+  var speed = document.getElementById('czs-speed').value;
+  var terrain = document.getElementById('czs-terrain').value;
+  var slope = document.getElementById('czs-slope').value;
+  var alert = document.getElementById('czs-alert');
+  alert.textContent = '';
+  if (!speed) { alert.textContent = 'اختر سرعة التصميم'; return; }
+  var w = getCZWidth(speed, terrain, slope);
+  if (!w) { alert.textContent = 'لا توجد قيمة لهذا الاختيار'; return; }
+  var terrainAr = terrain==='fill'?'ردم':terrain==='cut'?'قطع':'مستوي';
+  var slopeAr = terrain==='flat'?'':(' — ميل '+slope+':1');
+  document.getElementById('czs-result-val').textContent = w;
+  document.getElementById('czs-steps').innerHTML =
+    'سرعة التصميم: <strong>'+speed+' كم/س</strong> | نوع الأرض: <strong>'+terrainAr+'</strong>'+slopeAr+'<br>'+
+    '<strong>Clear Zone المطلوب = '+w+' م</strong>';
+  // Highlight on chart — update marker dataset (last dataset)
+  if (czChartInst) {
+    czMarkerPoint = { x: w, y: getYIndex(terrain, slope) };
+    var datasets = czChartInst.data.datasets;
+    datasets[datasets.length-1].data = [czMarkerPoint];
+    czChartInst.update();
+  }
+  // Save to history
+  var entry = {
+    id: Date.now(),
+    section: 'Clear Zone بالميل',
+    inputs: 'سرعة '+speed+' كم/س | '+terrainAr+slopeAr,
+    result: 'Clear Zone = '+w+' م',
+    time: new Date().toLocaleString('ar-SA')
+  };
+  calcHistory.push(entry);
+  try { localStorage.setItem('calcHistory', JSON.stringify(calcHistory)); } catch(e){}
+  renderHistory();
+}
+
 function drawCharts(){
   // CZ Chart
   const czCtx=document.getElementById('czChart').getContext('2d');
-  new Chart(czCtx,{type:'line',data:{
-    labels:['50','60','80','100','110','120','130','140'],
-    datasets:[
-      {label:'PRT 1.2 ث',data:[7,10,20,33,40,45,50,58],borderColor:'#2563a8',backgroundColor:'rgba(37,99,168,.1)',tension:.3,pointRadius:4,fill:true},
-      {label:'PRT 2.5 ث',data:[11,16,27,42,50,60,65,75],borderColor:'#e67e22',backgroundColor:'rgba(230,126,34,.1)',tension:.3,pointRadius:4,fill:true}
-    ]
-  },options:{responsive:true,plugins:{legend:{position:'top'},title:{display:false}},scales:{x:{title:{display:true,text:'سرعة الطريق (كم/س)'}},y:{title:{display:true,text:'Clear Zone (م)'}}}}});
+  // Build slope-based chart: X=CZ width, Y=slope index, 7 speed curves
+  var speeds=[50,60,70,80,90,100,110];
+  var speedColors=['#6366f1','#8b5cf6','#ec4899','#ef4444','#f97316','#22c55e','#0ea5e9'];
+  var czDatasets=speeds.map(function(sp,si){
+    var d=CZ_SLOPE_DATA[sp];
+    return {
+      label:sp+' كم/س',
+      data:[
+        {y:13,x:d.fill[3]},{y:12,x:d.fill[4]},{y:11,x:d.fill[5]},{y:10,x:d.fill[6]},
+        {y:9,x:d.fill[8]},{y:8,x:d.fill[10]},{y:7,x:d.flat},
+        {y:6,x:d.cut[10]},{y:5,x:d.cut[8]},{y:4,x:d.cut[6]},
+        {y:3,x:d.cut[5]},{y:2,x:d.cut[4]},{y:1,x:d.cut[3]}
+      ],
+      borderColor:speedColors[si],backgroundColor:speedColors[si]+'33',
+      fill:false,tension:0.4,pointRadius:3,pointHoverRadius:6,borderWidth:2,showLine:true
+    };
+  });
+  czDatasets.push({
+    label:'◀ نقطة الحساب',
+    data:[],
+    borderColor:'#f59e0b',backgroundColor:'#f59e0b',
+    pointRadius:10,pointHoverRadius:13,pointStyle:'rectRot',showLine:false,order:-1
+  });
+  // Background zones plugin
+  var czBgPlugin = {
+    id:'czBg',
+    beforeDraw:function(chart){
+      var ctx=chart.ctx, yAxis=chart.scales.y, xAxis=chart.scales.x;
+      var top=yAxis.top, bottom=yAxis.bottom;
+      var left=xAxis.left, right=xAxis.right;
+      var flat7top=yAxis.getPixelForValue(7.5);
+      var flat7bot=yAxis.getPixelForValue(6.5);
+      ctx.save();
+      // Fill zone (green)
+      ctx.fillStyle='rgba(34,197,94,0.07)';
+      ctx.fillRect(left,top,right-left,flat7top-top);
+      // Flat zone (blue-gray)
+      ctx.fillStyle='rgba(59,130,246,0.1)';
+      ctx.fillRect(left,flat7top,right-left,flat7bot-flat7top);
+      // Cut zone (orange)
+      ctx.fillStyle='rgba(249,115,22,0.07)';
+      ctx.fillRect(left,flat7bot,right-left,bottom-flat7bot);
+      ctx.restore();
+    }
+  };
+
+  czChartInst=new Chart(czCtx,{
+    type:'scatter',
+    data:{datasets:czDatasets},
+    plugins:[czBgPlugin],
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'top',labels:{font:{family:'Cairo',size:11},boxWidth:16}},
+        tooltip:{callbacks:{label:function(c){
+          return c.dataset.label+': '+(CZ_Y_LABELS[c.parsed.y]||'')+' → '+c.parsed.x+' م';
+        }}}
+      },
+      scales:{
+        x:{
+          title:{display:true,text:'عرض Clear Zone (م)',font:{family:'Cairo',size:12}},
+          min:0,max:22,grid:{color:'rgba(0,0,0,0.07)'}
+        },
+        y:{
+          title:{display:true,text:'نوع الأرض والميل',font:{family:'Cairo',size:12}},
+          min:0.5,max:13.5,
+          ticks:{
+            stepSize:1,
+            callback:function(v){return CZ_Y_LABELS[v]||'';},
+            font:{family:'Cairo',size:10},
+            color:function(c){
+              var v=c.tick.value;
+              if(v>7) return '#15803d';   // green - fill
+              if(v===7) return '#1d4ed8'; // blue - flat
+              return '#c2410c';            // orange - cut
+            }
+          },
+          grid:{
+            color:function(c){return c.tick&&c.tick.value===7?'rgba(59,130,246,0.5)':'rgba(0,0,0,0.07)';},
+            lineWidth:function(c){return c.tick&&c.tick.value===7?2:1;}
+          }
+        }
+      },animation:{duration:400}
+    }
+  });
+
+  // LC Chart (barriers section — same AASHTO data as CZ chart)
+  var lcCtxEl = document.getElementById('lcChart');
+  if (lcCtxEl) {
+    var lcCtx = lcCtxEl.getContext('2d');
+    var lcDatasets = speeds.map(function(sp, si) {
+      var d = CZ_SLOPE_DATA[sp];
+      return {
+        label: sp + ' كم/س',
+        data:[
+          {y:13,x:d.fill[3]},{y:12,x:d.fill[4]},{y:11,x:d.fill[5]},{y:10,x:d.fill[6]},
+          {y:9,x:d.fill[8]},{y:8,x:d.fill[10]},{y:7,x:d.flat},
+          {y:6,x:d.cut[10]},{y:5,x:d.cut[8]},{y:4,x:d.cut[6]},
+          {y:3,x:d.cut[5]},{y:2,x:d.cut[4]},{y:1,x:d.cut[3]}
+        ],
+        borderColor:speedColors[si],backgroundColor:speedColors[si]+'33',
+        fill:false,tension:0.4,pointRadius:3,pointHoverRadius:6,borderWidth:2,showLine:true
+      };
+    });
+    lcDatasets.push({
+      label:'◀ نقطة LC',
+      data:[],
+      borderColor:'#f59e0b',backgroundColor:'#f59e0b',
+      pointRadius:10,pointHoverRadius:13,pointStyle:'rectRot',showLine:false,order:-1
+    });
+    var lcBgPlugin = {
+      id:'lcBg',
+      beforeDraw:function(chart){
+        var ctx=chart.ctx,yAxis=chart.scales.y,xAxis=chart.scales.x;
+        var top=yAxis.top,bottom=yAxis.bottom,left=xAxis.left,right=xAxis.right;
+        var f7t=yAxis.getPixelForValue(7.5),f7b=yAxis.getPixelForValue(6.5);
+        ctx.save();
+        ctx.fillStyle='rgba(34,197,94,0.07)'; ctx.fillRect(left,top,right-left,f7t-top);
+        ctx.fillStyle='rgba(59,130,246,0.1)'; ctx.fillRect(left,f7t,right-left,f7b-f7t);
+        ctx.fillStyle='rgba(249,115,22,0.07)'; ctx.fillRect(left,f7b,right-left,bottom-f7b);
+        ctx.restore();
+      }
+    };
+    lcChartInst = new Chart(lcCtx, {
+      type:'scatter',
+      data:{datasets:lcDatasets},
+      plugins:[lcBgPlugin],
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{position:'top',labels:{font:{family:'Cairo',size:11},boxWidth:16}},
+          tooltip:{callbacks:{label:function(c){
+            return c.dataset.label+': '+(CZ_Y_LABELS[c.parsed.y]||'')+' → LC = '+c.parsed.x+' م';
+          }}}
+        },
+        scales:{
+          x:{
+            title:{display:true,text:'LC — الخلوص الجانبي (م)',font:{family:'Cairo',size:12}},
+            min:0,max:22,grid:{color:'rgba(0,0,0,0.07)'}
+          },
+          y:{
+            title:{display:true,text:'نوع الأرض والميل',font:{family:'Cairo',size:12}},
+            min:0.5,max:13.5,
+            ticks:{
+              stepSize:1,
+              callback:function(v){return CZ_Y_LABELS[v]||'';},
+              font:{family:'Cairo',size:10},
+              color:function(c){
+                var v=c.tick.value;
+                if(v>7) return '#15803d';
+                if(v===7) return '#1d4ed8';
+                return '#c2410c';
+              }
+            },
+            grid:{
+              color:function(c){return c.tick&&c.tick.value===7?'rgba(59,130,246,0.5)':'rgba(0,0,0,0.07)';},
+              lineWidth:function(c){return c.tick&&c.tick.value===7?2:1;}
+            }
+          }
+        },
+        animation:{duration:400}
+      }
+    });
+  }
+
+  // SDC Chart — Sight Distance on Curves (Figure 4-11)
+  var sdcCtxEl = document.getElementById('sdcChart');
+  if(sdcCtxEl){
+    var sdcCtx = sdcCtxEl.getContext('2d');
+    var sdcRadii = [25,50,100,200,300,400,500,750,1000,1500,2000,3000];
+    var sdcColors = ['#6366f1','#8b5cf6','#a855f7','#ec4899','#ef4444','#f97316',
+                     '#eab308','#22c55e','#14b8a6','#0ea5e9','#3b82f6','#64748b'];
+    var sdcDatasets = sdcRadii.map(function(R,ri){
+      var pts=[];
+      for(var Sa=5;Sa<=500;Sa+=5){
+        var m=R*(1-Math.cos(Sa/(2*R)));
+        if(m>0&&m<34) pts.push({x:Sa,y:Math.round(m*100)/100});
+      }
+      return {label:'R='+R+'م',data:pts,borderColor:sdcColors[ri],
+        backgroundColor:'transparent',fill:false,tension:0.4,
+        pointRadius:0,pointHoverRadius:4,borderWidth:1.8,showLine:true};
+    });
+    sdcDatasets.push({
+      label:'◀ نقطة الحساب',data:[],
+      borderColor:'#f59e0b',backgroundColor:'#f59e0b',
+      pointRadius:10,pointHoverRadius:13,pointStyle:'rectRot',showLine:false,order:-1
+    });
+    sdcChartInst=new Chart(sdcCtx,{
+      type:'scatter',data:{datasets:sdcDatasets},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{position:'top',labels:{font:{family:'Cairo',size:10},boxWidth:14,padding:6}},
+          tooltip:{callbacks:{label:function(c){
+            return c.dataset.label+': Sₐ='+c.parsed.x+'م | m='+c.parsed.y+'م';
+          }}}
+        },
+        scales:{
+          x:{title:{display:true,text:'مسافة الرؤية المتاحة Sₐ (م)',font:{family:'Cairo',size:12}},
+            min:0,max:500,grid:{color:'rgba(0,0,0,0.07)'}},
+          y:{title:{display:true,text:'المسافة الجانبية للعائق m (م)',font:{family:'Cairo',size:12}},
+            min:0,max:32,grid:{color:'rgba(0,0,0,0.07)'},ticks:{font:{family:'Cairo',size:10}}}
+        },animation:{duration:400}
+      }
+    });
+  }
 
   // CV Chart
   const cvCtx=document.getElementById('cvChart').getContext('2d');
