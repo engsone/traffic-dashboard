@@ -363,6 +363,61 @@ function showSection(id){
 <section id="s4" class="section">
   <div class="section-title">الحواجز والحمايات المعدنية</div>
 
+  <!-- Symbols Legend -->
+  <div class="calc-card" style="background:var(--card);border-right:4px solid var(--accent)">
+    <div class="calc-title" style="cursor:pointer;user-select:none" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      📐 شرح الرموز المستخدمة <span style="font-size:12px;color:var(--muted)">(اضغط للطي/التوسيع)</span>
+    </div>
+    <div id="barrier-legend">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px">
+        <thead>
+          <tr style="background:var(--primary);color:#fff">
+            <th style="padding:8px 12px;text-align:right;width:80px">الرمز</th>
+            <th style="padding:8px 12px;text-align:right">الاسم</th>
+            <th style="padding:8px 12px;text-align:right">الشرح</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Length of Need</td>
+            <td style="padding:8px 12px;color:var(--muted)">طول الحاجة من حاجز الحماية — الطول المطلوب تنفيذه قبل العائق لضمان اعتراض المركبة المنحرفة ومنع وصولها إلى منطقة الخطر</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">LH</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Lateral Distance to Hazard</td>
+            <td style="padding:8px 12px;color:var(--muted)">المسافة الجانبية إلى العائق — تُقاس أفقياً وبشكل عمودي من حافة مسار القيادة أو خط الكتف إلى أبعد نقطة خلفية للعائق، أو إلى حد Clear Zone إذا كان الخطر ممتداً</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">LR</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Runout Length</td>
+            <td style="padding:8px 12px;color:var(--muted)">طول الانحراف — المسافة النظرية التي قد تقطعها المركبة بعد مغادرتها المسار حتى تتوقف أو تصل إلى العائق. تعتمد على سرعة التصميم وحجم المرور اليومي ADT</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L1</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">—</td>
+            <td style="padding:8px 12px;color:var(--muted)">المسافة الطولية الموازية لمحور الطريق، من بداية حاجز الحماية حتى بداية العائق. تُعتمد كقيمة ثابتة حسب حالة التصميم (مثال: 8م أو 10م)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L2</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">—</td>
+            <td style="padding:8px 12px;color:var(--muted)">المسافة الجانبية بين حافة مسار القيادة وبداية حاجز الحماية — تمثل موقع تركيب الحاجز بالنسبة للطريق ومدى إبعاده عن حافة المسار</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">b/a</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Flare Rate</td>
+            <td style="padding:8px 12px;color:var(--muted)">معدل انحراف الحاجز الجانبي — نسبة التدرج التي يُسحب بها الحاجز بعيداً عن حافة الطريق تدريجياً، لتقليل احتمالية الاصطدام المباشر بالنهاية وتحسين سلوك المركبة عند الانحراف</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L0</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">—</td>
+            <td style="padding:8px 12px;color:var(--muted)">طول العائق بموازاة الطريق — الطول الفعلي للعنصر الخطير المراد حمايته قياساً بمحور الطريق</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="calc-card" id="barrier-L-card">
     <div class="calc-title">حاسبة مسافة الحماية L</div>
     <div class="eq-box">L = [LH + (b/a)(L1 − L2)] / [(b/a) + (LH/LR)]</div>
@@ -2840,115 +2895,3 @@ function drawCharts(){
       plugins:[lcBgPlugin],
       options:{
         responsive:true, maintainAspectRatio:false,
-        plugins:{
-          legend:{position:'top',labels:{font:{family:'Cairo',size:11},boxWidth:16}},
-          tooltip:{callbacks:{label:function(c){
-            return c.dataset.label+': '+(CZ_Y_LABELS[c.parsed.y]||'')+' → LC = '+c.parsed.x+' م';
-          }}}
-        },
-        scales:{
-          x:{
-            title:{display:true,text:'LC — الخلوص الجانبي (م)',font:{family:'Cairo',size:12}},
-            min:0,max:22,grid:{color:'rgba(0,0,0,0.07)'}
-          },
-          y:{
-            title:{display:true,text:'نوع الأرض والميل',font:{family:'Cairo',size:12}},
-            min:0.5,max:13.5,
-            ticks:{
-              stepSize:1,
-              callback:function(v){return CZ_Y_LABELS[v]||'';},
-              font:{family:'Cairo',size:10},
-              color:function(c){
-                var v=c.tick.value;
-                if(v>7) return '#15803d';
-                if(v===7) return '#1d4ed8';
-                return '#c2410c';
-              }
-            },
-            grid:{
-              color:function(c){return c.tick&&c.tick.value===7?'rgba(59,130,246,0.5)':'rgba(0,0,0,0.07)';},
-              lineWidth:function(c){return c.tick&&c.tick.value===7?2:1;}
-            }
-          }
-        },
-        animation:{duration:400}
-      }
-    });
-  }
-
-  // SDC Chart — Sight Distance on Curves (Figure 4-11)
-  var sdcCtxEl = document.getElementById('sdcChart');
-  if(sdcCtxEl){
-    var sdcCtx = sdcCtxEl.getContext('2d');
-    var sdcRadii = [25,50,100,200,300,400,500,750,1000,1500,2000,3000];
-    var sdcColors = ['#6366f1','#8b5cf6','#a855f7','#ec4899','#ef4444','#f97316',
-                     '#eab308','#22c55e','#14b8a6','#0ea5e9','#3b82f6','#64748b'];
-    var sdcDatasets = sdcRadii.map(function(R,ri){
-      var pts=[];
-      for(var Sa=5;Sa<=500;Sa+=5){
-        var m=R*(1-Math.cos(Sa/(2*R)));
-        if(m>0&&m<34) pts.push({x:Sa,y:Math.round(m*100)/100});
-      }
-      return {label:'R='+R+'م',data:pts,borderColor:sdcColors[ri],
-        backgroundColor:'transparent',fill:false,tension:0.4,
-        pointRadius:0,pointHoverRadius:4,borderWidth:1.8,showLine:true};
-    });
-    sdcDatasets.push({
-      label:'◀ نقطة الحساب',data:[],
-      borderColor:'#f59e0b',backgroundColor:'#f59e0b',
-      pointRadius:10,pointHoverRadius:13,pointStyle:'rectRot',showLine:false,order:-1
-    });
-    sdcChartInst=new Chart(sdcCtx,{
-      type:'scatter',data:{datasets:sdcDatasets},
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        plugins:{
-          legend:{position:'top',labels:{font:{family:'Cairo',size:10},boxWidth:14,padding:6}},
-          tooltip:{callbacks:{label:function(c){
-            return c.dataset.label+': Sₐ='+c.parsed.x+'م | m='+c.parsed.y+'م';
-          }}}
-        },
-        scales:{
-          x:{title:{display:true,text:'مسافة الرؤية المتاحة Sₐ (م)',font:{family:'Cairo',size:12}},
-            min:0,max:500,grid:{color:'rgba(0,0,0,0.07)'}},
-          y:{title:{display:true,text:'المسافة الجانبية للعائق m (م)',font:{family:'Cairo',size:12}},
-            min:0,max:32,grid:{color:'rgba(0,0,0,0.07)'},ticks:{font:{family:'Cairo',size:10}}}
-        },animation:{duration:400}
-      }
-    });
-  }
-
-  // CV Chart
-  const cvCtx=document.getElementById('cvChart').getContext('2d');
-  const vSpeeds=['20','30','40','50','60','70','80','90','100','110','120','130','140'];
-  new Chart(cvCtx,{type:'line',data:{
-    labels:vSpeeds,
-    datasets:[
-      {label:'e=4%',data:vSpeeds.map(v=>CV_DATA[v].e4),borderColor:'#1a3a5c',tension:.3,pointRadius:3},
-      {label:'e=6%',data:vSpeeds.map(v=>CV_DATA[v].e6),borderColor:'#2563a8',tension:.3,pointRadius:3},
-      {label:'e=8%',data:vSpeeds.map(v=>CV_DATA[v].e8),borderColor:'#16a34a',tension:.3,pointRadius:3},
-      {label:'e=10%',data:vSpeeds.map(v=>CV_DATA[v].e10),borderColor:'#e67e22',tension:.3,pointRadius:3},
-      {label:'e=12%',data:vSpeeds.map(v=>CV_DATA[v].e12),borderColor:'#dc2626',tension:.3,pointRadius:3}
-    ]
-  },options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{title:{display:true,text:'سرعة التصميم (كم/س)'}},y:{title:{display:true,text:'نصف القطر R (م)'}}}}});
-
-  // SSD Chart
-  const ssdCtx=document.getElementById('ssdChart').getContext('2d');
-  const vArr=[40,50,60,70,80,90,100,110,120];
-  const ssdF=0.35,ssdT=2.5;
-  function ssdCalc(v){return 0.278*v*ssdT + (v*v)/(254*ssdF);}
-  new Chart(ssdCtx,{type:'line',data:{
-    labels:vArr,
-    datasets:[{label:'SSD (f=0.35, t=2.5s, مستوٍ)',data:vArr.map(ssdCalc),borderColor:'#2563a8',backgroundColor:'rgba(37,99,168,.1)',tension:.3,pointRadius:4,fill:true}]
-  },options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{title:{display:true,text:'السرعة (كم/س)'}},y:{title:{display:true,text:'SSD (م)'}}}}});
-}
-
-// Charts init on load
-window.addEventListener('load', function(){
-  if(typeof Chart !== 'undefined') drawCharts();
-});
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" onload="drawCharts()"></script>
-</body>
-</html>
-                                                                                   
