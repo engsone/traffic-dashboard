@@ -1,0 +1,3079 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>داشبورد هندسة المرور</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#1a3a5c;--primary-light:#2563a8;--accent:#e67e22;
+  --bg:#f0f4f8;--card:#fff;--border:#c9d9ea;--text:#1a2636;
+  --muted:#5a7898;--success:#16a34a;--warn:#b45309;--error:#dc2626;
+  --radius:8px;--shadow:0 2px 8px rgba(0,0,0,.1);
+}
+body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);direction:rtl;min-height:100vh;font-size:14px}
+/* Layout */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:240px;min-width:240px;background:var(--primary);color:#fff;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:100}
+.sidebar-header{padding:16px;border-bottom:1px solid rgba(255,255,255,.15);text-align:center}
+.sidebar-header h1{font-size:15px;font-weight:700;line-height:1.4;color:#fff}
+.sidebar-header p{font-size:11px;color:rgba(255,255,255,.6);margin-top:4px}
+.nav-list{padding:8px 0;flex:1}
+.nav-item{display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;color:rgba(255,255,255,.8);font-size:13px;border-right:3px solid transparent;transition:.2s}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-item.active{background:rgba(255,255,255,.12);color:#fff;border-right-color:var(--accent)}
+.nav-item .nav-icon{font-size:16px;min-width:20px;text-align:center}
+.main{flex:1;overflow-x:hidden}
+/* Sections — CSS :target navigation (works on iOS local files, zero JS required) */
+.section{display:none;padding:20px;max-width:1200px}
+.section.active{display:block}
+/* CSS-only fallback: show targeted section (for iOS local files where JS is blocked) */
+.section:target{display:block}
+/* When any section is targeted via URL hash, hide the default active section */
+body:has(.section:target) .section.active{display:none}
+/* But keep the targeted one visible even if it also has .active */
+body:has(.section:target) .section:target{display:block}
+.section-title{font-size:18px;font-weight:700;color:var(--primary);border-bottom:2px solid var(--primary-light);padding-bottom:8px;margin-bottom:20px}
+/* Cards */
+.calc-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.calc-title{font-size:14px;font-weight:700;color:var(--primary);margin-bottom:4px}
+.eq-box{background:#f7fafc;border:1px solid #dbe7f3;border-radius:4px;padding:8px 12px;font-family:"Courier New",monospace;font-size:13px;text-align:center;direction:ltr;margin:8px 0;color:#1a3a5c;font-weight:600}
+.source-tag{font-size:11px;color:var(--muted);margin-bottom:10px}
+/* Form */
+.form-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.field{display:flex;flex-direction:column;gap:3px;min-width:140px;flex:1}
+.field label{font-size:12px;font-weight:600;color:var(--muted)}
+.field input,.field select{padding:7px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:inherit;background:#fff;direction:rtl;width:100%}
+.field input:focus,.field select:focus{outline:none;border-color:var(--primary-light);box-shadow:0 0 0 2px rgba(37,99,168,.15)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.btn{padding:7px 16px;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;transition:.2s}
+.btn-primary{background:var(--primary-light);color:#fff}
+.btn-primary:hover{background:var(--primary)}
+.btn-reset{background:#e5eaf0;color:var(--text)}
+.btn-copy{background:#e0f0e8;color:#16a34a}
+/* Result */
+.result-box{background:#eaf2fb;border:1px solid #b8d4f0;border-radius:4px;padding:10px 14px;margin-top:10px;display:none}
+.result-box.show{display:block}
+.result-value{font-size:18px;font-weight:700;color:var(--primary)}
+.result-unit{font-size:12px;color:var(--muted);margin-right:4px}
+.result-steps{margin-top:6px;font-size:12px;color:var(--text);line-height:1.7;direction:rtl}
+/* Alerts */
+.alert{padding:8px 12px;border-radius:4px;font-size:12px;margin-top:6px;display:none}
+.alert.show{display:block}
+.alert-warn{background:#fef3c7;border:1px solid #f59e0b;color:#92400e}
+.alert-error{background:#fee2e2;border:1px solid #f87171;color:#991b1b}
+.alert-ok{background:#dcfce7;border:1px solid #86efac;color:#15803d}
+/* Tables */
+.table-wrap{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th,td{border:1px solid var(--border);padding:6px 8px;text-align:center;vertical-align:middle;white-space:nowrap}
+th{background:#eaf2fb;color:var(--primary);font-weight:700}
+tr:hover td{background:#f7fafc}
+td.hit{background:#fff3cd;font-weight:700;color:var(--accent)}
+td.na{color:#aaa}
+/* Lookup */
+.lookup-row{background:#f7fafc;border:1px solid var(--border);border-radius:4px;padding:12px;margin-top:10px}
+.lookup-title{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px}
+/* Chart */
+.chart-container{margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.chart-title{font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;text-align:center}
+.dwg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.dwg-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;transition:.2s}
+.dwg-card:hover{border-color:var(--primary);box-shadow:0 2px 8px rgba(37,99,168,.12)}
+.dwg-icon{font-size:28px;text-align:center}
+.dwg-name{font-size:13px;font-weight:700;color:var(--text);text-align:center;line-height:1.5}
+.dwg-eng{font-size:10px;color:var(--muted);text-align:center;line-height:1.4}
+.dwg-btn{text-align:center;text-decoration:none;display:block;margin-top:auto;font-size:12px;padding:7px 10px}
+.dwg-card.hidden{display:none}
+canvas{max-width:100%;height:300px!important}
+/* History */
+.history-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:20px}
+.history-table td{font-size:11px;white-space:normal;text-align:right}
+.history-table td:last-child{direction:ltr;text-align:center}
+/* Divider */
+.divider{border:none;border-top:1px dashed var(--border);margin:16px 0}
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap}
+  .nav-list{display:flex;flex-wrap:wrap;padding:4px}
+  .nav-item{border-right:none;border-bottom:3px solid transparent;font-size:11px;padding:6px 10px}
+  .layout{flex-direction:column}
+  .section{padding:12px}
+}
+/* Tabs */
+.tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border);flex-wrap:wrap}
+.tab{padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s}
+.tab.active{color:var(--primary-light);border-bottom-color:var(--primary-light)}
+.tab-content{display:none}.tab-content.active{display:block}
+/* Nav buttons - iOS fix */
+.nav-item{background:none;border:none;text-align:right;width:100%;font-family:inherit;-webkit-tap-highlight-color:rgba(255,255,255,.2);touch-action:manipulation}
+.mobile-select-wrap{display:none}
+/* Mobile horizontal button bar — sits between sidebar and main, never inside sidebar */
+.mob-nav-bar{display:none}
+@media(max-width:768px){
+  .sidebar .nav-list{display:none}
+  .sidebar{overflow:visible}
+  .sidebar-header{text-align:right;padding:10px 14px}
+  /* mob-nav-bar is a direct child of .layout which is flex-column on mobile */
+  .mob-nav-bar{
+    display:flex;overflow-x:auto;gap:6px;padding:8px 12px;
+    background:#152e4a;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;width:100%;box-sizing:border-box;
+    border-bottom:2px solid rgba(255,255,255,.15);
+    position:sticky;top:0;z-index:150;
+  }
+  .mob-nav-bar::-webkit-scrollbar{display:none}
+  .mob-btn{
+    white-space:nowrap;padding:8px 16px;border:1px solid rgba(255,255,255,.3);
+    border-radius:20px;background:transparent;color:rgba(255,255,255,.8);
+    font-size:13px;font-family:inherit;cursor:pointer;flex-shrink:0;
+    -webkit-tap-highlight-color:rgba(255,255,255,.2);touch-action:manipulation;
+    -webkit-appearance:none;
+  }
+  .mob-btn.active{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.7);font-weight:700;}
+}
+/* Scroll-link */
+.scroll-btn{font-size:11px;color:var(--primary-light);cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block}
+/* Export */
+#export-bar{position:fixed;bottom:16px;left:16px;z-index:200;display:flex;gap:8px}
+.btn-export{background:var(--primary);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:12px;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+</style>
+<!-- showSection defined early in <head> so it's available before body scripts load -->
+<script>
+function showSection(id){
+  var all=document.querySelectorAll('.section');
+  for(var i=0;i<all.length;i++){all[i].style.display='none';all[i].classList.remove('active');}
+  var navBtns=document.querySelectorAll('.nav-item');
+  for(var j=0;j<navBtns.length;j++){navBtns[j].classList.remove('active');}
+  var target=document.getElementById(id);
+  if(!target)return;
+  target.style.display='block';
+  target.classList.add('active');
+  var btn=document.querySelector('[data-sec="'+id+'"]');
+  if(btn)btn.classList.add('active');
+  var mobBtns=document.querySelectorAll('.mob-btn');
+  for(var k=0;k<mobBtns.length;k++)mobBtns[k].classList.remove('active');
+  var mobActive=document.getElementById('mob-'+id);
+  if(mobActive){mobActive.classList.add('active');try{mobActive.scrollIntoView({block:'nearest',inline:'center'});}catch(e){}}
+  window.scrollTo(0,0);
+}
+</script>
+</head>
+<!-- ontouchstart="" = classic iOS fix: activates click events on all elements -->
+<body ontouchstart="">
+<div class="layout">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.15)">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK0AAAB4CAYAAACAXHLfAAAmu0lEQVR42u2ceZyU1ZX3f+feZ6mq3hsRwRiNWyKYjOMyycQ4RE1exwSJiXZPFjXrQNQgIF1dXc3y9MPSK40i6gxoNMlokumexASXmAwTRR2NiUpMQgcVFZRNlqabru1Z7j3vH1WFLYKCmneW9/ny4UNT/dz73Huec88995zzFBARERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERHxF4VBAOgIWtA7aBMR8d7jOI6Y7DgGmA+mjDTZcYyGhgYZSep/6cPv6+uTjuOI/+KhvK0lnNqVrGrodeoPvHa0ch5MURs6UzWf7Wip+4sN7DDa86h/8d9A0P+dxvM/fZyHWlkCbS5PbZtxGknrX0B0jFb6aSJaozX/8D532W7HccTAwAD19/erT8+5oiJeO64RGheDcI4gCnUYfHO1u/xRx3HIdV19JLd/t6uZD/j3LR+U4zjG4VoQ583byeG0P5LxvIm+vj7Z0NAnj+z5OcJxHKNsABoaGmTp/0ckt/K8ksn0+QsXtT+QTKYvPZSleqcLZbT8mJkcxzH4jdv5/p+bW9Krr0/N/cTose3HdTXAWO2uGAj94IvQeC1RW32JYZnLpRR/mLJg1pWu6+r+/n712fkzL4rXHvOMlMYd8erKBgCG9oMrVrvLH8E7UNj3wtJGvFfnGWYiIk6mWv+UiMXv87zsHbZtb2xra2MiOoxFyMQMENE7XrSjLX9zqnVnSOJbyzoXr25oaJD9/f3qTS7AxImy33V9AJjadv0twpDXsGYYtoUgl/0mQK8I0/oVmAmCoMPwp7szQ197vOeOkQbHsTAwoPr7+/WRjtd4pxNzHCeRzwd/ZIFeMF8jQMu6utrvcBzHcF03LD0ElM3/nDlzjq+srluUz2b+o7u78/sNDQ1y4sSJXFy4LhefW/HBzZ49Oy7N2M2SsLmrq2MhALS0tJwai1fPL+Szqzs7l/SPEuT+8eTywXoCloP0P5IUvV3t7Xc6jiNd1w1HK0dbWxuNui9K7Y183l/OxJmers7Ugdb0dSNTHGv5/s3N6cZERcUl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6xa08i4E0e2CRIaB57WmJzLx+FAum1tikPGbol+MR3P57GKttU7EzOsK+XyahNjFhJ0gXhOLxTyw7iLi7wLADTfMybPGpQB+SYRdrOnafCHXSwZZDLoNzB2ldGtYKudazczXlGKhMcdxDClEixD0/WVLlrxayOcvNQ3rcYAeK+Sz8wh8UzEVTm1eoXCzEOJVgHZAUDuzvrPoAlg7M9mRJaHQL/d2LXl4eGjv5ULI56SQLwwPDTUu7ez8lZS8fSQzskQotbnkNuzMZDNLlOIXurq6XslmMlebpvksQM85jiNY4Sbf93+ntR4hpZ4EgINGDQ4RtnRdaHYg6HzKfDv586+eUPPYtbXxHTmlJYS0FscT/jOs9fu0ZilQ4BA19pbMBdfe/J9XPDmu+kWcVPvgUyfXPzxj1ifvPreosJONI61Nec/ToIcbp30v46b/PxXPHPDpW2URD1kA1ZRseUIIEXR3tf/dAcUw+2Weaml9VUNc3dO5+L6DfScBM6ixsU/09zeqX9zx/jM37Pi724b9E8/MexJa5bUgIRhQBPVzpeXZVdW1749jw2sTj374m1Omv3Q/QHAcFq6LIy6melv34MBSu3J53cHK+QYGBpiIVLns7RAlccZBSv4AQEyaNInXr19PAwMDfJA0MDmO8wbfq3xd+X4Hti/d6w2leOUd48C+XNcN+/r6ZH9///4U9KHmMTAwQAeWH5bT2qPHPfqeZTnuH/ukSdzf2KgOKFfUkyZNolFjIMdx9st6dPnlpEmTuLGR9rcvl0Yeqs327dvJdd2gqanpGMM0/yZU4SwAdJAv6Sgr5ZBifcj334jAQKNynMnGxd9Y+wy/fNe5t//0okU7cOrsfDhW+n6oSdC+QlDXWWnv3TImvuGCvxp7x6PnfRWvOM5ko81dq+gdKOz/ioKTiCNj9uzZ8erqo8cPDia2rlgx85C1EbMdp766+G01/tvuAg4EuaQBxv23nXruxl1nLR4qjP0kCQsxY2jb+Ko/XHblzN/+BiD09V0uGw+zbjYi4i/rvgBUrgQjAA/cfvJf998y6eMvlqrBivUhEJGkIt4Rh1Mowwf/Ru+3V17HEUVfO9rRI/6nWV4Hoq+vQZYzhxERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERb8X/BbaQKMbKoUtRAAAAAElFTkSuQmCC" alt="الهيئة العامة للطرق" style="height:53px;object-fit:contain;filter:brightness(0) invert(1);">
+      <img src="data:image/png;base64,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" alt="Euro Group" style="height:53px;object-fit:contain;filter:brightness(0) invert(1);">
+    </div>
+    <h1>🚗 داشبورد هندسة المرور</h1>
+    <p>كود الطرق السعودي</p>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.15)">
+      <div style="font-size:13px;font-weight:700;color:#fff">م. حسان عبد الله الحلبي</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:2px">كبير مهندسين — منطقة تبوك</div>
+    </div>
+  </div>
+  <div class="nav-list">
+    <button class="nav-item active" onclick="showSection('s1')" data-sec="s1"><span class="nav-icon">↔️</span>التحويلات ومناطق العمل</button>
+    <button class="nav-item" onclick="showSection('s2')" data-sec="s2"><span class="nav-icon">🎨</span>الدهانات والعلامات الأرضية</button>
+    <button class="nav-item" onclick="showSection('s3')" data-sec="s3"><span class="nav-icon">〰️</span>المطبات الاهتزازية</button>
+    <button class="nav-item" onclick="showSection('s4')" data-sec="s4"><span class="nav-icon">🛡️</span>الحواجز والحمايات المعدنية</button>
+    <button class="nav-item" onclick="showSection('s5')" data-sec="s5"><span class="nav-icon">📏</span>الخلوص الجانبي Clear Zone</button>
+    <button class="nav-item" onclick="showSection('s6')" data-sec="s6"><span class="nav-icon">🔄</span>المنحنيات الأفقية والسرعة الآمنة</button>
+    <button class="nav-item" onclick="showSection('s7')" data-sec="s7"><span class="nav-icon">📐</span>المنحنيات الرأسية</button>
+    <button class="nav-item" onclick="showSection('s8')" data-sec="s8"><span class="nav-icon">👁️</span>مسافة الرؤية SSD</button>
+    <button class="nav-item" onclick="showSection('s9')" data-sec="s9"><span class="nav-icon">🛣️</span>مسافة الرؤية للتجاوز PSD</button>
+    <button class="nav-item" onclick="showSection('s10')" data-sec="s10"><span class="nav-icon">🚀</span>حارات التسارع والتباطؤ</button>
+    <button class="nav-item" onclick="showSection('s12')" data-sec="s12"><span class="nav-icon">📚</span>المراجع</button>
+    <button class="nav-item" onclick="showSection('s11')" data-sec="s11"><span class="nav-icon">📐</span>المخططات القياسية</button>
+    <button class="nav-item" onclick="showSection('shist')" data-sec="shist"><span class="nav-icon">📋</span>سجل الحسابات</button>
+  </div>
+</nav>
+<!-- Mobile nav bar — href="#sX" = native browser hash navigation, no JS needed (iOS safe) -->
+<div class="mob-nav-bar" id="mob-nav-bar">
+  <a class="mob-btn active" id="mob-s1"    href="#s1"    onclick="showSection('s1');return false;">↔️ التحويلات</a>
+  <a class="mob-btn"        id="mob-s2"    href="#s2"    onclick="showSection('s2');return false;">🎨 الدهانات</a>
+  <a class="mob-btn"        id="mob-s3"    href="#s3"    onclick="showSection('s3');return false;">〰️ المطبات</a>
+  <a class="mob-btn"        id="mob-s4"    href="#s4"    onclick="showSection('s4');return false;">🛡️ الحواجز</a>
+  <a class="mob-btn"        id="mob-s5"    href="#s5"    onclick="showSection('s5');return false;">📏 Clear Zone</a>
+  <a class="mob-btn"        id="mob-s6"    href="#s6"    onclick="showSection('s6');return false;">🔄 منحنيات H</a>
+  <a class="mob-btn"        id="mob-s7"    href="#s7"    onclick="showSection('s7');return false;">📐 منحنيات V</a>
+  <a class="mob-btn"        id="mob-s8"    href="#s8"    onclick="showSection('s8');return false;">👁️ SSD</a>
+  <a class="mob-btn"        id="mob-s9"    href="#s9"    onclick="showSection('s9');return false;">🛣️ PSD</a>
+  <a class="mob-btn"        id="mob-s10"   href="#s10"   onclick="showSection('s10');return false;">🚀 التسارع</a>
+  <a class="mob-btn" id="mob-s12" href="#s12" onclick="showSection('s12');return false;">📚 المراجع</a>
+  <a class="mob-btn" id="mob-s11" href="#s11" onclick="showSection('s11');return false;">📐 المخططات</a>
+  <a class="mob-btn"        id="mob-shist" href="#shist" onclick="showSection('shist');return false;">📋 السجل</a>
+</div>
+<!-- MAIN -->
+<main class="main">
+<!-- SECTION 1: Taper Length -->
+<section id="s1" class="section active">
+  <div class="section-title">التحويلات ومناطق العمل</div>
+
+  <div class="calc-card">
+    <div class="calc-title">حاسبة طول منطقة الانتقال Taper Length (بالمعادلة)</div>
+    <div class="eq-box" id="taper-eq-display">L = (W × S²) / 155.4 &nbsp;|&nbsp; L = (W × S) / 1.61</div>
+    <div class="source-tag">المصدر: ص 10 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>عرض الحارة W (متر)</label><input type="number" id="taper-W" placeholder="مثال: 3.75" min="0" step="0.01"></div>
+      <div class="field"><label>السرعة S (كم/س)</label><input type="number" id="taper-S" placeholder="مثال: 80" min="0" step="1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcTaper()">احسب</button>
+      <button class="btn btn-reset" onclick="resetCalc('taper')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('taper-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="taper-result">
+      <div><span class="result-value" id="taper-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="taper-steps"></div>
+    </div>
+    <div class="alert" id="taper-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">حاسبة Taper Length بالنسبة (Ratio × Lane Width)</div>
+    <div class="eq-box">Taper Length = Ratio × Lane Width</div>
+    <div class="source-tag">المصدر: ص 10 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field">
+        <label>النسبة Ratio</label>
+        <select id="taper-ratio">
+          <option value="70">70:1</option>
+          <option value="50">50:1</option>
+          <option value="25">25:1</option>
+          <option value="custom">مخصص</option>
+        </select>
+      </div>
+      <div class="field" id="taper-custom-wrap" style="display:none">
+        <label>قيمة النسبة المخصصة</label>
+        <input type="number" id="taper-custom-ratio" placeholder="مثال: 40" min="1">
+      </div>
+      <div class="field"><label>عرض الحارة (متر)</label><input type="number" id="taper-lw" placeholder="مثال: 3.75" min="0" step="0.01"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcTaperRatio()">احسب</button>
+      <button class="btn btn-reset" onclick="resetCalc('taperR')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('taperR-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="taperR-result">
+      <div><span class="result-value" id="taperR-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="taperR-steps"></div>
+    </div>
+    <div class="alert" id="taperR-alert"></div>
+  </div>
+</section>
+
+<!-- SECTION 2: Paint -->
+<section id="s2" class="section">
+  <div class="section-title">الدهانات والعلامات الأرضية</div>
+
+  <div class="calc-card">
+    <div class="calc-title">كمية الدهان الأصفر</div>
+    <div class="eq-box">A = L × 0.20</div>
+    <div class="source-tag">المصدر: ص 22 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>الطول L (متر)</label><input type="number" id="py-L" placeholder="مثال: 500" min="0"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcPaintYellow()">احسب</button>
+      <button class="btn btn-reset" onclick="resetCalc('py')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('py-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="py-result"><div><span class="result-value" id="py-result-val">—</span><span class="result-unit">م²</span></div><div class="result-steps" id="py-steps"></div></div>
+    <div class="alert" id="py-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">كمية الدهان الأبيض المتقطع</div>
+    <div class="eq-box">A = (L × W) / 3</div>
+    <div class="source-tag">المصدر: ص 22 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>الطول L (متر)</label><input type="number" id="pdw-L" placeholder="مثال: 500" min="0"></div>
+      <div class="field"><label>العرض W (متر)</label><input type="number" id="pdw-W" placeholder="مثال: 0.15" min="0" step="0.01"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcPaintDash()">احسب</button>
+      <button class="btn btn-reset" onclick="resetCalc('pdw')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('pdw-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="pdw-result"><div><span class="result-value" id="pdw-result-val">—</span><span class="result-unit">م²</span></div><div class="result-steps" id="pdw-steps"></div></div>
+    <div class="alert" id="pdw-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">كمية الدهان الأبيض المتصل</div>
+    <div class="eq-box">A = L × W × 2</div>
+    <div class="source-tag">المصدر: ص 22 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>الطول L (متر)</label><input type="number" id="psw-L" placeholder="مثال: 500" min="0"></div>
+      <div class="field"><label>العرض W (متر)</label><input type="number" id="psw-W" placeholder="مثال: 0.15" min="0" step="0.01"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcPaintSolid()">احسب</button>
+      <button class="btn btn-reset" onclick="resetCalc('psw')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('psw-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="psw-result"><div><span class="result-value" id="psw-result-val">—</span><span class="result-unit">م²</span></div><div class="result-steps" id="psw-steps"></div></div>
+    <div class="alert" id="psw-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">المطبات المشطية بالدهانات</div>
+    <div class="eq-box">A = 1.5 × W × X</div>
+    <div class="source-tag">المصدر: ص 25 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>العرض W (متر)</label><input type="number" id="hb-W" placeholder="مثال: 3.75" min="0" step="0.01"></div>
+      <div class="field"><label>X (عدد الشرائط)</label><input type="number" id="hb-X" placeholder="مثال: 5" min="1" step="1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcHatch()">احسب</button>
+      <button class="btn btn-reset" onclick="resetCalc('hb')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('hb-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="hb-result"><div><span class="result-value" id="hb-result-val">—</span><span class="result-unit">م²</span></div><div class="result-steps" id="hb-steps"></div></div>
+    <div class="alert" id="hb-alert"></div>
+  </div>
+</section>
+
+<!-- SECTION 3: Rumble Strips -->
+<section id="s3" class="section">
+  <div class="section-title">المطبات الاهتزازية Rumble Strips</div>
+  <div class="calc-card">
+    <div class="calc-title">حاسبة طول Rumble Strips</div>
+    <div class="eq-box">Lr = L × 0.60</div>
+    <div class="source-tag">المصدر: ص 27 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>طول القطاع L (متر)</label><input type="number" id="rs-L" placeholder="مثال: 200" min="0"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcRumble()">احسب</button>
+      <button class="btn btn-reset" onclick="resetCalc('rs')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('rs-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="rs-result"><div><span class="result-value" id="rs-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="rs-steps"></div></div>
+    <div class="alert" id="rs-alert"></div>
+  </div>
+</section>
+<!-- SECTION 4: Barriers -->
+<section id="s4" class="section">
+  <div class="section-title">الحواجز والحمايات المعدنية</div>
+
+  <!-- Symbols Legend -->
+  <div class="calc-card" style="background:var(--card);border-right:4px solid var(--accent)">
+    <div class="calc-title" style="cursor:pointer;user-select:none" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      📐 شرح الرموز المستخدمة <span style="font-size:12px;color:var(--muted)">(اضغط للطي/التوسيع)</span>
+    </div>
+    <div id="barrier-legend">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px">
+        <thead>
+          <tr style="background:var(--primary);color:#fff">
+            <th style="padding:8px 12px;text-align:right;width:80px">الرمز</th>
+            <th style="padding:8px 12px;text-align:right">الاسم</th>
+            <th style="padding:8px 12px;text-align:right">الشرح</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Length of Need</td>
+            <td style="padding:8px 12px;color:var(--muted)">طول الحاجة من حاجز الحماية — الطول المطلوب تنفيذه قبل العائق لضمان اعتراض المركبة المنحرفة ومنع وصولها إلى منطقة الخطر</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">LH</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Lateral Distance to Hazard</td>
+            <td style="padding:8px 12px;color:var(--muted)">المسافة الجانبية إلى العائق — تُقاس أفقياً وبشكل عمودي من حافة مسار القيادة أو خط الكتف إلى أبعد نقطة خلفية للعائق، أو إلى حد Clear Zone إذا كان الخطر ممتداً</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">LR</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Runout Length</td>
+            <td style="padding:8px 12px;color:var(--muted)">طول الانحراف — المسافة النظرية التي قد تقطعها المركبة بعد مغادرتها المسار حتى تتوقف أو تصل إلى العائق. تعتمد على سرعة التصميم وحجم المرور اليومي ADT</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L1</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">—</td>
+            <td style="padding:8px 12px;color:var(--muted)">المسافة الطولية الموازية لمحور الطريق، من بداية حاجز الحماية حتى بداية العائق. تُعتمد كقيمة ثابتة حسب حالة التصميم (مثال: 8م أو 10م)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L2</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">—</td>
+            <td style="padding:8px 12px;color:var(--muted)">المسافة الجانبية بين حافة مسار القيادة وبداية حاجز الحماية — تمثل موقع تركيب الحاجز بالنسبة للطريق ومدى إبعاده عن حافة المسار</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">b/a</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Flare Rate</td>
+            <td style="padding:8px 12px;color:var(--muted)">معدل انحراف الحاجز الجانبي — نسبة التدرج التي يُسحب بها الحاجز بعيداً عن حافة الطريق تدريجياً، لتقليل احتمالية الاصطدام المباشر بالنهاية وتحسين سلوك المركبة عند الانحراف</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L0</td>
+            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">—</td>
+            <td style="padding:8px 12px;color:var(--muted)">طول العائق بموازاة الطريق — الطول الفعلي للعنصر الخطير المراد حمايته قياساً بمحور الطريق</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="calc-card" id="barrier-L-card">
+    <div class="calc-title">حاسبة مسافة الحماية L</div>
+    <div class="eq-box">L = [LH + (b/a)(L1 − L2)] / [(b/a) + (LH/LR)]</div>
+    <div class="source-tag">المصدر: ص 30 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>LH (متر)</label><input type="number" id="br-LH" placeholder="مثال: 12" min="0" step="0.1"></div>
+      <div class="field">
+        <label>b/a (نسبة أو عشري، مثال: 15:1 أو 0.0667)</label>
+        <input type="text" id="br-ba" placeholder="مثال: 15:1 أو 0.0667">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>L1 (متر)</label><input type="number" id="br-L1" placeholder="مثال: 50" min="0" step="0.1"></div>
+      <div class="field"><label>L2 (متر)</label><input type="number" id="br-L2" placeholder="مثال: 20" min="0" step="0.1"></div>
+      <div class="field"><label>LR (متر)</label><input type="number" id="br-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
+    </div>
+    <div style="margin:10px 0 4px;display:flex;align-items:center;gap:8px">
+      <input type="checkbox" id="br-single" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer">
+      <label for="br-single" style="font-size:13px;cursor:pointer;color:var(--text)">🛣️ طريق مفرد — احسب الحاجز الإضافي للمرور المعاكس تلقائياً</label>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcBarrier()">احسب L</button>
+      <button class="btn btn-reset" onclick="resetCalc('br')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('br-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="br-result">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:2px" id="br-label-approach">L — مسافة الحماية</div>
+      <div><span class="result-value" id="br-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="br-steps"></div>
+      <div id="br-single-result" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #cbd5e1">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L_add — الحاجز الإضافي للمرور المعاكس (Fig. 1.15.11 | LH+3.65، L2+3.65)</div>
+        <div><span class="result-value" id="br-result-add">—</span><span class="result-unit">م</span></div>
+        <div class="result-steps" id="br-steps-add"></div>
+      </div>
+      <span class="scroll-btn" onclick="document.getElementById('total-barrier-card').scrollIntoView({behavior:'smooth'})">← انتقل لحساب الطول الكلي Lt</span>
+    </div>
+    <div class="alert" id="br-alert"></div>
+  </div>
+
+  <div class="calc-card" id="barrier-L2-card">
+    <div class="calc-title">حاسبة مسافة الحماية L — عند تعذّر تنفيذ الفلير باك</div>
+    <div class="eq-box">L = (LH − L2) × (LR / LH)</div>
+    <div class="source-tag">المصدر: ص 30 — كود الطرق السعودي</div>
+    <div class="alert alert-warn show" style="margin-bottom:10px">⚠️ تُستخدم هذه المعادلة <strong>فقط</strong> عند تعذّر تنفيذ الفلير باك (Flare Back) بسبب: وادٍ، جبل، ميول عالية، أو عوائق مشابهة. يُشترط في هذه الحالة <strong>تنفيذ نهاية ماصّة للصدمات (Crashworthy Terminal)</strong> في بداية الحاجز.</div>
+    <div class="form-row">
+      <div class="field"><label>LH (متر)</label><input type="number" id="br2-LH" placeholder="مثال: 12" min="0" step="0.1"></div>
+      <div class="field"><label>L2 (متر)</label><input type="number" id="br2-L2" placeholder="مثال: 20" min="0" step="0.1"></div>
+      <div class="field"><label>LR (متر)</label><input type="number" id="br2-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
+    </div>
+    <div style="margin:10px 0 4px;display:flex;align-items:center;gap:8px">
+      <input type="checkbox" id="br2-single" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer">
+      <label for="br2-single" style="font-size:13px;cursor:pointer;color:var(--text)">🛣️ طريق مفرد — احسب الحاجز الإضافي للمرور المعاكس تلقائياً</label>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcBarrier2()">احسب L</button>
+      <button class="btn btn-reset" onclick="resetCalc('br2')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('br2-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="br2-result">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L — مسافة الحماية</div>
+      <div><span class="result-value" id="br2-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="br2-steps"></div>
+      <div id="br2-single-result" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #cbd5e1">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L_add — الحاجز الإضافي للمرور المعاكس (Fig. 1.15.11 | LH+3.65، L2+3.65)</div>
+        <div><span class="result-value" id="br2-result-add">—</span><span class="result-unit">م</span></div>
+        <div class="result-steps" id="br2-steps-add"></div>
+      </div>
+      <div class="alert alert-warn show" style="margin-top:8px">🔴 تذكير: يجب تنفيذ نهاية ماصّة للصدمات (Crashworthy Terminal) عند تطبيق هذه الحالة.</div>
+      <span class="scroll-btn" onclick="document.getElementById('total-barrier-card').scrollIntoView({behavior:'smooth'})">← انتقل لحساب الطول الكلي Lt</span>
+    </div>
+    <div class="alert" id="br2-alert"></div>
+  </div>
+
+  <div class="calc-card" id="total-barrier-card">
+    <div class="calc-title">حاسبة الطول الكلي للحماية Lt</div>
+    <div class="eq-box">Lt = L1 + Lσ + Crashworthy Terminal + L</div>
+    <div class="source-tag">المصدر: ص 31 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>L1 (متر)</label><input type="number" id="lt-L1" placeholder="مثال: 50" min="0" step="0.1"></div>
+      <div class="field"><label>Lσ (متر)</label><input type="number" id="lt-Ls" placeholder="مثال: 10" min="0" step="0.1"></div>
+      <div class="field"><label>Crashworthy Terminal (متر)</label><input type="number" id="lt-CT" placeholder="مثال: 5" min="0" step="0.1"></div>
+      <div class="field">
+        <label>L (متر)</label>
+        <input type="number" id="lt-L" placeholder="مثال: 25" min="0" step="0.1">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcTotalBarrier()">احسب Lt</button>
+      <button class="btn btn-secondary btn-reset" onclick="useComputedL()" style="background:#dbeafe;color:#1d4ed8">استخدم L المحسوبة أعلاه</button>
+      <button class="btn btn-reset" onclick="resetCalc('lt')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('lt-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="lt-result">
+      <div><span class="result-value" id="lt-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="lt-steps"></div>
+    </div>
+    <div class="alert" id="lt-alert"></div>
+  </div>
+
+  <!-- Single vs Divided Road Note -->
+  <div class="calc-card" style="border-right:4px solid #f59e0b;background:var(--card)">
+    <div class="calc-title" style="color:#b45309">🛣️ تنبيه: الطريق المفرد (ذو الاتجاهين) — الحاجز الإضافي لحركة المرور المعاكسة</div>
+    <p style="font-size:13px;line-height:1.8;margin-bottom:12px">
+      الحاسبات أعلاه (Fig. 1.15.9) مبنية على <strong>طريق مزدوج أو سريع</strong> حيث تُقاس الأبعاد من <strong>الخط الأصفر المنصفي</strong> إلى وجه الحاجز.
+    </p>
+    <p style="font-size:13px;line-height:1.8;margin-bottom:12px">
+      في حالة <strong>الطريق المفرد (ذو الاتجاهين)</strong>، يجب حساب <strong>حاجز إضافي لحماية حركة المرور المعاكسة</strong> (Fig. 1.15.11) باستخدام <strong>نفس المعادلة</strong>، مع مراعاة أن الأبعاد تُقاس هذه المرة من <strong>محور الطريق (سنتر)</strong>:
+    </p>
+    <div style="background:#fef3c7;border-right:3px solid #f59e0b;padding:12px 14px;border-radius:6px;font-size:13px;line-height:2">
+      <strong>أضف 3.65م (عرض الحارة) على كل من:</strong><br>
+      &nbsp;&nbsp;• <strong>L2</strong> — المسافة من وجه الحاجز إلى حافة الممر المعبّد<br>
+      &nbsp;&nbsp;• <strong>L3</strong> — المسافة من مقدمة العائق إلى حافة الممر المعبّد<br>
+      &nbsp;&nbsp;• <strong>LH</strong> — المسافة الجانبية إلى العائق<br>
+      &nbsp;&nbsp;• <strong>LC</strong> — عرض منطقة الخلوص الواضح
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:10px">
+      المرجع: Fig. 1.15.11 — Section 1.15 Traffic Barriers (California Highway Design Manual)
+    </p>
+  </div>
+
+  <!-- LR Reference Table -->
+  <div class="calc-card">
+    <div class="calc-title">جدول قيم LR — طول الانسياب وأبعاد الفلير</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي — Barrier Design</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
+      * الفلير يمكن أن يكون أكثر انبساطاً (a:b أكبر) &nbsp;|&nbsp; ** LR = Runout Length
+    </p>
+    <div class="table-wrap">
+      <table style="font-size:12px;text-align:center">
+        <thead>
+          <tr>
+            <th rowspan="2" style="background:#1a3a5c;color:#fff;vertical-align:middle">سرعة التصميم<br>km/h</th>
+            <th rowspan="2" style="background:#1a3a5c;color:#fff;vertical-align:middle">طول الانسياب**<br>LR (م)</th>
+            <th rowspan="2" style="background:#1a3a5c;color:#fff;vertical-align:middle">مسافة الخجل<br>LS (م)</th>
+            <th colspan="2" style="background:#2563a8;color:#fff">أقصى معدل فلير (a:b)*</th>
+          </tr>
+          <tr>
+            <th style="background:#2d72c8;color:#fff">حاجز معدني<br>Metal-Beam</th>
+            <th style="background:#2d72c8;color:#fff">حاجز خرساني<br>Concrete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>110</strong></td><td>145</td><td>3.0</td><td>15:1</td><td>20:1</td></tr>
+          <tr><td><strong>100</strong></td><td>130</td><td>2.6</td><td>14:1</td><td>18:1</td></tr>
+          <tr><td><strong>90</strong></td><td>115</td><td>2.3</td><td>13:1</td><td>16:1</td></tr>
+          <tr><td><strong>80</strong></td><td>100</td><td>2.0</td><td>11:1</td><td>13:1</td></tr>
+          <tr><td><strong>70</strong></td><td>85</td><td>1.7</td><td>10:1</td><td>12:1</td></tr>
+          <tr><td><strong>60</strong></td><td>70</td><td>1.4</td><td>9:1</td><td>11:1</td></tr>
+          <tr><td><strong>50</strong></td><td>50</td><td>1.2</td><td>9:1</td><td>10:1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LC Calculator using AASHTO CZ Chart -->
+  <div class="calc-card" style="margin-top:20px;border-top:2px solid var(--primary)">
+    <div class="calc-title">حاسبة LC — الخلوص الجانبي للحواجز</div>
+    <div class="source-tag">المصدر: AASHTO Roadside Design Guide — الخلوص الجانبي يُستخرج من شارت Clear Zone</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">
+      LC هو المسافة من حافة الحارة المرورية إلى الحاجز — يُحدَّد بناءً على سرعة التصميم وطبيعة الأرض وميلها.
+      الشارت أدناه هو نفس شارت AASHTO المستخدم في Clear Zone.
+    </p>
+    <div class="form-row">
+      <div class="field">
+        <label>سرعة التصميم (كم/س)</label>
+        <select id="lcs-speed">
+          <option value="">اختر</option>
+          <option value="50">50</option><option value="60">60</option>
+          <option value="70">70</option><option value="80">80</option>
+          <option value="90">90</option><option value="100">100</option>
+          <option value="110">110</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>نوع الأرض</label>
+        <select id="lcs-terrain" onchange="toggleLCSlope()">
+          <option value="fill">ردم — Embankment</option>
+          <option value="flat">مستوية — Flat</option>
+          <option value="cut">قطع — Cut Slope</option>
+        </select>
+      </div>
+      <div class="field" id="lcs-slope-wrap">
+        <label>نسبة الميل</label>
+        <select id="lcs-slope">
+          <option value="3">3:1 (الأشد)</option>
+          <option value="4">4:1</option>
+          <option value="5">5:1</option>
+          <option value="6">6:1</option>
+          <option value="8">8:1</option>
+          <option value="10">10:1 (الأخف)</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcLC()">احسب LC</button>
+      <button class="btn btn-reset" onclick="resetLCCalc()">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('lcs-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="lcs-result">
+      <div><span class="result-value" id="lcs-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="lcs-steps"></div>
+    </div>
+    <div class="alert" id="lcs-alert"></div>
+  </div>
+
+  <!-- LC Chart (same AASHTO CZ chart, shared data) -->
+  <div class="chart-container" style="padding:20px;margin-top:16px">
+    <div class="chart-title">شارت LC — استخراج الخلوص الجانبي للحواجز من منحنيات AASHTO</div>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">المحور الأفقي: LC المطلوب (م) | المحور الرأسي: نوع وميل الأرض | كل خط = سرعة تصميم</p>
+    <div style="position:relative;height:500px;width:100%">
+      <canvas id="lcChart"></canvas>
+    </div>
+  </div>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12px;font-family:Cairo,sans-serif">
+    <span style="color:#15803d;font-weight:700">▲ منطقة الردم — Embankment</span>
+    <span style="color:#1d4ed8;font-weight:700">— أرض مستوية — Flat</span>
+    <span style="color:#c2410c;font-weight:700">▼ منطقة القطع — Cut Slope</span>
+  </div>
+  <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:6px">
+    النسبة 3:1 = أشد ميلاً | النسبة 10:1 = أخف ميلاً | المحور الأفقي = LC (م)
+  </div>
+</section>
+
+<!-- SECTION 5: Clear Zone -->
+<section id="s5" class="section">
+  <div class="section-title">الخلوص الجانبي Clear Zone</div>
+
+  <div class="calc-card">
+    <div class="calc-title">جدول Clear Zone — بحث/اختيار</div>
+    <div class="source-tag">المصدر: ص 34 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field">
+        <label>سرعة الطريق (كم/س)</label>
+        <select id="cz-speed">
+          <option value="">اختر السرعة</option>
+          <option value="50">50</option><option value="60">60</option>
+          <option value="80">80</option><option value="100">100</option>
+          <option value="110">110</option><option value="120">120</option>
+          <option value="130">130</option><option value="140">140</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>زمن الإدراك والاستجابة</label>
+        <select id="cz-prt">
+          <option value="1.2">1.2 ثانية</option>
+          <option value="2.5">2.5 ثانية</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="lookupCZ()">بحث</button>
+      <button class="btn btn-reset" onclick="resetCalc('cz')">إعادة تعيين</button>
+    </div>
+    <div class="result-box" id="cz-result">
+      <div><span class="result-value" id="cz-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="cz-steps"></div>
+    </div>
+    <div class="alert" id="cz-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">جدول Clear Zone الكامل</div>
+    <div class="table-wrap">
+      <table id="cz-table">
+        <thead><tr>
+          <th>زمن الإدراك / السرعة</th>
+          <th>50 كم/س</th><th>60 كم/س</th><th>80 كم/س</th>
+          <th>100 كم/س</th><th>110 كم/س</th><th>120 كم/س</th>
+          <th>130 كم/س</th><th>140 كم/س</th>
+        </tr></thead>
+        <tbody>
+          <tr><td><strong>1.2 ث (م)</strong></td><td>7</td><td>10</td><td>20</td><td>33</td><td>40</td><td>45</td><td>50</td><td>58</td></tr>
+          <tr><td><strong>2.5 ث (م)</strong></td><td>11</td><td>16</td><td>27</td><td>42</td><td>50</td><td>60</td><td>65</td><td>75</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">حاسبة تعديل الخلوص الجانبي بمعامل ADT</div>
+    <div class="eq-box">Clear Zone Final = Base Clear Zone × Adjustment Factor (ADT)</div>
+    <div class="source-tag">المصدر: AASHTO Roadside Design Guide — كود الطرق السعودي</div>
+
+    <!-- ADT Selection Table -->
+    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">اختر نطاق حجم الحركة اليومية — يتحدد المعامل تلقائياً:</p>
+    <div style="overflow-x:auto;margin-bottom:14px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;font-family:Cairo,sans-serif;text-align:center">
+        <thead>
+          <tr style="background:var(--primary);color:#fff">
+            <th style="padding:8px 12px;border:1px solid var(--border)">حجم الحركة اليومي (ADT)</th>
+            <th style="padding:8px 12px;border:1px solid var(--border)">معامل التعديل</th>
+            <th style="padding:8px 12px;border:1px solid var(--border)">اختر</th>
+          </tr>
+        </thead>
+        <tbody id="adt-table-body">
+          <tr class="adt-row" data-factor="1.00" onclick="selectADT(this,'6,000 مركبة/يوم فأكثر','1.00')">
+            <td style="padding:7px 12px;border:1px solid var(--border)">6,000 مركبة/يوم فأكثر</td>
+            <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700">1.00</td>
+            <td style="padding:7px 12px;border:1px solid var(--border)"><span class="adt-radio">◯</span></td>
+          </tr>
+          <tr class="adt-row" data-factor="0.90" onclick="selectADT(this,'2,000 – 6,000','0.90')">
+            <td style="padding:7px 12px;border:1px solid var(--border)">2,000 – 6,000</td>
+            <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700">0.90</td>
+            <td style="padding:7px 12px;border:1px solid var(--border)"><span class="adt-radio">◯</span></td>
+          </tr>
+          <tr class="adt-row" data-factor="0.80" onclick="selectADT(this,'800 – 2,000','0.80')">
+            <td style="padding:7px 12px;border:1px solid var(--border)">800 – 2,000</td>
+            <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700">0.80</td>
+            <td style="padding:7px 12px;border:1px solid var(--border)"><span class="adt-radio">◯</span></td>
+          </tr>
+          <tr class="adt-row" data-factor="0.75" onclick="selectADT(this,'250 – 800','0.75')">
+            <td style="padding:7px 12px;border:1px solid var(--border)">250 – 800</td>
+            <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700">0.75</td>
+            <td style="padding:7px 12px;border:1px solid var(--border)"><span class="adt-radio">◯</span></td>
+          </tr>
+          <tr class="adt-row" data-factor="0.65" onclick="selectADT(this,'أقل من 250','0.65')">
+            <td style="padding:7px 12px;border:1px solid var(--border)">أقل من 250</td>
+            <td style="padding:7px 12px;border:1px solid var(--border);font-weight:700">0.65</td>
+            <td style="padding:7px 12px;border:1px solid var(--border)"><span class="adt-radio">◯</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-row">
+      <div class="field"><label>Base Clear Zone (متر)</label><input type="number" id="czadj-base" placeholder="مثال: 14" min="0" step="0.1"></div>
+      <div class="field"><label>معامل التعديل (ADT Factor)</label><input type="number" id="czadj-factor" placeholder="اختر من الجدول أعلاه" min="0" step="0.01" readonly style="background:var(--bg);cursor:not-allowed"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcCZAdj()">احسب</button>
+      <button class="btn btn-reset" onclick="resetCalc('czadj')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('czadj-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="czadj-result"><div><span class="result-value" id="czadj-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="czadj-steps"></div></div>
+    <div class="alert" id="czadj-alert"></div>
+  </div>
+
+  <!-- Clear Zone Slope Calculator -->
+  <div class="calc-card">
+    <div class="calc-title">حاسبة Clear Zone — بالسرعة والميل</div>
+    <div class="source-tag">المصدر: AASHTO Roadside Design Guide — كود الطرق السعودي</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">اختر سرعة التصميم ونوع الأرض والميل — تظهر القيمة مع تمييزها على الشارت</p>
+    <div class="form-row">
+      <div class="field">
+        <label>سرعة التصميم (كم/س)</label>
+        <select id="czs-speed">
+          <option value="">اختر</option>
+          <option value="50">50</option><option value="60">60</option>
+          <option value="70">70</option><option value="80">80</option>
+          <option value="90">90</option><option value="100">100</option>
+          <option value="110">110</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>نوع الأرض</label>
+        <select id="czs-terrain" onchange="toggleCZSlope()">
+          <option value="fill">ردم — Embankment</option>
+          <option value="flat">مستوية — Flat</option>
+          <option value="cut">قطع — Cut Slope</option>
+        </select>
+      </div>
+      <div class="field" id="czs-slope-wrap">
+        <label>نسبة الميل</label>
+        <select id="czs-slope">
+          <option value="3">3:1 (الأشد)</option>
+          <option value="4">4:1</option>
+          <option value="5">5:1</option>
+          <option value="6">6:1</option>
+          <option value="8">8:1</option>
+          <option value="10">10:1 (الأخف)</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcCZSlope()">احسب Clear Zone</button>
+      <button class="btn btn-reset" onclick="resetCalc('czs')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('czs-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="czs-result">
+      <div><span class="result-value" id="czs-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="czs-steps"></div>
+    </div>
+    <div class="alert" id="czs-alert"></div>
+  </div>
+
+  <!-- Proper Clear Zone Chart: X=CZ width, Y=slope, 7 speed curves -->
+  <div class="chart-container" style="padding:20px">
+    <div class="chart-title">شارت Clear Zone — الميل والسرعة وعرض الخلوص المطلوب</div>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">المحور الأفقي: عرض Clear Zone (م) | المحور الرأسي: نوع وميل الأرض | كل خط = سرعة تصميم</p>
+    <div style="position:relative;height:520px;width:100%">
+      <canvas id="czChart"></canvas>
+    </div>
+  </div>
+  <!-- Zone legend -->
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:10px;font-size:12px;font-family:Cairo,sans-serif">
+    <span style="color:#15803d;font-weight:700">▲ منطقة الردم — Embankment</span>
+    <span style="color:#1d4ed8;font-weight:700">— أرض مستوية — Flat</span>
+    <span style="color:#c2410c;font-weight:700">▼ منطقة القطع — Cut Slope</span>
+  </div>
+  <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:6px">
+    النسبة 3:1 = أشد ميلاً | النسبة 10:1 = أخف ميلاً | المحور الأفقي = عرض Clear Zone المطلوب بالمتر
+  </div>
+</section>
+<!-- SECTION 6: Horizontal Curves -->
+<section id="s6" class="section">
+  <div class="section-title">المنحنيات الأفقية والسرعة الآمنة</div>
+
+  <div class="calc-card">
+    <div class="calc-title">حاسبة السرعة الآمنة على المنحنى</div>
+    <div class="eq-box">V = √[127 × R × (e + f)]</div>
+    <div class="source-tag">المصدر: ص 40 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>نصف القطر R (متر)</label><input type="number" id="vc-R" placeholder="مثال: 300" min="0" step="1"></div>
+      <div class="field"><label>معدل التعلية e (عشري أو %)</label><input type="text" id="vc-e" placeholder="مثال: 0.06 أو 6%"></div>
+      <div class="field"><label>معامل الاحتكاك الجانبي f</label><input type="number" id="vc-f" placeholder="مثال: 0.14" min="0" step="0.01"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcVcurve()">احسب V</button>
+      <button class="btn btn-reset" onclick="resetCalc('vc')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('vc-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="vc-result"><div><span class="result-value" id="vc-result-val">—</span><span class="result-unit">كم/س</span></div><div class="result-steps" id="vc-steps"></div></div>
+    <div class="alert" id="vc-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">حاسبة نصف قطر المنحنى</div>
+    <div class="eq-box">R = V² / [127 × (e + f)]</div>
+    <div class="source-tag">المصدر: ص 42 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>السرعة V (كم/س)</label><input type="number" id="rc-V" placeholder="مثال: 80" min="0" step="1"></div>
+      <div class="field"><label>معدل التعلية e (عشري أو %)</label><input type="text" id="rc-e" placeholder="مثال: 0.06 أو 6%"></div>
+      <div class="field"><label>معامل الاحتكاك الجانبي f</label><input type="number" id="rc-f" placeholder="مثال: 0.14" min="0" step="0.01"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcRcurve()">احسب R</button>
+      <button class="btn btn-reset" onclick="resetCalc('rc')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('rc-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="rc-result"><div><span class="result-value" id="rc-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="rc-steps"></div></div>
+    <div class="alert" id="rc-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">جدول السرعة على المنحنيات — Lookup</div>
+    <div class="source-tag">المصدر: ص 41 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field">
+        <label>سرعة التصميم (كم/س)</label>
+        <select id="cv-speed">
+          <option value="">اختر السرعة</option>
+          <option>20</option><option>30</option><option>40</option><option>50</option>
+          <option>60</option><option>70</option><option>80</option><option>90</option>
+          <option>100</option><option>110</option><option>120</option><option>130</option><option>140</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>معدل التعلية e</label>
+        <select id="cv-e">
+          <option value="">اختر e</option>
+          <option value="4">4%</option><option value="6">6%</option>
+          <option value="8">8%</option><option value="10">10%</option><option value="12">12%</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="lookupCurveTable()">بحث</button>
+      <button class="btn btn-reset" onclick="resetCalc('cv')">إعادة تعيين</button>
+    </div>
+    <div class="result-box" id="cv-result"><div><span class="result-value" id="cv-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="cv-steps"></div></div>
+    <div class="alert" id="cv-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">جدول السرعة على المنحنيات الكامل</div>
+    <div class="table-wrap">
+      <table id="cv-table">
+        <thead><tr>
+          <th>V تصميم (كم/س)</th><th>f</th><th>أدنى قوس (م)</th>
+          <th>R عند e=4%</th><th>R عند e=6%</th><th>R عند e=8%</th><th>R عند e=10%</th><th>R عند e=12%</th>
+        </tr></thead>
+        <tbody id="cv-tbody">
+          <tr><td>20</td><td>0.35</td><td>15</td><td>10</td><td>10</td><td>10</td><td>10</td><td>10</td></tr>
+          <tr><td>30</td><td>0.28</td><td>20</td><td>25</td><td>25</td><td>20</td><td>20</td><td>20</td></tr>
+          <tr><td>40</td><td>0.23</td><td>25</td><td>50</td><td>45</td><td>45</td><td>40</td><td>40</td></tr>
+          <tr><td>50</td><td>0.19</td><td>30</td><td>90</td><td>80</td><td>75</td><td>70</td><td>65</td></tr>
+          <tr><td>60</td><td>0.17</td><td>35</td><td>135</td><td>125</td><td>115</td><td>105</td><td>100</td></tr>
+          <tr><td>70</td><td>0.15</td><td>40</td><td>205</td><td>185</td><td>170</td><td>155</td><td>145</td></tr>
+          <tr><td>80</td><td>0.14</td><td>45</td><td>280</td><td>255</td><td>230</td><td>210</td><td>195</td></tr>
+          <tr><td>90</td><td>0.13</td><td>50</td><td>380</td><td>340</td><td>305</td><td>280</td><td>260</td></tr>
+          <tr><td>100</td><td>0.12</td><td>60</td><td>495</td><td>440</td><td>395</td><td>360</td><td>330</td></tr>
+          <tr><td>110</td><td>0.11</td><td>65</td><td>640</td><td>565</td><td>505</td><td>455</td><td>415</td></tr>
+          <tr><td>120</td><td>0.10</td><td>70</td><td>810</td><td>710</td><td>630</td><td>570</td><td>520</td></tr>
+          <tr><td>130</td><td>0.09</td><td>75</td><td>1025</td><td>890</td><td>785</td><td>705</td><td>635</td></tr>
+          <tr><td>140</td><td>0.08</td><td>80</td><td>1290</td><td>1105</td><td>965</td><td>860</td><td>775</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <div class="chart-title">شارت السرعة على المنحنيات — R مقابل سرعة التصميم</div>
+    <canvas id="cvChart"></canvas>
+  </div>
+
+  <!-- Sight Distance on Curves -->
+  <div class="calc-card" style="margin-top:20px;border-top:2px solid var(--primary)">
+    <div class="calc-title">مسافة الرؤية عند المنحنيات الأفقية — Sight Distance on Curves</div>
+    <div class="eq-box" style="font-size:13px;line-height:2">
+      m = R · (1 − cos(Sₐ / 2R)) &nbsp;|&nbsp; Sₐ = 2R · cos⁻¹(1 − m/R)
+    </div>
+    <div class="source-tag">المصدر: Figure 4-11 — كود الطرق السعودي</div>
+
+    <!-- Field data warning -->
+    <div style="background:rgba(245,158,11,0.1);border:1.5px solid #f59e0b;border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13px;font-family:Cairo,sans-serif">
+      <div style="font-weight:700;color:#b45309;margin-bottom:6px">⚠️ تنبيه — بيانات ميدانية مطلوبة قبل استخدام هذه المعادلة</div>
+      <div style="color:var(--text);line-height:1.9">
+        يجب جمع البيانات التالية من الموقع أو المخططات قبل الحساب:
+        <ul style="margin:6px 0 0 0;padding-right:18px">
+          <li><strong>R</strong> — نصف قطر مسار الحارة الأقرب للعائق (م) — من مخططات التصميم أو القياس الميداني</li>
+          <li><strong>m</strong> — المسافة الجانبية بين محور الحارة والعائق (م) — تُقاس من محور الحارة الداخلية حتى العائق (حاجز / ميل / قطع)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Mode selector -->
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <button id="sdc-mode1-btn" class="btn btn-primary" onclick="setSdcMode(1)" style="flex:1;min-width:140px">
+        أحسب Sₐ (أعرف R و m)
+      </button>
+      <button id="sdc-mode2-btn" class="btn btn-reset" onclick="setSdcMode(2)" style="flex:1;min-width:140px">
+        أحسب m (أعرف R و Sₐ)
+      </button>
+    </div>
+
+    <!-- Mode 1: R + m → Sₐ -->
+    <div id="sdc-mode1">
+      <div class="form-row">
+        <div class="field">
+          <label>R — نصف قطر المنحنى (م)</label>
+          <input type="number" id="sdc1-R" placeholder="مثال: 300" min="10" step="1">
+        </div>
+        <div class="field">
+          <label>m — المسافة الجانبية للعائق (م)</label>
+          <input type="number" id="sdc1-m" placeholder="مثال: 6" min="0.1" step="0.1">
+        </div>
+        <div class="field">
+          <label>SSD المطلوبة (م) — للمقارنة</label>
+          <input type="number" id="sdc1-ssd" placeholder="مثال: 160" min="0" step="1">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calcSdc1()">احسب Sₐ وتحقق</button>
+        <button class="btn btn-reset" onclick="resetSdc(1)">إعادة تعيين</button>
+        <button class="btn btn-copy" onclick="copyResult('sdc1-result-val')">نسخ</button>
+      </div>
+      <div class="result-box" id="sdc1-result">
+        <div><span class="result-value" id="sdc1-result-val">—</span><span class="result-unit">م</span></div>
+        <div class="result-steps" id="sdc1-steps"></div>
+      </div>
+      <div class="alert" id="sdc1-alert"></div>
+    </div>
+
+    <!-- Mode 2: R + Sₐ → m -->
+    <div id="sdc-mode2" style="display:none">
+      <div class="form-row">
+        <div class="field">
+          <label>R — نصف قطر المنحنى (م)</label>
+          <input type="number" id="sdc2-R" placeholder="مثال: 300" min="10" step="1">
+        </div>
+        <div class="field">
+          <label>Sₐ — مسافة الرؤية المطلوبة (م)</label>
+          <input type="number" id="sdc2-Sa" placeholder="مثال: 160" min="1" step="1">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calcSdc2()">احسب m المطلوبة</button>
+        <button class="btn btn-reset" onclick="resetSdc(2)">إعادة تعيين</button>
+        <button class="btn btn-copy" onclick="copyResult('sdc2-result-val')">نسخ</button>
+      </div>
+      <div class="result-box" id="sdc2-result">
+        <div><span class="result-value" id="sdc2-result-val">—</span><span class="result-unit">م</span></div>
+        <div class="result-steps" id="sdc2-steps"></div>
+      </div>
+      <div class="alert" id="sdc2-alert"></div>
+    </div>
+  </div>
+
+  <!-- SDC Chart -->
+  <div class="chart-container" style="padding:20px;margin-top:16px">
+    <div class="chart-title">شارت مسافة الرؤية في المنحنيات — Figure 4-11</div>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">
+      المحور الأفقي: مسافة الرؤية المتاحة Sₐ (م) &nbsp;|&nbsp; المحور الرأسي: المسافة الجانبية للعائق m (م) &nbsp;|&nbsp; كل خط = نصف قطر R
+    </p>
+    <div style="position:relative;height:480px;width:100%">
+      <canvas id="sdcChart"></canvas>
+    </div>
+    <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px">
+      ● النقطة الصفراء = نتيجة الحساب &nbsp;|&nbsp; إذا كانت النقطة يمين منحنى R → Sₐ كافية ✅
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: Vertical Curves -->
+<section id="s7" class="section">
+  <div class="section-title">المنحنيات الرأسية</div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:12px">A = الفرق الجبري بين الميلين الطوليين بالنسبة المئوية (مثال: ميل +3% وميل −1% → A = |3−(−1)| = 4%)</p>
+
+  <div class="calc-card">
+    <div class="calc-title">حاسبة معامل K</div>
+    <div class="eq-box">K = L / A</div>
+    <div class="source-tag">المصدر: ص 45 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>طول المنحنى L (متر)</label><input type="number" id="kv-L" placeholder="مثال: 200" min="0" step="1"></div>
+      <div class="field"><label>الفرق الجبري A (%)</label><input type="number" id="kv-A" placeholder="مثال: 4" min="0" step="0.01"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcKvalue()">احسب K</button>
+      <button class="btn btn-reset" onclick="resetCalc('kv')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('kv-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="kv-result"><div><span class="result-value" id="kv-result-val">—</span></div><div class="result-steps" id="kv-steps"></div></div>
+    <div class="alert" id="kv-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">حاسبة طول المنحنى الرأسي L</div>
+    <div class="eq-box">L = K × A</div>
+    <div class="source-tag">المصدر: ص 47 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>معامل K</label><input type="number" id="lv-K" placeholder="مثال: 50" min="0" step="1"></div>
+      <div class="field"><label>الفرق الجبري A (%)</label><input type="number" id="lv-A" placeholder="مثال: 4" min="0" step="0.01"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcLvert()">احسب L</button>
+      <button class="btn btn-reset" onclick="resetCalc('lv')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('lv-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="lv-result"><div><span class="result-value" id="lv-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="lv-steps"></div></div>
+    <div class="alert" id="lv-alert"></div>
+  </div>
+</section>
+<!-- SECTION 8: SSD -->
+<section id="s8" class="section">
+  <div class="section-title">مسافة الرؤية SSD</div>
+
+  <div class="calc-card">
+    <div class="calc-title">حاسبة مسافة الرؤية للتوقف SSD</div>
+    <div class="eq-box">SSD = 0.278 × V × t + V² / [254 × (f ± G)]</div>
+    <div class="source-tag">المصدر: ص 49 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>السرعة V (كم/س)</label><input type="number" id="ssd-V" placeholder="مثال: 80" min="0" step="1"></div>
+      <div class="field"><label>زمن الاستجابة t (ثانية)</label><input type="number" id="ssd-t" placeholder="مثال: 2.5" min="0" step="0.1" value="2.5"></div>
+      <div class="field"><label>معامل الاحتكاك f</label><input type="number" id="ssd-f" placeholder="مثال: 0.35" min="0" step="0.01"></div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>حالة الميل</label>
+        <select id="ssd-grade-type">
+          <option value="flat">مستوٍ (G = 0)</option>
+          <option value="up">صعود (+G)</option>
+          <option value="down">نزول (−G)</option>
+        </select>
+      </div>
+      <div class="field"><label>نسبة الميل G (% أو عشري)</label><input type="text" id="ssd-G" placeholder="مثال: 3% أو 0.03"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcSSD()">احسب SSD</button>
+      <button class="btn btn-reset" onclick="resetCalc('ssd')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('ssd-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="ssd-result"><div><span class="result-value" id="ssd-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="ssd-steps"></div></div>
+    <div class="alert" id="ssd-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">جدول SSD التقريبي (مرجع سريع)</div>
+    <div class="source-tag">المصدر: ص 7 — كود الطرق السعودي</div>
+    <div class="table-wrap">
+      <table><thead><tr><th>السرعة</th><th>60 كم/س</th><th>80 كم/س</th><th>100 كم/س</th><th>120 كم/س</th></tr></thead>
+      <tbody><tr><td><strong>SSD تقريبي</strong></td><td>85 م</td><td>130 م</td><td>185 م</td><td>245 م</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">حاسبة الخلوص الجانبي للعائق m</div>
+    <div class="eq-box">m = R × [1 − cos(Sa / 2R)] &nbsp;(Sa بالراديان)</div>
+    <div class="source-tag">المصدر: ص 50 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>نصف القطر R (متر)</label><input type="number" id="obs-R" placeholder="مثال: 300" min="0" step="1"></div>
+      <div class="field"><label>Sa مسافة الرؤية المتاحة (متر)</label><input type="number" id="obs-Sa" placeholder="مثال: 130" min="0" step="1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcObstacle()">احسب m</button>
+      <button class="btn btn-reset" onclick="resetCalc('obs')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('obs-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="obs-result"><div><span class="result-value" id="obs-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="obs-steps"></div></div>
+    <div class="alert" id="obs-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">حاسبة مسافة الرؤية المتاحة Sa + فحص الأمان</div>
+    <div class="eq-box">Sa = 2R × cos⁻¹(1 − m/R)</div>
+    <div class="source-tag">المصدر: ص 50 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field"><label>نصف القطر R (متر)</label><input type="number" id="sa-R" placeholder="مثال: 300" min="0" step="1"></div>
+      <div class="field"><label>الخلوص الجانبي m (متر)</label><input type="number" id="sa-m" placeholder="مثال: 5" min="0" step="0.1"></div>
+      <div class="field"><label>SSD المطلوب (متر) — للمقارنة</label><input type="number" id="sa-SSD" placeholder="مثال: 130" min="0" step="1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcSa()">احسب Sa وفحص الأمان</button>
+      <button class="btn btn-reset" onclick="resetCalc('sa')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('sa-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="sa-result"><div><span class="result-value" id="sa-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="sa-steps"></div></div>
+    <div class="alert" id="sa-alert"></div>
+  </div>
+
+  <div class="chart-container">
+    <div class="chart-title">مخطط مسافة الرؤية — SSD مقابل السرعة</div>
+    <canvas id="ssdChart"></canvas>
+  </div>
+</section>
+
+<!-- SECTION 9: PSD -->
+<section id="s9" class="section">
+  <div class="section-title">مسافة الرؤية للتجاوز PSD</div>
+  <div class="calc-card">
+    <div class="calc-title">جدول PSD — بحث بالسرعة</div>
+    <div class="source-tag">المصدر: ص 53 — كود الطرق السعودي</div>
+    <div class="form-row">
+      <div class="field">
+        <label>سرعة التصميم (كم/س)</label>
+        <select id="psd-speed">
+          <option value="">اختر السرعة</option>
+          <option value="40">40</option><option value="50">50</option><option value="60">60</option>
+          <option value="70">70</option><option value="80">80</option><option value="90">90</option>
+          <option value="100">100</option><option value="110">110</option><option value="120">120</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="lookupPSD()">بحث</button>
+      <button class="btn btn-reset" onclick="resetCalc('psd')">إعادة تعيين</button>
+    </div>
+    <div class="result-box" id="psd-result"><div><span class="result-value" id="psd-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="psd-steps"></div></div>
+    <div class="alert" id="psd-alert"></div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">جدول PSD الكامل</div>
+    <div class="table-wrap">
+      <table id="psd-table">
+        <thead><tr>
+          <th>سرعة التصميم (كم/س)</th>
+          <th>40</th><th>50</th><th>60</th><th>70</th><th>80</th><th>90</th><th>100</th><th>110</th><th>120</th>
+        </tr></thead>
+        <tbody><tr>
+          <td><strong>PSD (م)</strong></td>
+          <td>170</td><td>210</td><td>270</td><td>320</td><td>390</td><td>460</td><td>540</td><td>630</td><td>730</td>
+        </tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PSD Warning -->
+  <div style="background:rgba(220,38,38,0.08);border:2px solid #dc2626;border-radius:10px;padding:14px 18px;margin-top:18px;font-family:Cairo,sans-serif">
+    <div style="font-weight:700;color:#b91c1c;font-size:14px;margin-bottom:8px">🚫 تنبيه — إذا كانت مسافة الرؤية المتاحة أقل من PSD المطلوبة يجب:</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(220,38,38,0.06);border-radius:6px;padding:8px 12px">
+        <span style="font-size:20px">🚧</span>
+        <span style="font-weight:600;color:var(--text)">منع التجاوز في هذا القطاع</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(220,38,38,0.06);border-radius:6px;padding:8px 12px">
+        <span style="font-size:20px">🎨</span>
+        <span style="font-weight:600;color:var(--text)">استخدام خط دهان متصل (خط أصفر متصل لا قطعي)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(220,38,38,0.06);border-radius:6px;padding:8px 12px">
+        <span style="font-size:20px">🪧</span>
+        <span style="font-weight:600;color:var(--text)">وضع لوحات منع التجاوز بالمواصفات المعتمدة</span>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- SECTION 10: Speed Change Lanes -->
+<section id="s10" class="section">
+  <div class="section-title">حارات التسارع والتباطؤ</div>
+
+  <!-- Acceleration Lookup -->
+  <div class="calc-card">
+    <div class="calc-title">Lookup — حارة التسارع (Minimum Acceleration Length)</div>
+    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 2</div>
+    <div class="form-row">
+      <div class="field">
+        <label>سرعة الطريق التصميمية (كم/س)</label>
+        <select id="acc-road">
+          <option value="">اختر</option>
+          <option>50</option><option>60</option><option>70</option><option>80</option>
+          <option>90</option><option>100</option><option>110</option><option>120</option>
+          <option>130</option><option>140</option><option>150</option><option>160</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>سرعة/حالة الدخول (Initial Speed)</label>
+        <select id="acc-initial">
+          <option value="">اختر</option>
+          <option value="stop">Stop (0 كم/س)</option>
+          <option value="20">20 كم/س</option>
+          <option value="30">30 كم/س</option>
+          <option value="40">40 كم/س</option>
+          <option value="50">50 كم/س</option>
+          <option value="60">60 كم/س</option>
+          <option value="70">70 كم/س</option>
+          <option value="80">80 كم/س</option>
+          <option value="90">90 كم/س</option>
+          <option value="100">100 كم/س</option>
+          <option value="110">110 كم/س</option>
+          <option value="120">120 كم/س</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="lookupAcc()">بحث</button>
+      <button class="btn btn-reset" onclick="resetCalc('acc')">إعادة تعيين</button>
+    </div>
+    <div class="result-box" id="acc-result"><div><span class="result-value" id="acc-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="acc-steps"></div></div>
+    <div class="alert" id="acc-alert"></div>
+  </div>
+
+  <!-- Acceleration Table -->
+  <div class="calc-card">
+    <div class="calc-title">جدول حارات التسارع الكامل (Entrance Ramp — Acceleration)</div>
+    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 2</div>
+    <div class="table-wrap">
+      <table id="acc-table" style="font-size:11px">
+        <thead>
+          <tr>
+            <th rowspan="2">سرعة الطريق (كم/س)</th>
+            <th colspan="12">Initial Speed / سرعة الدخول</th>
+          </tr>
+          <tr>
+            <th>Stop</th><th>20</th><th>30</th><th>40</th><th>50</th><th>60</th>
+            <th>70</th><th>80</th><th>90</th><th>100</th><th>110</th><th>120</th>
+          </tr>
+          <tr style="background:#f0f7e6;font-size:10px">
+            <td>Initial km/h →</td><td>0</td><td>20</td><td>28</td><td>35</td><td>42</td><td>51</td>
+            <td>63</td><td>70</td><td>77</td><td>85</td><td>91</td><td>98</td>
+          </tr>
+        </thead>
+        <tbody id="acc-tbody">
+          <tr><td>50</td><td>60</td><td>50</td><td>30</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>60</td><td>90</td><td>60</td><td>55</td><td>30</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>70</td><td>155</td><td>135</td><td>130</td><td>110</td><td>80</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>80</td><td>225</td><td>205</td><td>200</td><td>180</td><td>150</td><td>90</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>90</td><td>305</td><td>290</td><td>285</td><td>265</td><td>230</td><td>170</td><td>100</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>100</td><td>385</td><td>370</td><td>360</td><td>335</td><td>300</td><td>250</td><td>175</td><td>90</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>110</td><td>465</td><td>440</td><td>430</td><td>405</td><td>375</td><td>320</td><td>245</td><td>150</td><td>48</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>120</td><td>545</td><td>530</td><td>515</td><td>490</td><td>460</td><td>410</td><td>325</td><td>245</td><td>156</td><td>46</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>130</td><td>625</td><td>605</td><td>655</td><td>571</td><td>540</td><td>491</td><td>415</td><td>340</td><td>218</td><td>109</td><td>44</td><td class="na">—</td></tr>
+          <tr><td>140</td><td>703</td><td>687</td><td>793</td><td>652</td><td>624</td><td>572</td><td>507</td><td>438</td><td>350</td><td>245</td><td>155</td><td>37</td></tr>
+          <tr><td>150</td><td>819</td><td>806</td><td>945</td><td>776</td><td>750</td><td>700</td><td>646</td><td>581</td><td>492</td><td>392</td><td>305</td><td>190</td></tr>
+          <tr><td>160</td><td>987</td><td>977</td><td>965</td><td>940</td><td>928</td><td>877</td><td>787</td><td>726</td><td>657</td><td>570</td><td>496</td><td>397</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Acceleration Lane Notes -->
+  <div style="background:rgba(37,99,168,0.07);border:1.5px solid var(--primary);border-radius:10px;padding:14px 18px;margin-top:4px;font-family:Cairo,sans-serif">
+    <div style="font-weight:700;color:var(--primary);font-size:14px;margin-bottom:10px">📌 ملاحظات تصميمية — حارة التسارع</div>
+    <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;line-height:1.8;color:var(--text)">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">①</span>
+        <span>إذا تجاوزت سرعة التصميم <strong>110 كم/س</strong> أو تجاوز طول حارة التسارع <strong>400 م</strong>، فيجب استخدام نسبة انتقال <strong>Taper = 70:1</strong></span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">②</span>
+        <span>للسرعات <strong>≥ 80 كم/س</strong>: نسبة انتقال حارة التسارع <strong>50:1</strong> — وللسرعات الأقل يمكن استخدام <strong>25:1</strong></span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">③</span>
+        <span>يُوصى بـ <strong>Taper Type</strong> في الطرق ذات السرعة ≥ 80 كم/س أو الأحجام المرورية المرتفعة — ويمكن استخدام <strong>Parallel Type</strong> في غير ذلك</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deceleration Lookup -->
+  <div class="calc-card">
+    <div class="calc-title">Lookup — حارة التباطؤ (Minimum Deceleration Length)</div>
+    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3</div>
+    <div class="form-row">
+      <div class="field">
+        <label>سرعة الطريق التصميمية (كم/س)</label>
+        <select id="dec-road">
+          <option value="">اختر</option>
+          <option>50</option><option>60</option><option>70</option><option>80</option>
+          <option>90</option><option>100</option><option>110</option><option>120</option>
+          <option>130</option><option>140</option><option>150</option><option>160</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>سرعة الخروج (Exit Speed)</label>
+        <select id="dec-exit">
+          <option value="">اختر</option>
+          <option value="stop">Stop (0 كم/س)</option>
+          <option value="20">20 كم/س</option>
+          <option value="30">30 كم/س</option>
+          <option value="40">40 كم/س</option>
+          <option value="50">50 كم/س</option>
+          <option value="60">60 كم/س</option>
+          <option value="70">70 كم/س</option>
+          <option value="80">80 كم/س</option>
+          <option value="90">90 كم/س</option>
+          <option value="100">100 كم/س</option>
+          <option value="110">110 كم/س</option>
+          <option value="120">120 كم/س</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="lookupDec()">بحث</button>
+      <button class="btn btn-reset" onclick="resetCalc('dec')">إعادة تعيين</button>
+    </div>
+    <div class="result-box" id="dec-result"><div><span class="result-value" id="dec-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="dec-steps"></div></div>
+    <div class="alert" id="dec-alert"></div>
+  </div>
+
+  <!-- Deceleration Table -->
+  <div class="calc-card">
+    <div class="calc-title">جدول حارات التباطؤ الكامل (Exit Ramp — Deceleration)</div>
+    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3</div>
+    <div class="table-wrap">
+      <table id="dec-table" style="font-size:11px">
+        <thead>
+          <tr><th>سرعة الطريق (كم/س)</th><th>Stop</th><th>20</th><th>30</th><th>40</th><th>50</th><th>60</th><th>70</th><th>80</th><th>90</th><th>100</th><th>110</th><th>120</th></tr>
+        </thead>
+        <tbody id="dec-tbody">
+          <tr><td>50</td><td>76</td><td>60*</td><td>56</td><td>46</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>60</td><td>96</td><td>88*</td><td>76</td><td>66</td><td>48</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>70</td><td>114</td><td>102*</td><td>98</td><td>86</td><td>70</td><td>54</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>80</td><td>132</td><td>122*</td><td>118</td><td>106</td><td>92</td><td>80</td><td>60</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>90</td><td>152</td><td>142*</td><td>138</td><td>128</td><td>118</td><td>106</td><td>84</td><td>60</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>100</td><td>168</td><td>160*</td><td>156</td><td>148</td><td>138</td><td>126</td><td>104</td><td>82</td><td>56</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>110</td><td>182</td><td>176*</td><td>172</td><td>164</td><td>154</td><td>140</td><td>120</td><td>100</td><td>78</td><td>52</td><td class="na">—</td><td class="na">—</td></tr>
+          <tr><td>120</td><td>200</td><td>195</td><td>185</td><td>175</td><td>170</td><td>155</td><td>140</td><td>120</td><td>102</td><td>78</td><td>58</td><td class="na">—</td></tr>
+          <tr><td>130</td><td>225</td><td>220</td><td>210</td><td>201</td><td>195</td><td>180</td><td>160</td><td>141</td><td>116</td><td>92</td><td>73</td><td>60</td></tr>
+          <tr><td>140</td><td>248</td><td>241</td><td>234</td><td>226</td><td>217</td><td>202</td><td>178</td><td>162</td><td>144</td><td>121</td><td>103</td><td>80</td></tr>
+          <tr><td>150</td><td>271</td><td>264</td><td>258</td><td>250</td><td>241</td><td>227</td><td>204</td><td>189</td><td>172</td><td>150</td><td>132</td><td>110</td></tr>
+          <tr><td>160</td><td>309</td><td>303</td><td>297</td><td>290</td><td>282</td><td>268</td><td>248</td><td>233</td><td>216</td><td>196</td><td>180</td><td>159</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:6px">* القيم بين قوسين في المصدر الأصلي — تُستخدم بحذر وتتطلب مراجعة هندسية.</p>
+
+    <!-- Deceleration Lane Notes -->
+    <div style="background:rgba(37,99,168,0.07);border:1.5px solid var(--primary);border-radius:10px;padding:14px 18px;margin-top:14px;font-family:Cairo,sans-serif">
+      <div style="font-weight:700;color:var(--primary);font-size:14px;margin-bottom:10px">📌 ملاحظات تصميمية — حارة التباطؤ</div>
+      <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;line-height:1.8;color:var(--text)">
+        <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+          <span style="color:var(--primary);font-size:16px;flex-shrink:0">①</span>
+          <span>إذا تجاوزت سرعة التصميم <strong>110 كم/س</strong> أو تجاوز طول حارة التباطؤ <strong>400 م</strong>، فيجب استخدام نسبة انتقال <strong>Taper = 70:1</strong></span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+          <span style="color:var(--primary);font-size:16px;flex-shrink:0">②</span>
+          <span>للسرعات <strong>≥ 80 كم/س</strong>: نسبة انتقال حارة التباطؤ <strong>50:1</strong> — وللسرعات الأقل يمكن استخدام <strong>25:1</strong></span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+          <span style="color:var(--primary);font-size:16px;flex-shrink:0">③</span>
+          <span>يُفضّل استخدام <strong>Parallel Type</strong> في مخارج الطرق ذات السرعات العالية، لضمان خروج المركبات من المسار الرئيسي قبل بدء التباطؤ</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+          <span style="color:var(--primary);font-size:16px;flex-shrink:0">④</span>
+          <span>تُقاس أطوال حارات التباطؤ من <strong>نقطة بداية الانفصال</strong> عن الطريق الرئيسي وحتى نهاية منطقة الانتقال</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grade Adjustment Table -->
+  <div class="calc-card">
+    <div class="calc-title">جدول معاملات تعديل الطول بسبب الانحدار — حارات التباطؤ</div>
+    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3 — وزارة النقل / TEC Engineering</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">المعامل × الطول الأساسي على مستوٍ = الطول المعدَّل على الانحدار</p>
+    <div class="table-wrap">
+      <table style="font-size:12px">
+        <thead>
+          <tr><th colspan="5" style="background:#1a3a5c;color:#fff">حارات التباطؤ — Deceleration Lanes (جميع السرعات)</th></tr>
+          <tr><th>الانحدار</th><th>3–4% صعود</th><th>3–4% نزول</th><th>5–6% صعود</th><th>5–6% نزول</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>جميع السرعات</td><td>0.90</td><td>1.20</td><td>0.80</td><td>1.35</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="calc-card">
+    <div class="calc-title">جدول معاملات تعديل الطول بسبب الانحدار — حارات التسارع</div>
+    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3 — وزارة النقل / TEC Engineering</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">الأعمدة = سرعة تصميم منحنى الدخول (كم/س) — الصفوف = سرعة تصميم الطريق الرئيسي (كم/س)</p>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchGradeTab('acc34up')">3–4% صعود</div>
+      <div class="tab" onclick="switchGradeTab('acc34down')">3–4% نزول</div>
+      <div class="tab" onclick="switchGradeTab('acc56up')">5–6% صعود</div>
+      <div class="tab" onclick="switchGradeTab('acc56down')">5–6% نزول</div>
+    </div>
+
+    <!-- 3-4% Upgrade -->
+    <div id="acc34up" class="tab-content active">
+      <div class="table-wrap">
+        <table style="font-size:11px" id="grade-acc34up-tbl">
+          <thead><tr><th>سرعة الطريق (كم/س)</th><th>30</th><th>40</th><th>50</th><th>60</th><th>70</th><th>80</th></tr></thead>
+          <tbody>
+            <tr><td>50</td><td>1.20</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+            <tr><td>60</td><td>1.24</td><td>1.26</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+            <tr><td>70</td><td>1.29</td><td>1.31</td><td>1.34</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+            <tr><td>80</td><td>1.33</td><td>1.36</td><td>1.38</td><td>1.41</td><td class="na">—</td><td class="na">—</td></tr>
+            <tr><td>90</td><td>1.38</td><td>1.41</td><td>1.44</td><td>1.47</td><td>1.51</td><td class="na">—</td></tr>
+            <tr><td>100</td><td>1.43</td><td>1.47</td><td>1.50</td><td>1.54</td><td>1.58</td><td>1.62</td></tr>
+            <tr><td>110</td><td>1.48</td><td>1.50</td><td>1.59</td><td>1.64</td><td>1.70</td><td>1.75</td></tr>
+            <tr><td>120</td><td>1.50</td><td>1.50</td><td>1.60</td><td>1.70</td><td>1.70</td><td>1.80</td></tr>
+            <tr><td>130</td><td>1.50</td><td>1.50</td><td>1.60</td><td>1.70</td><td>1.70</td><td>1.80</td></tr>
+            <tr><td>140</td><td>1.57</td><td>1.57</td><td>1.67</td><td>1.81</td><td>1.79</td><td>1.90</td></tr>
+            <tr><td>150</td><td>1.60</td><td>1.60</td><td>1.70</td><td>1.86</td><td>1.83</td><td>1.94</td></tr>
+            <tr><td>160</td><td>1.63</td><td>1.63</td><td>1.73</td><td>1.90</td><td>1.86</td><td>1.99</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3-4% Downgrade -->
+    <div id="acc34down" class="tab-content">
+      <div class="table-wrap">
+        <table style="font-size:12px">
+          <thead><tr><th>سرعة الطريق (كم/س)</th><th>معامل التعديل (جميع سرعات المنحنى)</th></tr></thead>
+          <tbody>
+            <tr><td>50</td><td>0.70</td></tr><tr><td>60</td><td>0.65</td></tr>
+            <tr><td>70–130</td><td>0.60</td></tr><tr><td>140</td><td>0.55</td></tr>
+            <tr><td>150</td><td>0.53</td></tr><tr><td>160</td><td>0.52</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5-6% Upgrade -->
+    <div id="acc56up" class="tab-content">
+      <div class="table-wrap">
+        <table style="font-size:11px" id="grade-acc56up-tbl">
+          <thead><tr><th>سرعة الطريق (كم/س)</th><th>30</th><th>40</th><th>50</th><th>60</th><th>70</th><th>80</th></tr></thead>
+          <tbody>
+            <tr><td>50</td><td>1.24</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+            <tr><td>60</td><td>1.31</td><td>1.37</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+            <tr><td>70</td><td>1.40</td><td>1.49</td><td>1.58</td><td class="na">—</td><td class="na">—</td><td class="na">—</td></tr>
+            <tr><td>80</td><td>1.48</td><td>1.61</td><td>1.73</td><td>1.85</td><td class="na">—</td><td class="na">—</td></tr>
+            <tr><td>90</td><td>1.60</td><td>1.76</td><td>1.91</td><td>2.05</td><td>2.20</td><td class="na">—</td></tr>
+            <tr><td>100</td><td>1.72</td><td>1.90</td><td>2.08</td><td>2.25</td><td>2.44</td><td>2.62</td></tr>
+            <tr><td>110</td><td>1.85</td><td>2.05</td><td>2.25</td><td>2.45</td><td>2.64</td><td>2.85</td></tr>
+            <tr><td>120</td><td>2.30</td><td>2.30</td><td>2.50</td><td>3.00</td><td>3.20</td><td>3.50</td></tr>
+            <tr><td>130</td><td>2.60</td><td>2.60</td><td>2.80</td><td>3.40</td><td>3.60</td><td>4.00</td></tr>
+            <tr><td>140</td><td>2.55</td><td>2.55</td><td>2.82</td><td>3.53</td><td>3.92</td><td>4.42</td></tr>
+            <tr><td>150</td><td>2.70</td><td>2.70</td><td>3.00</td><td>3.81</td><td>4.29</td><td>4.48</td></tr>
+            <tr><td>160</td><td>2.86</td><td>2.86</td><td>3.18</td><td>4.09</td><td>4.65</td><td>5.34</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5-6% Downgrade -->
+    <div id="acc56down" class="tab-content">
+      <div class="table-wrap">
+        <table style="font-size:12px">
+          <thead><tr><th>سرعة الطريق (كم/س)</th><th>معامل التعديل (جميع سرعات المنحنى)</th></tr></thead>
+          <tbody>
+            <tr><td>50</td><td>0.60</td></tr><tr><td>60</td><td>0.55</td></tr>
+            <tr><td>70–80</td><td>0.55</td></tr><tr><td>90–130</td><td>0.50–0.55</td></tr>
+            <tr><td>140</td><td>0.44</td></tr><tr><td>150</td><td>0.42</td></tr><tr><td>160</td><td>0.41</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:6px">* لمزيد من الدقة استخدم العمود "All Speeds" من الجدول الأصلي ص 3.</p>
+    </div>
+  </div>
+
+  <!-- Grade Adjustment Calculator -->
+  <div class="calc-card">
+    <div class="calc-title">حاسبة تعديل الطول بسبب الانحدار</div>
+    <div class="eq-box">Ladjusted = Lbasic × Adjustment Factor</div>
+    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3 — RD1-MOT-RSD-PDF-1812-001</div>
+    <div class="form-row">
+      <div class="field">
+        <label>نوع الحارة</label>
+        <select id="gadj-type" onchange="updateGradeForm()">
+          <option value="acc">تسارع (Acceleration)</option>
+          <option value="dec">تباطؤ (Deceleration)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>فئة الانحدار</label>
+        <select id="gadj-gradecat" onchange="updateGradeForm()">
+          <option value="34up">3–4% صعود (Upgrade)</option>
+          <option value="34down">3–4% نزول (Downgrade)</option>
+          <option value="56up">5–6% صعود (Upgrade)</option>
+          <option value="56down">5–6% نزول (Downgrade)</option>
+        </select>
+      </div>
+      <div class="field" id="gadj-highway-wrap">
+        <label>سرعة تصميم الطريق الرئيسي (كم/س)</label>
+        <select id="gadj-highway">
+          <option value="">اختر</option>
+          <option>50</option><option>60</option><option>70</option><option>80</option>
+          <option>90</option><option>100</option><option>110</option><option>120</option>
+          <option>130</option><option>140</option><option>150</option><option>160</option>
+        </select>
+      </div>
+      <div class="field" id="gadj-curve-wrap">
+        <label>سرعة تصميم منحنى الدخول (كم/س)</label>
+        <select id="gadj-curve">
+          <option value="">اختر</option>
+          <option>30</option><option>40</option><option>50</option>
+          <option>60</option><option>70</option><option>80</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>الطول الأساسي Lbasic (متر — من الجدول على مستوٍ)</label><input type="number" id="gadj-L" placeholder="مثال: 225" min="0" step="1"></div>
+      <div class="field" id="gadj-factor-wrap" style="display:none">
+        <label>معامل التعديل (سيُملأ تلقائياً)</label>
+        <input type="number" id="gadj-factor" placeholder="—" min="0" step="0.01" readonly style="background:#f7fafc">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcGradeAdj()">احسب Ladjusted</button>
+      <button class="btn btn-reset" onclick="resetGradeAdj()">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('gadj-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="gadj-result"><div><span class="result-value" id="gadj-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="gadj-steps"></div></div>
+    <div class="alert" id="gadj-alert"></div>
+  </div>
+
+  <!-- Grade Adjustment Notes -->
+  <div style="background:rgba(37,99,168,0.07);border:1.5px solid var(--primary);border-radius:10px;padding:14px 18px;margin-top:4px;font-family:Cairo,sans-serif">
+    <div style="font-weight:700;color:var(--primary);font-size:14px;margin-bottom:10px">📌 ملاحظات — تأثير الانحدار الطولي على أطوال الحارات</div>
+    <div style="display:flex;flex-direction:column;gap:9px;font-size:13px;line-height:1.8;color:var(--text)">
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">①</span>
+        <span>تُستخدم معاملات التعديل لتعديل أطوال حارات التسارع أو التباطؤ عند وجود <strong>انحدار طولي (صعود أو نزول)</strong></span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">②</span>
+        <span><strong>الطول المعدّل = الطول الأساسي (من جدول التسارع/التباطؤ) × معامل التعديل</strong></span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">③</span>
+        <span>يجب مراعاة <strong>اتجاه الانحدار</strong> — تختلف معاملات التعديل بين الصعود والنزول</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">④</span>
+        <span>تُطبّق المعاملات على <strong>طول الحارة فقط</strong> — ولا تشمل منطقة الانتقال <strong>(Taper)</strong></span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(37,99,168,0.05);border-radius:6px;padding:8px 12px">
+        <span style="color:var(--primary);font-size:16px;flex-shrink:0">⑤</span>
+        <span>في حال <strong>عدم وجود انحدار طولي</strong>، يُستخدم الطول الأساسي للحارة دون أي تعديل (معامل = 1.00)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HISTORY -->
+<section id="s12" class="section">
+  <div class="section-title">📚 المراجع</div>
+
+  <div style="margin-bottom:16px">
+    <input type="text" id="ref-search" placeholder="🔍 ابحث باسم المرجع..." oninput="filterRefs()"
+      style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:Cairo,sans-serif;font-size:13px;background:var(--card);color:var(--text)">
+  </div>
+
+  <!-- Saudi Road Code -->
+  <div class="dwg-category" data-cat="كود سعودي">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🇸🇦 كود الطرق السعودي — Saudi Road Code</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="301 كود الطرق السعودي">
+        <div class="dwg-icon">📘</div>
+        <div class="dwg-name">كود الطرق السعودي — القسم 301</div>
+        <div class="dwg-eng">Saudi Road Code — Section 301</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/301 AR.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="305 تصميم منطقة أعمال الطرق">
+        <div class="dwg-icon">📘</div>
+        <div class="dwg-name">تصميم منطقة أعمال الطرق — القسم 305</div>
+        <div class="dwg-eng">Work Zone Design — Section 305</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/305_compressed.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="401 كود الطرق السعودي">
+        <div class="dwg-icon">📘</div>
+        <div class="dwg-name">كود الطرق السعودي — القسم 401</div>
+        <div class="dwg-eng">Saudi Road Code — Section 401</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/401 AR.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="602 كود الطرق السعودي">
+        <div class="dwg-icon">📘</div>
+        <div class="dwg-name">كود الطرق السعودي — القسم 602</div>
+        <div class="dwg-eng">Saudi Road Code — Section 602</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/602 AR.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="603 سلامة الطرق">
+        <div class="dwg-icon">📘</div>
+        <div class="dwg-name">سلامة الطرق — القسم 603</div>
+        <div class="dwg-eng">Road Safety — Section 603</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/603_AR.pdf" target="_blank">فتح المرجع</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- English References -->
+  <div class="dwg-category" data-cat="مراجع انجليزية" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">📖 مراجع دولية — International References</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="الكتاب الأخضر AASHTO Green Book">
+        <div class="dwg-icon">📗</div>
+        <div class="dwg-name">الكتاب الأخضر — AASHTO</div>
+        <div class="dwg-eng">A Policy on Geometric Design of Highways</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/THE_GREEN_BOOK_A_Policy_on_Geometric_Des.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="Work Zone التحكم المروري مناطق العمل">
+        <div class="dwg-icon">📙</div>
+        <div class="dwg-name">التحكم المروري في مناطق العمل</div>
+        <div class="dwg-eng">Work Zone Traffic Control</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/Work Zone Traffic Control_100.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="Traffic Barriers الحواجز المرورية">
+        <div class="dwg-icon">📙</div>
+        <div class="dwg-name">الحواجز المرورية — Section 1.15</div>
+        <div class="dwg-eng">Traffic Barriers — Section 1.15</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/07 - Section1.15 Traffic Barriers.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="Volume 2 General القواعد العامة">
+        <div class="dwg-icon">📙</div>
+        <div class="dwg-name">القواعد العامة — Vol.2 Sec.3.01</div>
+        <div class="dwg-eng">Volume 2, Book 2, Part 3, Section 3.01 General</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/12 - Volume 2, Book 2, Part 3, Section 3.01 General.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="Highway Design Manual دليل تصميم الطرق مخططات قياسية">
+        <div class="dwg-icon">📙</div>
+        <div class="dwg-name">دليل تصميم الطرق — المخططات القياسية Vol.4</div>
+        <div class="dwg-eng">Highway Design Manual Vol.4 — Standard Drawings</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/فتح Highway-Design-Manua-vol.-4-Standard-Drawings 2.pdf" target="_blank">فتح المرجع</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arabic References -->
+  <div class="dwg-category" data-cat="مراجع عربية" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">📝 مراجع عربية</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="المنحنيات الرأسية">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">المنحنيات الرأسية</div>
+        <div class="dwg-eng">Vertical Curves</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/المنحنيات.pdf" target="_blank">فتح المرجع</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="s11" class="section">
+  <div class="section-title">📐 المخططات القياسية</div>
+
+  <!-- Search bar -->
+  <div style="margin-bottom:16px">
+    <input type="text" id="dwg-search" placeholder="🔍 ابحث باسم المخطط..." oninput="filterDrawings()"
+      style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:Cairo,sans-serif;font-size:13px;background:var(--card);color:var(--text)">
+  </div>
+
+  <!-- Category: T-Intersections -->
+  <div class="dwg-category" data-cat="تقاطعات">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🔀 تقاطعات T — T-Intersections</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="تقاطع T على طريق ريفي مع حارة يسار">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تقاطع T — طريق ريفي مع حارة يسار</div>
+        <div class="dwg-eng">T-Intersection Rural Road with Left Turn Lanes</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL T INTERSECTION ON RURAL LOCAL ROAD WITH LEFT TURN LANES-1.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="تقاطع T طريق فردي مع حارة يسار">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تقاطع T — طريق فردي مع حارة يسار</div>
+        <div class="dwg-eng">T-Intersection Single Highway with Left-Turn Lanes</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL T-INTERSECTION ON SINGLE HIGHWAY WITH LEFT-TURN LANES.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="تقاطع T طريق فردي مع طريق محلي مزدوج">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تقاطع T — طريق فردي مع طريق محلي مزدوج</div>
+        <div class="dwg-eng">T-Intersection Single Highway with Local Divided Road</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL T-INTERSECTION ON SINGLE HIGHWAY WITH LOCAL DIVIDED ROAD.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="تقاطع T مع طريق سريع مزدوج">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تقاطع T — طريق فرعي مع طريق سريع مزدوج</div>
+        <div class="dwg-eng">T-Intersection Branch Road and Divided Highways</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL T-INTERSECTION DETAILS BETWEEN BRANCH ROAD AND DIVIDED HIGHWAYS .pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="ربط طريق فرعي بطريق سريع مزدوج">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">ربط طريق فرعي بطريق سريع مزدوج</div>
+        <div class="dwg-eng">Connection Details Branch Road and Divided Freeway</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL CONNECTION DETAILS BETWEEN BRANCH  ROAD AND DIVIDED FREEWAY.pdf" target="_blank">فتح المخطط</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category: U-Turn -->
+  <div class="dwg-category" data-cat="التفاف" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🔄 الالتفاف — U-Turns</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="تفاصيل تصميم الالتفاف للسيارات">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تفاصيل تصميم الالتفاف — سيارات</div>
+        <div class="dwg-eng">U-Turn Design Details for Passenger Car</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/U-TURN DESIGN DETAILS FOR PASSENGER CAR.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="مخطط اللافتات عند الالتفاف طريق 65">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">مخطط اللافتات والدهانات — الالتفاف طريق 65</div>
+        <div class="dwg-eng">Sign & Marking Plan U-Turn RD.65 STA.1333+050</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/02-SING & MARKING PLAN U-TURN RD.65 STA.1333+050.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="مواصفات مناطق الالتفاف">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">المواصفات الخاصة بمناطق الالتفاف</div>
+        <div class="dwg-eng">Specifications for U-Turn Areas</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/المواصفات+الخاصة+بمناطق+الالتفاف_1.0.0 (1).pdf" target="_blank">فتح المخطط</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category: Service Stations -->
+  <div class="dwg-category" data-cat="محطات خدمة" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">⛽ محطات الخدمة — Service Stations</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="تفاصيل محطة خدمة طريق مزدوج حارتان">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">محطة خدمة — طريق مزدوج (حارتان)</div>
+        <div class="dwg-eng">Service Station on Divided Highway - 2 Lanes</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL DETAILS OF SERVICE STATION ON DIVIDED HIGHWAY-2 lanes.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="مداخل ومخارج محطة خدمة طريق أحادي">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">مداخل ومخارج محطة خدمة — طريق أحادي</div>
+        <div class="dwg-eng">Service Station Ingress/Egress Single Highway</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL SERVICE STATION INGRESS EGRESS DETAILS ON SINGLE HIGHWAYS.pdf" target="_blank">فتح المخطط</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category: Types A-F -->
+  <div class="dwg-category" data-cat="أنواع" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🗂️ مخططات نقاط التفتيش — TYPE A to TYPE F</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="نوع A"><div class="dwg-icon">📄</div><div class="dwg-name">النوع A</div><div class="dwg-eng">TYPE A</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE A.pdf" target="_blank">فتح</a></div>
+      <div class="dwg-card" data-name="نوع B"><div class="dwg-icon">📄</div><div class="dwg-name">النوع B</div><div class="dwg-eng">TYPE B</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE B.pdf" target="_blank">فتح</a></div>
+      <div class="dwg-card" data-name="نوع C"><div class="dwg-icon">📄</div><div class="dwg-name">النوع C</div><div class="dwg-eng">TYPE C</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE C.pdf" target="_blank">فتح</a></div>
+      <div class="dwg-card" data-name="نوع D"><div class="dwg-icon">📄</div><div class="dwg-name">النوع D</div><div class="dwg-eng">TYPE D</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE D.pdf" target="_blank">فتح</a></div>
+      <div class="dwg-card" data-name="نوع E"><div class="dwg-icon">📄</div><div class="dwg-name">النوع E</div><div class="dwg-eng">TYPE E</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE E.pdf" target="_blank">فتح</a></div>
+      <div class="dwg-card" data-name="نوع F"><div class="dwg-icon">📄</div><div class="dwg-name">النوع F</div><div class="dwg-eng">TYPE F</div><a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPE F.pdf" target="_blank">فتح</a></div>
+    </div>
+  </div>
+
+  <!-- Category: Signs & Details -->
+  <div class="dwg-category" data-cat="لافتات وتفاصيل" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🪧 لافتات وتفاصيل — Signs & Details</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="لافتة شيفرون Chevron">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">لافتة الشيفرون — Chevron Alignment Sign</div>
+        <div class="dwg-eng">Chevron Alignment Sign REV.2</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/CHEVRON ALIGNEMT SIGN-REV.2 (1).pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="تفاصيل إنشائية">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">التفاصيل الإنشائية</div>
+        <div class="dwg-eng">Construction Details</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/DETAILS- (1).pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="نهاية الطريق end of roadway">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">تفاصيل نهاية الطريق</div>
+        <div class="dwg-eng">Typical Details for End of Roadway</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/TYPICAL DETAILS  FOR END OF ROADWAY (1).pdf" target="_blank">فتح المخطط</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category: Arabic Drawings -->
+  <div class="dwg-category" data-cat="مخططات عربية" style="margin-top:20px">
+    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">🗺️ مخططات متنوعة</div>
+    <div class="dwg-grid">
+      <div class="dwg-card" data-name="الإغلاق الطارئ على الطرق السريعة">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">المخطط النموذجي للإغلاق الطارئ — طرق سريعة</div>
+        <div class="dwg-eng">Emergency Road Closure - Freeway</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/المخطط النموذجي للاغلاق الطاريء على الطرق السريعة.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="المدارس مخطط نموذجي">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">المخطط النموذجي للمدارس</div>
+        <div class="dwg-eng">School Zone Typical Drawing</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/المخطط النموذجي للمدارس (1).pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="مخطط الميزان والسلامة">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">مخطط الميزان والسلامة</div>
+        <div class="dwg-eng">Balance & Safety Drawing</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/مخططالميزانومخططالسلامة.pdf" target="_blank">فتح المخطط</a>
+      </div>
+      <div class="dwg-card" data-name="المطبات الاهتزازية">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">المطبات الاهتزازية</div>
+        <div class="dwg-eng">Rumble Strips</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/الكتب.pdf" target="_blank">فتح</a>
+      </div>
+      <div class="dwg-card" data-name="اللافتات والمطبات للتقاطع الرباعي">
+        <div class="dwg-icon">📄</div>
+        <div class="dwg-name">اللافتات والمطبات للتقاطع الرباعي</div>
+        <div class="dwg-eng">Signs & Rumble Strips for 4-Way Intersection</div>
+        <a class="btn btn-primary dwg-btn" href="المخططات القياسية/المخطط القياسي لتقاطع رباعي.pdf" target="_blank">فتح</a>
+      </div>
+      
+  </div>
+</section>
+
+<section id="shist" class="section">
+  <div class="section-title">سجل الحسابات</div>
+  <div class="history-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-size:13px;font-weight:600">آخر 50 عملية حساب</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-reset" onclick="clearHistory()">مسح السجل</button>
+        <button class="btn btn-copy" onclick="exportCSV()">تصدير CSV</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="history-table">
+        <thead><tr><th>الحاسبة</th><th>المدخلات</th><th>الناتج</th><th>الوقت</th></tr></thead>
+        <tbody id="history-tbody"><tr><td colspan="4" style="color:var(--muted);text-align:center">لا توجد حسابات بعد</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<!-- Export bar -->
+<div id="export-bar">
+  <button class="btn-export" onclick="exportCSV()">⬇ تصدير CSV</button>
+</div>
+<script>
+// showSection is defined in <head> script — no duplicate needed here
+
+// Init on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function(){
+  renderHistory();
+  if(typeof Chart !== 'undefined') drawCharts();
+});
+
+// ── Helpers ──
+let computedL = null;
+// Safe localStorage for iOS local-file restriction
+let calcHistory = [];
+try { calcHistory = JSON.parse(localStorage.getItem('calcHistory')||'[]'); } catch(e) { calcHistory = []; }
+
+function parsePercent(val){
+  if(val===null||val===undefined||val==='') return null;
+  val = String(val).trim();
+  if(val.endsWith('%')) return parseFloat(val)/100;
+  return parseFloat(val);
+}
+
+function parseRatio(val){
+  // Accepts "15:1" or "0.0667"
+  val = String(val).trim();
+  if(val.includes(':')){
+    const parts = val.split(':');
+    if(parts.length===2){
+      const a=parseFloat(parts[0]), b=parseFloat(parts[1]);
+      if(!isNaN(a)&&!isNaN(b)&&b!==0) return a/b;
+    }
+    return null;
+  }
+  return parseFloat(val);
+}
+
+function showResult(prefix, val, steps){
+  document.getElementById(prefix+'-result-val').textContent = typeof val==='number'?val.toFixed(2):val;
+  if(document.getElementById(prefix+'-steps'))
+    document.getElementById(prefix+'-steps').innerHTML = steps||'';
+  document.getElementById(prefix+'-result').classList.add('show');
+  clearAlert(prefix);
+}
+
+function showAlert(prefix, msg, type='warn'){
+  const el = document.getElementById(prefix+'-alert');
+  if(!el) return;
+  el.className = `alert alert-${type} show`;
+  el.textContent = msg;
+}
+function clearAlert(prefix){
+  const el = document.getElementById(prefix+'-alert');
+  if(el){el.className='alert';el.textContent='';}
+}
+
+function resetCalc(prefix){
+  const res = document.getElementById(prefix+'-result');
+  if(res) res.classList.remove('show');
+  clearAlert(prefix);
+  const card = res ? res.closest('.calc-card') : null;
+  if(card) card.querySelectorAll('input').forEach(i=>i.value='');
+  // czs-specific reset
+  if(prefix==='czs'){
+    var spd=document.getElementById('czs-speed'); if(spd) spd.value='';
+    var rv=document.getElementById('czs-result-val'); if(rv) rv.textContent='—';
+    var rs=document.getElementById('czs-steps'); if(rs) rs.innerHTML='';
+    var al=document.getElementById('czs-alert'); if(al) al.textContent='';
+    czMarkerPoint=null;
+    if(czChartInst){
+      var ds=czChartInst.data.datasets;
+      ds[ds.length-1].data=[];
+      czChartInst.update();
+    }
+  }
+}
+
+function copyResult(id){
+  const el = document.getElementById(id);
+  if(!el||!el.textContent||el.textContent==='—') return;
+  navigator.clipboard.writeText(el.textContent).then(()=>{
+    const orig = el.textContent;
+    el.textContent='✓ تم النسخ';
+    setTimeout(()=>el.textContent=orig,1200);
+  });
+}
+
+function addHistory(name, inputs, result){
+  const entry = {name, inputs, result, time: new Date().toLocaleString('ar-SA')};
+  calcHistory.unshift(entry);
+  if(calcHistory.length>50) calcHistory.pop();
+  try { localStorage.setItem('calcHistory', JSON.stringify(calcHistory)); } catch(e) {}
+  renderHistory();
+}
+
+function renderHistory(){
+  const tbody = document.getElementById('history-tbody');
+  if(!calcHistory.length){
+    tbody.innerHTML='<tr><td colspan="4" style="color:var(--muted);text-align:center">لا توجد حسابات بعد</td></tr>';
+    return;
+  }
+  tbody.innerHTML = calcHistory.map(e=>`<tr>
+    <td>${e.name}</td>
+    <td>${e.inputs}</td>
+    <td><strong>${e.result}</strong></td>
+    <td style="direction:ltr;font-size:10px">${e.time}</td>
+  </tr>`).join('');
+}
+
+function clearHistory(){
+  calcHistory=[];
+  try { localStorage.removeItem('calcHistory'); } catch(e) {}
+  renderHistory();
+}
+
+function exportCSV(){
+  if(!calcHistory.length){alert('لا توجد بيانات للتصدير');return;}
+  const rows=[['الحاسبة','المدخلات','الناتج','الوقت'],...calcHistory.map(e=>[e.name,e.inputs,e.result,e.time])];
+  const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='traffic_calcs.csv';
+  a.click();
+}
+
+// ── Section 1: Taper ──
+document.getElementById('taper-ratio').addEventListener('change',function(){
+  document.getElementById('taper-custom-wrap').style.display=this.value==='custom'?'flex':'none';
+});
+
+function calcTaper(){
+  const W=parseFloat(document.getElementById('taper-W').value);
+  const S=parseFloat(document.getElementById('taper-S').value);
+  if(isNaN(W)||W<=0){showAlert('taper','⚠️ أدخل عرض الحارة W قيمة موجبة');return;}
+  if(isNaN(S)||S<=0){showAlert('taper','⚠️ أدخل السرعة S قيمة موجبة');return;}
+  let L, eq, eqLabel;
+  if(S<70){
+    L=(W*S*S)/155.4;
+    eq='L = (W × S²) / 155.4';
+    eqLabel='السرعة أقل من 70 كم/س';
+  } else {
+    L=(W*S)/1.61;
+    eq='L = (W × S) / 1.61';
+    eqLabel='السرعة ≥ 70 كم/س';
+  }
+  document.getElementById('taper-eq-display').textContent=eq;
+  const steps=`المعادلة المستخدمة: ${eq} (${eqLabel})<br>L = (${W} × ${S<70?S+'²':S}) / ${S<70?'155.4':'1.61'} = ${L.toFixed(2)} م`;
+  showResult('taper', L, steps);
+  addHistory('Taper Length (معادلة)', `W=${W}م، S=${S}كم/س`, `${L.toFixed(2)} م`);
+}
+
+function calcTaperRatio(){
+  const sel=document.getElementById('taper-ratio').value;
+  let ratio = sel==='custom'?parseFloat(document.getElementById('taper-custom-ratio').value):parseFloat(sel);
+  const lw=parseFloat(document.getElementById('taper-lw').value);
+  if(isNaN(ratio)||ratio<=0){showAlert('taperR','⚠️ أدخل نسبة صحيحة موجبة');return;}
+  if(isNaN(lw)||lw<=0){showAlert('taperR','⚠️ أدخل عرض الحارة قيمة موجبة');return;}
+  const L=ratio*lw;
+  const steps=`L = ${ratio} × ${lw} = ${L.toFixed(2)} م`;
+  showResult('taperR', L, steps);
+  addHistory('Taper Length (نسبة)', `Ratio=${ratio}:1، عرض=${lw}م`, `${L.toFixed(2)} م`);
+}
+
+// ── Section 2: Paint ──
+function calcPaintYellow(){
+  const L=parseFloat(document.getElementById('py-L').value);
+  if(isNaN(L)||L<=0){showAlert('py','⚠️ أدخل طول L موجباً');return;}
+  const A=L*0.20;
+  showResult('py', A, `A = ${L} × 0.20 = ${A.toFixed(2)} م²`);
+  addHistory('دهان أصفر', `L=${L}م`, `${A.toFixed(2)} م²`);
+}
+function calcPaintDash(){
+  const L=parseFloat(document.getElementById('pdw-L').value);
+  const W=parseFloat(document.getElementById('pdw-W').value);
+  if(isNaN(L)||L<=0||isNaN(W)||W<=0){showAlert('pdw','⚠️ أدخل L وW قيماً موجبة');return;}
+  const A=(L*W)/3;
+  showResult('pdw', A, `A = (${L} × ${W}) / 3 = ${A.toFixed(2)} م²`);
+  addHistory('دهان أبيض متقطع', `L=${L}م، W=${W}م`, `${A.toFixed(2)} م²`);
+}
+function calcPaintSolid(){
+  const L=parseFloat(document.getElementById('psw-L').value);
+  const W=parseFloat(document.getElementById('psw-W').value);
+  if(isNaN(L)||L<=0||isNaN(W)||W<=0){showAlert('psw','⚠️ أدخل L وW قيماً موجبة');return;}
+  const A=L*W*2;
+  showResult('psw', A, `A = ${L} × ${W} × 2 = ${A.toFixed(2)} م²`);
+  addHistory('دهان أبيض متصل', `L=${L}م، W=${W}م`, `${A.toFixed(2)} م²`);
+}
+function calcHatch(){
+  const W=parseFloat(document.getElementById('hb-W').value);
+  const X=parseFloat(document.getElementById('hb-X').value);
+  if(isNaN(W)||W<=0||isNaN(X)||X<=0){showAlert('hb','⚠️ أدخل W وX قيماً موجبة');return;}
+  const A=1.5*W*X;
+  showResult('hb', A, `A = 1.5 × ${W} × ${X} = ${A.toFixed(2)} م²`);
+  addHistory('مطبات مشطية', `W=${W}م، X=${X}`, `${A.toFixed(2)} م²`);
+}
+
+// ── Section 3: Rumble ──
+function calcRumble(){
+  const L=parseFloat(document.getElementById('rs-L').value);
+  if(isNaN(L)||L<=0){showAlert('rs','⚠️ أدخل طول L موجباً');return;}
+  const Lr=L*0.60;
+  showResult('rs', Lr, `Lr = ${L} × 0.60 = ${Lr.toFixed(2)} م`);
+  addHistory('Rumble Strips', `L=${L}م`, `${Lr.toFixed(2)} م`);
+}
+
+// ── Section 4: Barrier ──
+function calcBarrier(){
+  const LH=parseFloat(document.getElementById('br-LH').value);
+  const baStr=document.getElementById('br-ba').value;
+  const L1=parseFloat(document.getElementById('br-L1').value);
+  const L2=parseFloat(document.getElementById('br-L2').value);
+  const LR=parseFloat(document.getElementById('br-LR').value);
+  if(isNaN(LH)||LH<0){showAlert('br','⚠️ أدخل LH قيمة صحيحة');return;}
+  const ba=parseRatio(baStr);
+  if(!ba||isNaN(ba)||ba<=0){showAlert('br','⚠️ أدخل b/a كنسبة (مثال: 15:1) أو كقيمة عشرية (مثال: 0.0667)');return;}
+  if(isNaN(L1)||L1<0){showAlert('br','⚠️ أدخل L1 قيمة صحيحة');return;}
+  if(isNaN(L2)||L2<0){showAlert('br','⚠️ أدخل L2 قيمة صحيحة');return;}
+  if(isNaN(LR)||LR<=0){showAlert('br','⚠️ أدخل LR قيمة موجبة');return;}
+  const denom = ba + (LH/LR);
+  if(denom===0){showAlert('br','⚠️ القسمة على صفر — تحقق من المدخلات');return;}
+  const L=(LH + ba*(L1-L2))/denom;
+  if(L<0){showAlert('br','⚠️ الناتج سالب — تحقق من قيم L1 وL2','error');}
+  const baDisplay=baStr.includes(':')?baStr:`${ba.toFixed(4)}`;
+  const steps=`b/a = ${baDisplay} ≈ ${ba.toFixed(4)}<br>البسط = ${LH} + ${ba.toFixed(4)}×(${L1}−${L2}) = ${(LH+ba*(L1-L2)).toFixed(3)}<br>المقام = ${ba.toFixed(4)} + (${LH}/${LR}) = ${denom.toFixed(4)}<br>L = ${L.toFixed(2)} م`;
+  showResult('br', Math.abs(L), steps);
+  computedL = Math.abs(L);
+  addHistory('مسافة الحماية L', `LH=${LH}، b/a=${baDisplay}، L1=${L1}، L2=${L2}، LR=${LR}`, `${Math.abs(L).toFixed(2)} م`);
+  // Additional barrier for single road (Fig. 1.15.11)
+  if(document.getElementById('br-single').checked){
+    const LHa=LH+3.65, L2a=L2+3.65;
+    const denomA=ba+(LHa/LR);
+    const La=(LHa+ba*(L1-L2a))/denomA;
+    const stepsA=`LH_add = ${LH}+3.65 = ${LHa}<br>L2_add = ${L2}+3.65 = ${L2a}<br>البسط = ${LHa} + ${ba.toFixed(4)}×(${L1}−${L2a}) = ${(LHa+ba*(L1-L2a)).toFixed(3)}<br>المقام = ${ba.toFixed(4)} + (${LHa}/${LR}) = ${denomA.toFixed(4)}<br>L_add = ${Math.abs(La).toFixed(2)} م`;
+    document.getElementById('br-result-add').textContent=Math.abs(La).toFixed(2);
+    document.getElementById('br-steps-add').innerHTML=stepsA;
+    document.getElementById('br-single-result').style.display='block';
+    addHistory('حاجز إضافي — طريق مفرد (Fig.1.15.11)', `LH=${LHa}، b/a=${baDisplay}، L1=${L1}، L2=${L2a}، LR=${LR}`, `${Math.abs(La).toFixed(2)} م`);
+  } else {
+    document.getElementById('br-single-result').style.display='none';
+  }
+}
+
+function calcBarrier2(){
+  const LH=parseFloat(document.getElementById('br2-LH').value);
+  const L2=parseFloat(document.getElementById('br2-L2').value);
+  const LR=parseFloat(document.getElementById('br2-LR').value);
+  if(isNaN(LH)||LH<=0){showAlert('br2','⚠️ أدخل LH قيمة موجبة');return;}
+  if(isNaN(L2)||L2<0){showAlert('br2','⚠️ أدخل L2 قيمة صحيحة');return;}
+  if(isNaN(LR)||LR<=0){showAlert('br2','⚠️ أدخل LR قيمة موجبة');return;}
+  if(LH<=0){showAlert('br2','⚠️ LH يجب أن يكون أكبر من صفر','error');return;}
+  if(L2>=LH){showAlert('br2','⚠️ L2 يجب أن تكون أصغر من LH','error');return;}
+  const L=(LH-L2)*(LR/LH);
+  const steps=`(LH − L2) = ${LH} − ${L2} = ${(LH-L2).toFixed(3)}<br>(LR / LH) = ${LR} / ${LH} = ${(LR/LH).toFixed(4)}<br>L = ${(LH-L2).toFixed(3)} × ${(LR/LH).toFixed(4)} = ${L.toFixed(2)} م`;
+  showResult('br2', L, steps);
+  computedL = L;
+  // Additional barrier for single road (Fig. 1.15.11)
+  if(document.getElementById('br2-single').checked){
+    const LHa=LH+3.65, L2a=L2+3.65;
+    if(L2a>=LHa){
+      document.getElementById('br2-single-result').style.display='none';
+      showAlert('br2','⚠️ الحاجز الإضافي: L2+3.65 يجب أن تكون أصغر من LH+3.65 — تحقق من المدخلات','error');
+    } else {
+      const La=(LHa-L2a)*(LR/LHa);
+      const stepsA=`LH_add = ${LH}+3.65 = ${LHa}<br>L2_add = ${L2}+3.65 = ${L2a}<br>(LH_add − L2_add) = ${(LHa-L2a).toFixed(3)}<br>(LR / LH_add) = ${LR} / ${LHa} = ${(LR/LHa).toFixed(4)}<br>L_add = ${La.toFixed(2)} م`;
+      document.getElementById('br2-result-add').textContent=La.toFixed(2);
+      document.getElementById('br2-steps-add').innerHTML=stepsA;
+      document.getElementById('br2-single-result').style.display='block';
+      addHistory('حاجز إضافي بلا فلير — طريق مفرد (Fig.1.15.11)', `LH=${LHa}، L2=${L2a}، LR=${LR}`, `${La.toFixed(2)} م`);
+    }
+  } else {
+    document.getElementById('br2-single-result').style.display='none';
+  }
+  addHistory('مسافة الحماية L (بدون فلير باك)', `LH=${LH}، L2=${L2}، LR=${LR}`, `${L.toFixed(2)} م`);
+}
+
+function useComputedL(){
+  if(computedL===null){showAlert('lt','⚠️ احسب L أولاً من المعادلة أعلاه');return;}
+  document.getElementById('lt-L').value=computedL.toFixed(2);
+}
+
+function calcTotalBarrier(){
+  const L1=parseFloat(document.getElementById('lt-L1').value);
+  const Ls=parseFloat(document.getElementById('lt-Ls').value);
+  const CT=parseFloat(document.getElementById('lt-CT').value);
+  const L=parseFloat(document.getElementById('lt-L').value);
+  if([L1,Ls,CT,L].some(isNaN)){showAlert('lt','⚠️ أدخل جميع القيم');return;}
+  if([L1,Ls,CT,L].some(v=>v<0)){showAlert('lt','⚠️ القيم يجب أن تكون غير سالبة');return;}
+  const Lt=L1+Ls+CT+L;
+  const steps=`Lt = ${L1} + ${Ls} + ${CT} + ${L} = ${Lt.toFixed(2)} م`;
+  showResult('lt', Lt, steps);
+  // Check if L1 matches barrier's L1
+  const brL1=parseFloat(document.getElementById('br-L1').value);
+  if(!isNaN(brL1)&&Math.abs(brL1-L1)<0.01){
+    showAlert('lt','ℹ️ تنبيه: قيمة L1 المدخلة هنا تطابق L1 في معادلة الحماية. تأكد أن هذا مقصود ولا يسبب ازدواجية.','warn');
+  }
+  addHistory('الطول الكلي Lt', `L1=${L1}، Lσ=${Ls}، CT=${CT}، L=${L}`, `${Lt.toFixed(2)} م`);
+}
+
+// ── Section 5: Clear Zone ──
+const CZ_DATA = {
+  '50':  {'1.2': 7,  '2.5': 11},
+  '60':  {'1.2': 10, '2.5': 16},
+  '80':  {'1.2': 20, '2.5': 27},
+  '100': {'1.2': 33, '2.5': 42},
+  '110': {'1.2': 40, '2.5': 50},
+  '120': {'1.2': 45, '2.5': 60},
+  '130': {'1.2': 50, '2.5': 65},
+  '140': {'1.2': 58, '2.5': 75}
+};
+function lookupCZ(){
+  const spd=document.getElementById('cz-speed').value;
+  const prt=document.getElementById('cz-prt').value;
+  if(!spd){showAlert('cz','⚠️ اختر سرعة الطريق');return;}
+  const val=CZ_DATA[spd]?.[prt];
+  if(!val){showAlert('cz','⚠️ القيمة غير متوفرة في الجدول');return;}
+  showResult('cz', val, `Clear Zone عند سرعة ${spd} كم/س وزمن إدراك ${prt} ث = ${val} م`);
+  addHistory('Clear Zone Lookup', `V=${spd}، PRT=${prt}ث`, `${val} م`);
+}
+function selectADT(row, label, factor) {
+  // Deselect all
+  document.querySelectorAll('.adt-row').forEach(function(r){
+    r.classList.remove('selected');
+    var radio = r.querySelector('.adt-radio');
+    if(radio) radio.textContent = '◯';
+  });
+  // Select clicked
+  row.classList.add('selected');
+  var radio = row.querySelector('.adt-radio');
+  if(radio) radio.textContent = '●';
+  // Fill factor input
+  var inp = document.getElementById('czadj-factor');
+  if(inp) inp.value = factor;
+}
+
+function calcCZAdj(){
+  const base=parseFloat(document.getElementById('czadj-base').value);
+  const factor=parseFloat(document.getElementById('czadj-factor').value);
+  if(isNaN(base)||base<=0){showAlert('czadj','⚠️ أدخل Base Clear Zone موجبة');return;}
+  if(isNaN(factor)||factor<=0){showAlert('czadj','⚠️ أدخل معامل التعديل موجباً');return;}
+  const CZf=base*factor;
+  showResult('czadj', CZf, `Clear Zone Final = ${base} × ${factor} = ${CZf.toFixed(2)} م`);
+  addHistory('Clear Zone مُعدَّل', `Base=${base}م، Factor=${factor}`, `${CZf.toFixed(2)} م`);
+}
+
+// ── Section 6: Curves ──
+const CV_DATA = {
+  '20':  {f:0.35, minArc:15, e4:10,  e6:10,  e8:10,  e10:10,  e12:10},
+  '30':  {f:0.28, minArc:20, e4:25,  e6:25,  e8:20,  e10:20,  e12:20},
+  '40':  {f:0.23, minArc:25, e4:50,  e6:45,  e8:45,  e10:40,  e12:40},
+  '50':  {f:0.19, minArc:30, e4:90,  e6:80,  e8:75,  e10:70,  e12:65},
+  '60':  {f:0.17, minArc:35, e4:135, e6:125, e8:115, e10:105, e12:100},
+  '70':  {f:0.15, minArc:40, e4:205, e6:185, e8:170, e10:155, e12:145},
+  '80':  {f:0.14, minArc:45, e4:280, e6:255, e8:230, e10:210, e12:195},
+  '90':  {f:0.13, minArc:50, e4:380, e6:340, e8:305, e10:280, e12:260},
+  '100': {f:0.12, minArc:60, e4:495, e6:440, e8:395, e10:360, e12:330},
+  '110': {f:0.11, minArc:65, e4:640, e6:565, e8:505, e10:455, e12:415},
+  '120': {f:0.10, minArc:70, e4:810, e6:710, e8:630, e10:570, e12:520},
+  '130': {f:0.09, minArc:75, e4:1025,e6:890, e8:785, e10:705, e12:635},
+  '140': {f:0.08, minArc:80, e4:1290,e6:1105,e8:965, e10:860, e12:775}
+};
+
+function parseE(str){
+  const v=parsePercent(str);
+  if(v===null||isNaN(v)) return null;
+  return v>1?v/100:v; // treat values >1 as percent
+}
+
+function calcVcurve(){
+  const R=parseFloat(document.getElementById('vc-R').value);
+  const eRaw=document.getElementById('vc-e').value;
+  const f=parseFloat(document.getElementById('vc-f').value);
+  if(isNaN(R)||R<=0){showAlert('vc','⚠️ أدخل R موجباً');return;}
+  const e=parseE(eRaw);
+  if(e===null||isNaN(e)){showAlert('vc','⚠️ أدخل e كـ 0.06 أو 6%');return;}
+  if(isNaN(f)||f<=0){showAlert('vc','⚠️ أدخل f موجباً');return;}
+  if(e+f<=0){showAlert('vc','⚠️ e + f يجب أن يكون أكبر من صفر','error');return;}
+  const V=Math.sqrt(127*R*(e+f));
+  const steps=`e = ${(e*100).toFixed(1)}% = ${e.toFixed(4)}<br>V = √(127 × ${R} × (${e.toFixed(4)} + ${f})) = ${V.toFixed(2)} كم/س`;
+  showResult('vc', V, steps);
+  addHistory('السرعة الآمنة V', `R=${R}م، e=${(e*100).toFixed(1)}%، f=${f}`, `${V.toFixed(2)} كم/س`);
+}
+
+function calcRcurve(){
+  const V=parseFloat(document.getElementById('rc-V').value);
+  const eRaw=document.getElementById('rc-e').value;
+  const f=parseFloat(document.getElementById('rc-f').value);
+  if(isNaN(V)||V<=0){showAlert('rc','⚠️ أدخل V موجباً');return;}
+  const e=parseE(eRaw);
+  if(e===null||isNaN(e)){showAlert('rc','⚠️ أدخل e كـ 0.06 أو 6%');return;}
+  if(isNaN(f)||f<=0){showAlert('rc','⚠️ أدخل f موجباً');return;}
+  if(e+f<=0){showAlert('rc','⚠️ e + f يجب أن يكون أكبر من صفر','error');return;}
+  const R=(V*V)/(127*(e+f));
+  const steps=`e = ${(e*100).toFixed(1)}% = ${e.toFixed(4)}<br>R = ${V}² / (127 × (${e.toFixed(4)} + ${f})) = ${R.toFixed(2)} م`;
+  showResult('rc', R, steps);
+  addHistory('نصف القطر R', `V=${V}كم/س، e=${(e*100).toFixed(1)}%، f=${f}`, `${R.toFixed(2)} م`);
+}
+
+function lookupCurveTable(){
+  const spd=document.getElementById('cv-speed').value;
+  const eVal=document.getElementById('cv-e').value;
+  if(!spd||!eVal){showAlert('cv','⚠️ اختر السرعة ومعدل التعلية');return;}
+  const row=CV_DATA[spd];
+  if(!row){showAlert('cv','⚠️ السرعة غير موجودة في الجدول');return;}
+  const key=`e${eVal}`;
+  const R=row[key];
+  if(!R){showAlert('cv','⚠️ القيمة غير متوفرة');return;}
+  // Highlight table
+  document.querySelectorAll('#cv-tbody td').forEach(td=>td.classList.remove('hit'));
+  const rows=[...document.getElementById('cv-tbody').rows];
+  const eIdx={'4':3,'6':4,'8':5,'10':6,'12':7}[eVal];
+  rows.forEach(tr=>{if(tr.cells[0].textContent==spd){tr.cells[eIdx].classList.add('hit');}});
+  showResult('cv', R, `R عند V=${spd} كم/س، e=${eVal}% = ${R} م<br>f = ${row.f} — أدنى طول قوس = ${row.minArc} م`);
+  addHistory('R من الجدول', `V=${spd}كم/س، e=${eVal}%`, `${R} م`);
+}
+
+// ── Section 7: Vertical ──
+function calcKvalue(){
+  const L=parseFloat(document.getElementById('kv-L').value);
+  const A=parseFloat(document.getElementById('kv-A').value);
+  if(isNaN(L)||L<=0){showAlert('kv','⚠️ أدخل L موجباً');return;}
+  if(isNaN(A)||A<=0){showAlert('kv','⚠️ أدخل A موجباً (الفرق الجبري)');return;}
+  const K=L/A;
+  showResult('kv', K, `K = ${L} / ${A} = ${K.toFixed(2)}`);
+  addHistory('معامل K', `L=${L}م، A=${A}%`, `${K.toFixed(2)}`);
+}
+function calcLvert(){
+  const K=parseFloat(document.getElementById('lv-K').value);
+  const A=parseFloat(document.getElementById('lv-A').value);
+  if(isNaN(K)||K<=0){showAlert('lv','⚠️ أدخل K موجباً');return;}
+  if(isNaN(A)||A<=0){showAlert('lv','⚠️ أدخل A موجباً');return;}
+  const L=K*A;
+  showResult('lv', L, `L = ${K} × ${A} = ${L.toFixed(2)} م`);
+  addHistory('طول المنحنى الرأسي L', `K=${K}، A=${A}%`, `${L.toFixed(2)} م`);
+}
+
+// ── Section 8: SSD ──
+function parseG(str){
+  const v=parsePercent(str);
+  if(v===null||isNaN(v)) return null;
+  return v>1?v/100:v;
+}
+function calcSSD(){
+  const V=parseFloat(document.getElementById('ssd-V').value);
+  const t=parseFloat(document.getElementById('ssd-t').value);
+  const f=parseFloat(document.getElementById('ssd-f').value);
+  const gType=document.getElementById('ssd-grade-type').value;
+  const gRaw=document.getElementById('ssd-G').value;
+  if(isNaN(V)||V<=0){showAlert('ssd','⚠️ أدخل V موجباً');return;}
+  if(isNaN(t)||t<=0){showAlert('ssd','⚠️ أدخل t موجباً');return;}
+  if(isNaN(f)||f<=0){showAlert('ssd','⚠️ أدخل f موجباً');return;}
+  let G=0;
+  if(gType!=='flat'){
+    G=parseG(gRaw);
+    if(G===null||isNaN(G)){showAlert('ssd','⚠️ أدخل نسبة الميل G');return;}
+    if(gType==='down') G=-G;
+  }
+  const denom=254*(f+G);
+  if(denom<=0){showAlert('ssd','⚠️ f ± G ≤ 0 — مدخلات غير منطقية','error');return;}
+  const SSD=0.278*V*t + (V*V)/denom;
+  const sign=G>=0?'+':'-';
+  const steps=`حد الإدراك = 0.278 × ${V} × ${t} = ${(0.278*V*t).toFixed(2)} م<br>حد التوقف = ${V}² / (254×(${f}${sign}${Math.abs(G)})) = ${((V*V)/denom).toFixed(2)} م<br>SSD = ${SSD.toFixed(2)} م`;
+  showResult('ssd', SSD, steps);
+  addHistory('SSD', `V=${V}، t=${t}، f=${f}، G=${G>=0?'+':''}${G}`, `${SSD.toFixed(2)} م`);
+}
+
+function calcObstacle(){
+  const R=parseFloat(document.getElementById('obs-R').value);
+  const Sa=parseFloat(document.getElementById('obs-Sa').value);
+  if(isNaN(R)||R<=0){showAlert('obs','⚠️ أدخل R موجباً');return;}
+  if(isNaN(Sa)||Sa<=0){showAlert('obs','⚠️ أدخل Sa موجبة');return;}
+  const arg=Sa/(2*R);
+  const m=R*(1-Math.cos(arg));
+  const steps=`Sa/(2R) = ${Sa}/(2×${R}) = ${arg.toFixed(4)} راد<br>m = ${R}×(1−cos(${arg.toFixed(4)})) = ${m.toFixed(2)} م`;
+  showResult('obs', m, steps);
+  addHistory('الخلوص الجانبي m', `R=${R}م، Sa=${Sa}م`, `${m.toFixed(2)} م`);
+}
+
+function calcSa(){
+  const R=parseFloat(document.getElementById('sa-R').value);
+  const m=parseFloat(document.getElementById('sa-m').value);
+  const SSD=parseFloat(document.getElementById('sa-SSD').value);
+  if(isNaN(R)||R<=0){showAlert('sa','⚠️ أدخل R موجباً');return;}
+  if(isNaN(m)||m<0){showAlert('sa','⚠️ أدخل m ≥ 0');return;}
+  const inner=1-m/R;
+  if(inner<-1||inner>1){showAlert('sa','⚠️ 1−m/R خارج المجال [−1,1] — تحقق من R وm','error');return;}
+  const Sa=2*R*Math.acos(inner);
+  let safeMsg='', safeClass='';
+  if(!isNaN(SSD)&&SSD>0){
+    if(Sa>=SSD){safeMsg=`✅ الوضع آمن: Sa=${Sa.toFixed(2)} م ≥ SSD=${SSD} م`;safeClass='alert-ok';}
+    else{safeMsg=`❌ غير آمن: Sa=${Sa.toFixed(2)} م < SSD=${SSD} م — يجب إزالة العائق أو تعديل التصميم`;safeClass='alert-error';}
+  }
+  const steps=`inner = 1 − ${m}/${R} = ${inner.toFixed(4)}<br>Sa = 2 × ${R} × arccos(${inner.toFixed(4)}) = ${Sa.toFixed(2)} م`;
+  showResult('sa', Sa, steps);
+  if(safeMsg){
+    const el=document.getElementById('sa-alert');
+    el.className=`alert ${safeClass} show`;
+    el.textContent=safeMsg;
+  }
+  addHistory('مسافة الرؤية المتاحة Sa', `R=${R}م، m=${m}م`, `${Sa.toFixed(2)} م`);
+}
+
+// ── Section 9: PSD ──
+const PSD_DATA={40:170,50:210,60:270,70:320,80:390,90:460,100:540,110:630,120:730};
+function lookupPSD(){
+  const spd=parseInt(document.getElementById('psd-speed').value);
+  if(!spd){showAlert('psd','⚠️ اختر سرعة التصميم');return;}
+  const psd=PSD_DATA[spd];
+  if(!psd){
+    const keys=Object.keys(PSD_DATA).map(Number).sort((a,b)=>a-b);
+    const lower=keys.filter(k=>k<spd).pop();
+    const upper=keys.filter(k=>k>spd).shift();
+    showAlert('psd',`⚠️ السرعة ${spd} غير موجودة في الجدول. أقرب القيم: ${lower||'—'} كم/س = ${PSD_DATA[lower]||'—'} م، ${upper||'—'} كم/س = ${PSD_DATA[upper]||'—'} م. يتطلب تحقق هندسي قبل الاعتماد.`,'warn');
+    return;
+  }
+  // highlight
+  document.querySelectorAll('#psd-table td').forEach(td=>td.classList.remove('hit'));
+  const cells=[...document.getElementById('psd-table').querySelectorAll('tbody td')];
+  cells.forEach(td=>{if(parseInt(td.textContent)===psd) td.classList.add('hit');});
+  showResult('psd', psd, `PSD عند V=${spd} كم/س = ${psd} م`);
+  addHistory('PSD Lookup', `V=${spd}كم/س`, `${psd} م`);
+}
+
+// ── Section 10: Speed Change Lanes ──
+const ACC_DATA = {
+  '50':  {'stop':60, '20':50, '30':30},
+  '60':  {'stop':90, '20':60, '30':55, '40':30},
+  '70':  {'stop':155,'20':135,'30':130,'40':110,'50':80},
+  '80':  {'stop':225,'20':205,'30':200,'40':180,'50':150,'60':90},
+  '90':  {'stop':305,'20':290,'30':285,'40':265,'50':230,'60':170,'70':100},
+  '100': {'stop':385,'20':370,'30':360,'40':335,'50':300,'60':250,'70':175,'80':90},
+  '110': {'stop':465,'20':440,'30':430,'40':405,'50':375,'60':320,'70':245,'80':150,'90':48},
+  '120': {'stop':545,'20':530,'30':515,'40':490,'50':460,'60':410,'70':325,'80':245,'90':156,'100':46},
+  '130': {'stop':625,'20':605,'30':655,'40':571,'50':540,'60':491,'70':415,'80':340,'90':218,'100':109,'110':44},
+  '140': {'stop':703,'20':687,'30':793,'40':652,'50':624,'60':572,'70':507,'80':438,'90':350,'100':245,'110':155,'120':37},
+  '150': {'stop':819,'20':806,'30':945,'40':776,'50':750,'60':700,'70':646,'80':581,'90':492,'100':392,'110':305,'120':190},
+  '160': {'stop':987,'20':977,'30':965,'40':940,'50':928,'60':877,'70':787,'80':726,'90':657,'100':570,'110':496,'120':397}
+};
+const DEC_DATA = {
+  '50':  {'stop':76,'20':60,'30':56,'40':46},
+  '60':  {'stop':96,'20':88,'30':76,'40':66,'50':48},
+  '70':  {'stop':114,'20':102,'30':98,'40':86,'50':70,'60':54},
+  '80':  {'stop':132,'20':122,'30':118,'40':106,'50':92,'60':80,'70':60},
+  '90':  {'stop':152,'20':142,'30':138,'40':128,'50':118,'60':106,'70':84,'80':60},
+  '100': {'stop':168,'20':160,'30':156,'40':148,'50':138,'60':126,'70':104,'80':82,'90':56},
+  '110': {'stop':182,'20':176,'30':172,'40':164,'50':154,'60':140,'70':120,'80':100,'90':78,'100':52},
+  '120': {'stop':200,'20':195,'30':185,'40':175,'50':170,'60':155,'70':140,'80':120,'90':102,'100':78,'110':58},
+  '130': {'stop':225,'20':220,'30':210,'40':201,'50':195,'60':180,'70':160,'80':141,'90':116,'100':92,'110':73,'120':60},
+  '140': {'stop':248,'20':241,'30':234,'40':226,'50':217,'60':202,'70':178,'80':162,'90':144,'100':121,'110':103,'120':80},
+  '150': {'stop':271,'20':264,'30':258,'40':250,'50':241,'60':227,'70':204,'80':189,'90':172,'100':150,'110':132,'120':110},
+  '160': {'stop':309,'20':303,'30':297,'40':290,'50':282,'60':268,'70':248,'80':233,'90':216,'100':196,'110':180,'120':159}
+};
+
+function lookupAcc(){
+  const road=document.getElementById('acc-road').value;
+  const init=document.getElementById('acc-initial').value;
+  if(!road||!init){showAlert('acc','⚠️ اختر سرعة الطريق وسرعة الدخول');return;}
+  const row=ACC_DATA[road];
+  if(!row){showAlert('acc','⚠️ سرعة الطريق غير موجودة');return;}
+  const val=row[init];
+  if(val===undefined){showAlert('acc','⚠️ هذه الحالة غير متوفرة في الجدول (قد تكون غير منطقية هندسياً)','warn');return;}
+  showResult('acc', val, `Minimum Acceleration Length عند طريق ${road} كم/س، دخول ${init==='stop'?'Stop':init+' كم/س'} = ${val} م`);
+  addHistory('Acceleration Lane Lookup', `Road=${road}، Init=${init}`, `${val} م`);
+}
+
+function lookupDec(){
+  const road=document.getElementById('dec-road').value;
+  const exit=document.getElementById('dec-exit').value;
+  if(!road||!exit){showAlert('dec','⚠️ اختر سرعة الطريق وسرعة الخروج');return;}
+  const row=DEC_DATA[road];
+  if(!row){showAlert('dec','⚠️ سرعة الطريق غير موجودة');return;}
+  const val=row[exit];
+  if(val===undefined){showAlert('dec','⚠️ هذه الحالة غير متوفرة في الجدول','warn');return;}
+  showResult('dec', val, `Minimum Deceleration Length عند طريق ${road} كم/س، خروج ${exit==='stop'?'Stop':exit+' كم/س'} = ${val} م`);
+  addHistory('Deceleration Lane Lookup', `Road=${road}، Exit=${exit}`, `${val} م`);
+}
+
+// Grade Adjustment Data
+const GRADE_ACC_34UP = {
+  '50':{'30':1.20},
+  '60':{'30':1.24,'40':1.26},
+  '70':{'30':1.29,'40':1.31,'50':1.34},
+  '80':{'30':1.33,'40':1.36,'50':1.38,'60':1.41},
+  '90':{'30':1.38,'40':1.41,'50':1.44,'60':1.47,'70':1.51},
+  '100':{'30':1.43,'40':1.47,'50':1.50,'60':1.54,'70':1.58,'80':1.62},
+  '110':{'30':1.48,'40':1.50,'50':1.59,'60':1.64,'70':1.70,'80':1.75},
+  '120':{'30':1.50,'40':1.50,'50':1.60,'60':1.70,'70':1.70,'80':1.80},
+  '130':{'30':1.50,'40':1.50,'50':1.60,'60':1.70,'70':1.70,'80':1.80},
+  '140':{'30':1.57,'40':1.57,'50':1.67,'60':1.81,'70':1.79,'80':1.90},
+  '150':{'30':1.60,'40':1.60,'50':1.70,'60':1.86,'70':1.83,'80':1.94},
+  '160':{'30':1.63,'40':1.63,'50':1.73,'60':1.90,'70':1.86,'80':1.99}
+};
+const GRADE_ACC_34DOWN = {'50':0.70,'60':0.65,'70':0.60,'80':0.60,'90':0.60,'100':0.60,'110':0.60,'120':0.60,'130':0.60,'140':0.55,'150':0.53,'160':0.52};
+const GRADE_ACC_56UP = {
+  '50':{'30':1.24},
+  '60':{'30':1.31,'40':1.37},
+  '70':{'30':1.40,'40':1.49,'50':1.58},
+  '80':{'30':1.48,'40':1.61,'50':1.73,'60':1.85},
+  '90':{'30':1.60,'40':1.76,'50':1.91,'60':2.05,'70':2.20},
+  '100':{'30':1.72,'40':1.90,'50':2.08,'60':2.25,'70':2.44,'80':2.62},
+  '110':{'30':1.85,'40':2.05,'50':2.25,'60':2.45,'70':2.64,'80':2.85},
+  '120':{'30':2.30,'40':2.30,'50':2.50,'60':3.00,'70':3.20,'80':3.50},
+  '130':{'30':2.60,'40':2.60,'50':2.80,'60':3.40,'70':3.60,'80':4.00},
+  '140':{'30':2.55,'40':2.55,'50':2.82,'60':3.53,'70':3.92,'80':4.42},
+  '150':{'30':2.70,'40':2.70,'50':3.00,'60':3.81,'70':4.29,'80':4.48},
+  '160':{'30':2.86,'40':2.86,'50':3.18,'60':4.09,'70':4.65,'80':5.34}
+};
+const GRADE_ACC_56DOWN = {'50':0.60,'60':0.55,'70':0.55,'80':0.55,'90':0.55,'100':0.50,'110':0.50,'120':0.50,'130':0.50,'140':0.44,'150':0.42,'160':0.41};
+const GRADE_DEC = {'34up':0.90,'34down':1.20,'56up':0.80,'56down':1.35};
+
+function switchGradeTab(id){
+  document.querySelectorAll('#s10 .tab').forEach((t,i)=>{
+    const ids=['acc34up','acc34down','acc56up','acc56down'];
+    t.classList.toggle('active', ids[i]===id);
+  });
+  document.querySelectorAll('#s10 .tab-content').forEach(c=>c.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+
+function updateGradeForm(){
+  const type=document.getElementById('gadj-type').value;
+  const cat=document.getElementById('gadj-gradecat').value;
+  const curveWrap=document.getElementById('gadj-curve-wrap');
+  const factorWrap=document.getElementById('gadj-factor-wrap');
+  const factorEl=document.getElementById('gadj-factor');
+  // Decel: simple lookup, no curve speed needed
+  if(type==='dec'){
+    curveWrap.style.display='none';
+    factorWrap.style.display='flex';
+    factorEl.value=GRADE_DEC[cat];
+  } else {
+    // Acc downgrade: all speeds factor, no curve needed
+    if(cat==='34down'||cat==='56down'){
+      curveWrap.style.display='none';
+      factorWrap.style.display='flex';
+      const hw=document.getElementById('gadj-highway').value;
+      const tbl=cat==='34down'?GRADE_ACC_34DOWN:GRADE_ACC_56DOWN;
+      factorEl.value=hw&&tbl[hw]?tbl[hw]:'';
+    } else {
+      curveWrap.style.display='flex';
+      factorWrap.style.display='flex';
+      factorEl.value='';
+    }
+  }
+}
+
+document.getElementById('gadj-highway').addEventListener('change', function(){
+  updateGradeForm();
+  // For upgrade acc: also try to fill factor if curve is selected
+  const type=document.getElementById('gadj-type').value;
+  const cat=document.getElementById('gadj-gradecat').value;
+  if(type==='acc'&&(cat==='34up'||cat==='56up')){
+    const hw=this.value;
+    const curve=document.getElementById('gadj-curve').value;
+    const tbl=cat==='34up'?GRADE_ACC_34UP:GRADE_ACC_56UP;
+    if(hw&&curve&&tbl[hw]&&tbl[hw][curve]!==undefined)
+      document.getElementById('gadj-factor').value=tbl[hw][curve];
+  }
+});
+document.getElementById('gadj-curve').addEventListener('change', function(){
+  const type=document.getElementById('gadj-type').value;
+  const cat=document.getElementById('gadj-gradecat').value;
+  if(type==='acc'&&(cat==='34up'||cat==='56up')){
+    const hw=document.getElementById('gadj-highway').value;
+    const curve=this.value;
+    const tbl=cat==='34up'?GRADE_ACC_34UP:GRADE_ACC_56UP;
+    if(hw&&curve&&tbl[hw]&&tbl[hw][curve]!==undefined)
+      document.getElementById('gadj-factor').value=tbl[hw][curve];
+    else
+      document.getElementById('gadj-factor').value='';
+  }
+});
+
+function calcGradeAdj(){
+  const L=parseFloat(document.getElementById('gadj-L').value);
+  const factor=parseFloat(document.getElementById('gadj-factor').value);
+  const type=document.getElementById('gadj-type').value==='acc'?'تسارع':'تباطؤ';
+  const cat=document.getElementById('gadj-gradecat').options[document.getElementById('gadj-gradecat').selectedIndex].text;
+  if(isNaN(L)||L<=0){showAlert('gadj','⚠️ أدخل Lbasic موجباً');return;}
+  if(isNaN(factor)||factor<=0){showAlert('gadj','⚠️ معامل التعديل غير محدد — اختر السرعات من القوائم أولاً');return;}
+  const Ladj=L*factor;
+  const hw=document.getElementById('gadj-highway').value;
+  const curve=document.getElementById('gadj-curve').value||'جميع السرعات';
+  const steps=`Lbasic = ${L} م<br>معامل التعديل = ${factor} (${cat})<br>سرعة الطريق = ${hw||'—'} كم/س، سرعة المنحنى = ${curve} كم/س<br>Ladjusted = ${L} × ${factor} = ${Ladj.toFixed(2)} م`;
+  showResult('gadj', Ladj, steps);
+  addHistory('تعديل طول بالانحدار', `L=${L}م، Factor=${factor}، ${type}، ${cat}`, `${Ladj.toFixed(2)} م`);
+}
+
+function resetGradeAdj(){
+  document.getElementById('gadj-result').classList.remove('show');
+  clearAlert('gadj');
+  document.getElementById('gadj-L').value='';
+  document.getElementById('gadj-factor').value='';
+  document.getElementById('gadj-highway').value='';
+  document.getElementById('gadj-curve').value='';
+}
+
+// ── Charts ──
+// ============================================================
+// SIGHT DISTANCE ON CURVES — Figure 4-11
+// m = R(1 - cos(Sa/2R))   Sa = 2R*acos(1 - m/R)
+// ============================================================
+var sdcChartInst = null;
+var sdcMarkerPoint = null;
+var sdcMode = 1;
+
+function setSdcMode(mode) {
+  sdcMode = mode;
+  document.getElementById('sdc-mode1').style.display = mode===1 ? '' : 'none';
+  document.getElementById('sdc-mode2').style.display = mode===2 ? '' : 'none';
+  document.getElementById('sdc-mode1-btn').className = mode===1 ? 'btn btn-primary' : 'btn btn-reset';
+  document.getElementById('sdc-mode2-btn').className = mode===2 ? 'btn btn-primary' : 'btn btn-reset';
+}
+
+function calcSdc1() {
+  var R = parseFloat(document.getElementById('sdc1-R').value);
+  var m = parseFloat(document.getElementById('sdc1-m').value);
+  var ssd = parseFloat(document.getElementById('sdc1-ssd').value);
+  var al = document.getElementById('sdc1-alert'); al.textContent='';
+  if(isNaN(R)||R<=0){al.textContent='⚠️ أدخل R';return;}
+  if(isNaN(m)||m<=0){al.textContent='⚠️ أدخل m';return;}
+  if(m>=R){al.textContent='⚠️ m يجب أن تكون أصغر من R';return;}
+  var Sa = 2*R*Math.acos(1 - m/R) * (180/Math.PI);
+  // convert: acos returns radians, formula needs degrees converted to arc
+  // Actually formula is in radians for cos, Sa in meters:
+  // Sa = 2R * arccos(1 - m/R)  where arccos in radians, result in meters
+  Sa = 2*R*Math.acos(1 - m/R);
+  Sa = Math.round(Sa*10)/10;
+  document.getElementById('sdc1-result-val').textContent = Sa;
+  var status = '';
+  var steps = 'R = '+R+' م | m = '+m+' م<br>Sₐ = 2 × '+R+' × cos⁻¹(1 − '+m+'/'+R+') = <strong>'+Sa+' م</strong>';
+  if(!isNaN(ssd) && ssd>0){
+    if(Sa >= ssd){
+      status = '<span style="color:#16a34a;font-weight:700">✅ آمن — Sₐ ('+Sa+' م) ≥ SSD المطلوبة ('+ssd+' م)</span>';
+    } else {
+      status = '<span style="color:#dc2626;font-weight:700">❌ غير آمن — Sₐ ('+Sa+' م) < SSD المطلوبة ('+ssd+' م) → يجب إزالة العائق أو تعديل التصميم</span>';
+    }
+  }
+  document.getElementById('sdc1-steps').innerHTML = steps + (status ? '<br>'+status : '');
+  // Update chart marker
+  if(sdcChartInst){
+    sdcMarkerPoint = {x: Sa, y: m};
+    var ds = sdcChartInst.data.datasets;
+    ds[ds.length-1].data = [sdcMarkerPoint];
+    sdcChartInst.update();
+  }
+  // History
+  calcHistory.push({id:Date.now(),section:'مسافة الرؤية في المنحنيات',
+    inputs:'R='+R+'م | m='+m+'م',result:'Sₐ='+Sa+'م'+(ssd?' | SSD='+ssd+'م':''),
+    time:new Date().toLocaleString('ar-SA')});
+  try{localStorage.setItem('calcHistory',JSON.stringify(calcHistory));}catch(e){}
+  renderHistory();
+}
+
+function calcSdc2() {
+  var R = parseFloat(document.getElementById('sdc2-R').value);
+  var Sa = parseFloat(document.getElementById('sdc2-Sa').value);
+  var al = document.getElementById('sdc2-alert'); al.textContent='';
+  if(isNaN(R)||R<=0){al.textContent='⚠️ أدخل R';return;}
+  if(isNaN(Sa)||Sa<=0){al.textContent='⚠️ أدخل Sₐ';return;}
+  var m = R*(1 - Math.cos(Sa/(2*R)));
+  m = Math.round(m*100)/100;
+  document.getElementById('sdc2-result-val').textContent = m;
+  document.getElementById('sdc2-steps').innerHTML =
+    'R = '+R+' م | Sₐ = '+Sa+' م<br>m = '+R+' × (1 − cos('+Sa+'/(2×'+R+'))) = <strong>'+m+' م</strong><br>'+
+    '<span style="color:var(--muted);font-size:12px">يجب إبقاء المسافة الجانبية للعائق ≥ '+m+' م لضمان مسافة الرؤية</span>';
+  if(sdcChartInst){
+    sdcMarkerPoint = {x: Sa, y: m};
+    var ds = sdcChartInst.data.datasets;
+    ds[ds.length-1].data = [sdcMarkerPoint];
+    sdcChartInst.update();
+  }
+  calcHistory.push({id:Date.now(),section:'مسافة الرؤية في المنحنيات',
+    inputs:'R='+R+'م | Sₐ='+Sa+'م',result:'m مطلوبة='+m+'م',
+    time:new Date().toLocaleString('ar-SA')});
+  try{localStorage.setItem('calcHistory',JSON.stringify(calcHistory));}catch(e){}
+  renderHistory();
+}
+
+function resetSdc(mode){
+  if(mode===1){
+    ['sdc1-R','sdc1-m','sdc1-ssd'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+    var rv=document.getElementById('sdc1-result-val');if(rv)rv.textContent='—';
+    var rs=document.getElementById('sdc1-steps');if(rs)rs.innerHTML='';
+    document.getElementById('sdc1-alert').textContent='';
+  } else {
+    ['sdc2-R','sdc2-Sa'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+    var rv=document.getElementById('sdc2-result-val');if(rv)rv.textContent='—';
+    var rs=document.getElementById('sdc2-steps');if(rs)rs.innerHTML='';
+    document.getElementById('sdc2-alert').textContent='';
+  }
+  sdcMarkerPoint=null;
+  if(sdcChartInst){var ds=sdcChartInst.data.datasets;ds[ds.length-1].data=[];sdcChartInst.update();}
+}
+
+// ============================================================
+// CLEAR ZONE SLOPE DATA (AASHTO Roadside Design Guide)
+// Y-axis index: 13=Fill3:1 ... 7=Flat ... 1=Cut3:1
+// X-axis: Clear Zone width in meters
+// ============================================================
+const CZ_SLOPE_DATA = {
+  50:  { fill:{3:3,4:3.5,5:4,6:4.5,8:5,10:5.5},  flat:6,  cut:{10:5.5,8:5,6:4.5,5:4,4:3.5,3:3} },
+  60:  { fill:{3:4,4:5,5:5.5,6:6,8:7,10:7.5},    flat:8,  cut:{10:7,8:6,6:5.5,5:5,4:4.5,3:4} },
+  70:  { fill:{3:5,4:6,5:7,6:8,8:9,10:10},        flat:11, cut:{10:9,8:7.5,6:7,5:6,4:5.5,3:5} },
+  80:  { fill:{3:6,4:7,5:8.5,6:10,8:11,10:12},    flat:14, cut:{10:11,8:9,6:8,5:7,4:6.5,3:6} },
+  90:  { fill:{3:6.5,4:8,5:10,6:11,8:13,10:14},   flat:16, cut:{10:13,8:11,6:9.5,5:8,4:7,3:6.5} },
+  100: { fill:{3:7,4:9,5:11,6:13,8:15,10:16},     flat:18, cut:{10:14.5,8:12,6:10,5:9,4:8,3:7} },
+  110: { fill:{3:8,4:10,5:12,6:14,8:16,10:18},    flat:20, cut:{10:16,8:13,6:11,5:10,4:9,3:8} }
+};
+
+// Slope index mapping (Y-axis of chart)
+const CZ_Y_LABELS = {
+  13:'▲ ردم 3:1 (شديد)', 12:'▲ ردم 4:1', 11:'▲ ردم 5:1', 10:'▲ ردم 6:1',
+  9:'▲ ردم 8:1', 8:'▲ ردم 10:1 (خفيف)', 7:'— مستوي (Flat)',
+  6:'▼ قطع 10:1 (خفيف)', 5:'▼ قطع 8:1', 4:'▼ قطع 6:1',
+  3:'▼ قطع 5:1', 2:'▼ قطع 4:1', 1:'▼ قطع 3:1 (شديد)'
+};
+
+function getYIndex(terrain, slope) {
+  if (terrain === 'flat') return 7;
+  if (terrain === 'fill') {
+    const m = {3:13,4:12,5:11,6:10,8:9,10:8}; return m[parseInt(slope)] || 7;
+  }
+  const m = {10:6,8:5,6:4,5:3,4:2,3:1}; return m[parseInt(slope)] || 7;
+}
+
+function getCZWidth(speed, terrain, slope) {
+  var d = CZ_SLOPE_DATA[parseInt(speed)];
+  if (!d) return null;
+  if (terrain === 'flat') return d.flat;
+  if (terrain === 'fill') return d.fill[parseInt(slope)] || null;
+  return d.cut[parseInt(slope)] || null;
+}
+
+function filterRefs() {
+  var q = document.getElementById('ref-search').value.trim().toLowerCase();
+  document.querySelectorAll('#s12 .dwg-card').forEach(function(card) {
+    var name = (card.getAttribute('data-name') || '').toLowerCase();
+    var eng = (card.querySelector('.dwg-eng') ? card.querySelector('.dwg-eng').textContent : '').toLowerCase();
+    card.classList.toggle('hidden', q && !name.includes(q) && !eng.includes(q));
+  });
+  document.querySelectorAll('#s12 .dwg-category').forEach(function(cat) {
+    var visible = cat.querySelectorAll('.dwg-card:not(.hidden)').length;
+    cat.style.display = visible === 0 && q ? 'none' : '';
+  });
+}
+
+function filterDrawings() {
+  var q = document.getElementById('dwg-search').value.trim().toLowerCase();
+  document.querySelectorAll('.dwg-card').forEach(function(card) {
+    var name = (card.getAttribute('data-name') || '').toLowerCase();
+    var eng = (card.querySelector('.dwg-eng') ? card.querySelector('.dwg-eng').textContent : '').toLowerCase();
+    card.classList.toggle('hidden', q && !name.includes(q) && !eng.includes(q));
+  });
+  // Hide empty categories
+  document.querySelectorAll('.dwg-category').forEach(function(cat) {
+    var visible = cat.querySelectorAll('.dwg-card:not(.hidden)').length;
+    cat.style.display = visible === 0 && q ? 'none' : '';
+  });
+}
+
+function toggleCZSlope() {
+  var t = document.getElementById('czs-terrain').value;
+  document.getElementById('czs-slope-wrap').style.display = (t === 'flat') ? 'none' : '';
+}
+
+var czChartInst = null;
+var czMarkerPoint = null;
+var lcChartInst = null;
+var lcMarkerPoint = null;
+
+function toggleLCSlope() {
+  var t = document.getElementById('lcs-terrain').value;
+  document.getElementById('lcs-slope-wrap').style.display = (t === 'flat') ? 'none' : '';
+}
+
+function calcLC() {
+  var speed = document.getElementById('lcs-speed').value;
+  var terrain = document.getElementById('lcs-terrain').value;
+  var slope = document.getElementById('lcs-slope').value;
+  var alert = document.getElementById('lcs-alert');
+  alert.textContent = '';
+  if (!speed) { alert.textContent = 'اختر سرعة التصميم'; return; }
+  var w = getCZWidth(speed, terrain, slope);
+  if (!w) { alert.textContent = 'لا توجد قيمة لهذا الاختيار'; return; }
+  var terrainAr = terrain==='fill'?'ردم':terrain==='cut'?'قطع':'مستوي';
+  var slopeAr = terrain==='flat'?'':(' — ميل '+slope+':1');
+  document.getElementById('lcs-result-val').textContent = w;
+  document.getElementById('lcs-steps').innerHTML =
+    'سرعة التصميم: <strong>'+speed+' كم/س</strong> | نوع الأرض: <strong>'+terrainAr+'</strong>'+slopeAr+'<br>'+
+    '<strong>LC المطلوب = '+w+' م</strong> (من شارت AASHTO Clear Zone)';
+  if (lcChartInst) {
+    lcMarkerPoint = { x: w, y: getYIndex(terrain, slope) };
+    var ds = lcChartInst.data.datasets;
+    ds[ds.length-1].data = [lcMarkerPoint];
+    lcChartInst.update();
+  }
+  var entry = {
+    id: Date.now(),
+    section: 'LC الحواجز',
+    inputs: 'سرعة '+speed+' كم/س | '+terrainAr+slopeAr,
+    result: 'LC = '+w+' م',
+    time: new Date().toLocaleString('ar-SA')
+  };
+  calcHistory.push(entry);
+  try { localStorage.setItem('calcHistory', JSON.stringify(calcHistory)); } catch(e){}
+  renderHistory();
+}
+
+function resetLCCalc() {
+  document.getElementById('lcs-speed').value = '';
+  document.getElementById('lcs-result-val').textContent = '—';
+  document.getElementById('lcs-steps').innerHTML = '';
+  document.getElementById('lcs-alert').textContent = '';
+  lcMarkerPoint = null;
+  if (lcChartInst) {
+    var ds = lcChartInst.data.datasets;
+    ds[ds.length-1].data = [];
+    lcChartInst.update();
+  }
+}
+
+function calcCZSlope() {
+  var speed = document.getElementById('czs-speed').value;
+  var terrain = document.getElementById('czs-terrain').value;
+  var slope = document.getElementById('czs-slope').value;
+  var alert = document.getElementById('czs-alert');
+  alert.textContent = '';
+  if (!speed) { alert.textContent = 'اختر سرعة التصميم'; return; }
+  var w = getCZWidth(speed, terrain, slope);
+  if (!w) { alert.textContent = 'لا توجد قيمة لهذا الاختيار'; return; }
+  var terrainAr = terrain==='fill'?'ردم':terrain==='cut'?'قطع':'مستوي';
+  var slopeAr = terrain==='flat'?'':(' — ميل '+slope+':1');
+  document.getElementById('czs-result-val').textContent = w;
+  document.getElementById('czs-steps').innerHTML =
+    'سرعة التصميم: <strong>'+speed+' كم/س</strong> | نوع الأرض: <strong>'+terrainAr+'</strong>'+slopeAr+'<br>'+
+    '<strong>Clear Zone المطلوب = '+w+' م</strong>';
+  // Highlight on chart — update marker dataset (last dataset)
+  if (czChartInst) {
+    czMarkerPoint = { x: w, y: getYIndex(terrain, slope) };
+    var datasets = czChartInst.data.datasets;
+    datasets[datasets.length-1].data = [czMarkerPoint];
+    czChartInst.update();
+  }
+  // Save to history
+  var entry = {
+    id: Date.now(),
+    section: 'Clear Zone بالميل',
+    inputs: 'سرعة '+speed+' كم/س | '+terrainAr+slopeAr,
+    result: 'Clear Zone = '+w+' م',
+    time: new Date().toLocaleString('ar-SA')
+  };
+  calcHistory.push(entry);
+  try { localStorage.setItem('calcHistory', JSON.stringify(calcHistory)); } catch(e){}
+  renderHistory();
+}
+
+function drawCharts(){
+  // CZ Chart
+  const czCtx=document.getElementById('czChart').getContext('2d');
+  // Build slope-based chart: X=CZ width, Y=slope index, 7 speed curves
+  var speeds=[50,60,70,80,90,100,110];
+  var speedColors=['#6366f1','#8b5cf6','#ec4899','#ef4444','#f97316','#22c55e','#0ea5e9'];
+  var czDatasets=speeds.map(function(sp,si){
+    var d=CZ_SLOPE_DATA[sp];
+    return {
+      label:sp+' كم/س',
+      data:[
+        {y:13,x:d.fill[3]},{y:12,x:d.fill[4]},{y:11,x:d.fill[5]},{y:10,x:d.fill[6]},
+        {y:9,x:d.fill[8]},{y:8,x:d.fill[10]},{y:7,x:d.flat},
+        {y:6,x:d.cut[10]},{y:5,x:d.cut[8]},{y:4,x:d.cut[6]},
+        {y:3,x:d.cut[5]},{y:2,x:d.cut[4]},{y:1,x:d.cut[3]}
+      ],
+      borderColor:speedColors[si],backgroundColor:speedColors[si]+'33',
+      fill:false,tension:0.4,pointRadius:3,pointHoverRadius:6,borderWidth:2,showLine:true
+    };
+  });
+  czDatasets.push({
+    label:'◀ نقطة الحساب',
+    data:[],
+    borderColor:'#f59e0b',backgroundColor:'#f59e0b',
+    pointRadius:10,pointHoverRadius:13,pointStyle:'rectRot',showLine:false,order:-1
+  });
+  // Background zones plugin
+  var czBgPlugin = {
+    id:'czBg',
+    beforeDraw:function(chart){
+      var ctx=chart.ctx, yAxis=chart.scales.y, xAxis=chart.scales.x;
+      var top=yAxis.top, bottom=yAxis.bottom;
+      var left=xAxis.left, right=xAxis.right;
+      var flat7top=yAxis.getPixelForValue(7.5);
+      var flat7bot=yAxis.getPixelForValue(6.5);
+      ctx.save();
+      // Fill zone (green)
+      ctx.fillStyle='rgba(34,197,94,0.07)';
+      ctx.fillRect(left,top,right-left,flat7top-top);
+      // Flat zone (blue-gray)
+      ctx.fillStyle='rgba(59,130,246,0.1)';
+      ctx.fillRect(left,flat7top,right-left,flat7bot-flat7top);
+      // Cut zone (orange)
+      ctx.fillStyle='rgba(249,115,22,0.07)';
+      ctx.fillRect(left,flat7bot,right-left,bottom-flat7bot);
+      ctx.restore();
+    }
+  };
+
+  czChartInst=new Chart(czCtx,{
+    type:'scatter',
+    data:{datasets:czDatasets},
+    plugins:[czBgPlugin],
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'top',labels:{font:{family:'Cairo',size:11},boxWidth:16}},
+        tooltip:{callbacks:{label:function(c){
+          return c.dataset.label+': '+(CZ_Y_LABELS[c.parsed.y]||'')+' → '+c.parsed.x+' م';
+        }}}
+      },
+      scales:{
+        x:{
+          title:{display:true,text:'عرض Clear Zone (م)',font:{family:'Cairo',size:12}},
+          min:0,max:22,grid:{color:'rgba(0,0,0,0.07)'}
+        },
+        y:{
+          title:{display:true,text:'نوع الأرض والميل',font:{family:'Cairo',size:12}},
+          min:0.5,max:13.5,
+          ticks:{
+            stepSize:1,
+            callback:function(v){return CZ_Y_LABELS[v]||'';},
+            font:{family:'Cairo',size:10},
+            color:function(c){
+              var v=c.tick.value;
+              if(v>7) return '#15803d';   // green - fill
+              if(v===7) return '#1d4ed8'; // blue - flat
+              return '#c2410c';            // orange - cut
+            }
+          },
+          grid:{
+            color:function(c){return c.tick&&c.tick.value===7?'rgba(59,130,246,0.5)':'rgba(0,0,0,0.07)';},
+            lineWidth:function(c){return c.tick&&c.tick.value===7?2:1;}
+          }
+        }
+      },animation:{duration:400}
+    }
+  });
+
+  // LC Chart (barriers section — same AASHTO data as CZ chart)
+  var lcCtxEl = document.getElementById('lcChart');
+  if (lcCtxEl) {
+    var lcCtx = lcCtxEl.getContext('2d');
+    var lcDatasets = speeds.map(function(sp, si) {
+      var d = CZ_SLOPE_DATA[sp];
+      return {
+        label: sp + ' كم/س',
+        data:[
+          {y:13,x:d.fill[3]},{y:12,x:d.fill[4]},{y:11,x:d.fill[5]},{y:10,x:d.fill[6]},
+          {y:9,x:d.fill[8]},{y:8,x:d.fill[10]},{y:7,x:d.flat},
+          {y:6,x:d.cut[10]},{y:5,x:d.cut[8]},{y:4,x:d.cut[6]},
+          {y:3,x:d.cut[5]},{y:2,x:d.cut[4]},{y:1,x:d.cut[3]}
+        ],
+        borderColor:speedColors[si],backgroundColor:speedColors[si]+'33',
+        fill:false,tension:0.4,pointRadius:3,pointHoverRadius:6,borderWidth:2,showLine:true
+      };
+    });
+    lcDatasets.push({
+      label:'◀ نقطة LC',
+      data:[],
+      borderColor:'#f59e0b',backgroundColor:'#f59e0b',
+      pointRadius:10,pointHoverRadius:13,pointStyle:'rectRot',showLine:false,order:-1
+    });
+    var lcBgPlugin = {
+      id:'lcBg',
+      beforeDraw:function(chart){
+        var ctx=chart.ctx,yAxis=chart.scales.y,xAxis=chart.scales.x;
+        var top=yAxis.top,bottom=yAxis.bottom,left=xAxis.left,right=xAxis.right;
+        var f7t=yAxis.getPixelForValue(7.5),f7b=yAxis.getPixelForValue(6.5);
+        ctx.save();
+        ctx.fillStyle='rgba(34,197,94,0.07)'; ctx.fillRect(left,top,right-left,f7t-top);
+        ctx.fillStyle='rgba(59,130,246,0.1)'; ctx.fillRect(left,f7t,right-left,f7b-f7t);
+        ctx.fillStyle='rgba(249,115,22,0.07)'; ctx.fillRect(left,f7b,right-left,bottom-f7b);
+        ctx.restore();
+      }
+    };
+    lcChartInst = new Chart(lcCtx, {
+      type:'scatter',
+      data:{datasets:lcDatasets},
+      plugins:[lcBgPlugin],
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{position:'top',labels:{font:{family:'Cairo',size:11},boxWidth:16}},
+          tooltip:{callbacks:{label:function(c){
+            return c.dataset.label+': '+(CZ_Y_LABELS[c.parsed.y]||'')+' → LC = '+c.parsed.x+' م';
+          }}}
+        },
+        scales:{
+          x:{
+            title:{display:true,text:'LC — الخلوص الجانبي (م)',font:{family:'Cairo',size:12}},
+            min:0,max:22,grid:{color:'rgba(0,0,0,0.07)'}
+          },
+          y:{
+            title:{display:true,text:'نوع الأرض والميل',font:{family:'Cairo',size:12}},
+            min:0.5,max:13.5,
+            ticks:{
+              stepSize:1,
+              callback:function(v){return CZ_Y_LABELS[v]||'';},
+              font:{family:'Cairo',size:10},
+              color:function(c){
+                var v=c.tick.value;
+                if(v>7) return '#15803d';
+                if(v===7) return '#1d4ed8';
+                return '#c2410c';
+              }
+            },
+            grid:{
+              color:function(c){return c.tick&&c.tick.value===7?'rgba(59,130,246,0.5)':'rgba(0,0,0,0.07)';},
+              lineWidth:function(c){return c.tick&&c.tick.value===7?2:1;}
+            }
+          }
+        },
+        animation:{duration:400}
+      }
+    });
+  }
+
+  // SDC Chart — Sight Distance on Curves (Figure 4-11)
+  var sdcCtxEl = document.getElementById('sdcChart');
+  if(sdcCtxEl){
+    var sdcCtx = sdcCtxEl.getContext('2d');
+    var sdcRadii = [25,50,100,200,300,400,500,750,1000,1500,2000,3000];
+    var sdcColors = ['#6366f1','#8b5cf6','#a855f7','#ec4899','#ef4444','#f97316',
+                     '#eab308','#22c55e','#14b8a6','#0ea5e9','#3b82f6','#64748b'];
+    var sdcDatasets = sdcRadii.map(function(R,ri){
+      var pts=[];
+      for(var Sa=5;Sa<=500;Sa+=5){
+        var m=R*(1-Math.cos(Sa/(2*R)));
+        if(m>0&&m<34) pts.push({x:Sa,y:Math.round(m*100)/100});
+      }
+      return {label:'R='+R+'م',data:pts,borderColor:sdcColors[ri],
+        backgroundColor:'transparent',fill:false,tension:0.4,
+        pointRadius:0,pointHoverRadius:4,borderWidth:1.8,showLine:true};
+    });
+    sdcDatasets.push({
+      label:'◀ نقطة الحساب',data:[],
+      borderColor:'#f59e0b',backgroundColor:'#f59e0b',
+      pointRadius:10,pointHoverRadius:13,pointStyle:'rectRot',showLine:false,order:-1
+    });
+    sdcChartInst=new Chart(sdcCtx,{
+      type:'scatter',data:{datasets:sdcDatasets},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{position:'top',labels:{font:{family:'Cairo',size:10},boxWidth:14,padding:6}},
+          tooltip:{callbacks:{label:function(c){
+            return c.dataset.label+': Sₐ='+c.parsed.x+'م | m='+c.parsed.y+'م';
+          }}}
+        },
+        scales:{
+          x:{title:{display:true,text:'مسافة الرؤية المتاحة Sₐ (م)',font:{family:'Cairo',size:12}},
+            min:0,max:500,grid:{color:'rgba(0,0,0,0.07)'}},
+          y:{title:{display:true,text:'المسافة الجانبية للعائق m (م)',font:{family:'Cairo',size:12}},
+            min:0,max:32,grid:{color:'rgba(0,0,0,0.07)'},ticks:{font:{family:'Cairo',size:10}}}
+        },animation:{duration:400}
+      }
+    });
+  }
+
+  // CV Chart
+  const cvCtx=document.getElementById('cvChart').getContext('2d');
+  const vSpeeds=['20','30','40','50','60','70','80','90','100','110','120','130','140'];
+  new Chart(cvCtx,{type:'line',data:{
+    labels:vSpeeds,
+    datasets:[
+      {label:'e=4%',data:vSpeeds.map(v=>CV_DATA[v].e4),borderColor:'#1a3a5c',tension:.3,pointRadius:3},
+      {label:'e=6%',data:vSpeeds.map(v=>CV_DATA[v].e6),borderColor:'#2563a8',tension:.3,pointRadius:3},
+      {label:'e=8%',data:vSpeeds.map(v=>CV_DATA[v].e8),borderColor:'#16a34a',tension:.3,pointRadius:3},
+      {label:'e=10%',data:vSpeeds.map(v=>CV_DATA[v].e10),borderColor:'#e67e22',tension:.3,pointRadius:3},
+      {label:'e=12%',data:vSpeeds.map(v=>CV_DATA[v].e12),borderColor:'#dc2626',tension:.3,pointRadius:3}
+    ]
+  },options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{title:{display:true,text:'سرعة التصميم (كم/س)'}},y:{title:{display:true,text:'نصف القطر R (م)'}}}}});
+
+  // SSD Chart
+  const ssdCtx=document.getElementById('ssdChart').getContext('2d');
+  const vArr=[40,50,60,70,80,90,100,110,120];
+  const ssdF=0.35,ssdT=2.5;
+  function ssdCalc(v){return 0.278*v*ssdT + (v*v)/(254*ssdF);}
+  new Chart(ssdCtx,{type:'line',data:{
+    labels:vArr,
+    datasets:[{label:'SSD (f=0.35, t=2.5s, مستوٍ)',data:vArr.map(ssdCalc),borderColor:'#2563a8',backgroundColor:'rgba(37,99,168,.1)',tension:.3,pointRadius:4,fill:true}]
+  },options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{title:{display:true,text:'السرعة (كم/س)'}},y:{title:{display:true,text:'SSD (م)'}}}}});
+}
+
+// Charts init on load
+window.addEventListener('load', function(){
+  if(typeof Chart !== 'undefined') drawCharts();
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" onload="drawCharts()"></script>
+</body>
+</html>
