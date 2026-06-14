@@ -699,27 +699,42 @@ function showSection(id){
           <tr style="border-bottom:1px solid var(--border)">
             <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">LH</td>
             <td style="padding:5px 8px;font-weight:600">Lateral Distance to Hazard</td>
-            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">يُقاس من <strong>محور الطريق</strong> إلى العائق — يشمل نصف عرض الطريق + المسافة من حافة الكتف</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">يُقاس من <strong>محور الطريق (سنتر لاين)</strong> إلى ظهر العائق — في الطريق المفرد: LH = نصف عرض الرصيف + عرض الكتف + المسافة للعائق (Fig. 1.15.11)</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
-            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">L2</td>
-            <td style="padding:5px 8px;font-weight:600">—</td>
-            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">يُقاس من <strong>محور الطريق</strong> إلى وجه الحاجز — يشمل نصف الطريق + أي مسافة تباعد للحاجز</td>
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">LC</td>
+            <td style="padding:5px 8px;font-weight:600">Clear Zone Width</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">عرض منطقة الخلوص — يُقاس من محور الطريق. عندما يمتد العائق حتى حدود الخلوص: LH = LC (Section 1.15B)</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">L2</td>
+            <td style="padding:5px 8px;font-weight:600">Min. Barrier Offset</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">يُقاس من <strong>محور الطريق</strong> إلى وجه الحاجز — يجب أن يكون أكبر من مسافة الابتعاد Ls. في الطريق المفرد: يشمل نصف الطريق + الكتف + تباعد الحاجز</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
             <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">LR</td>
             <td style="padding:5px 8px;font-weight:600">Runout Length</td>
-            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">طول الانحراف — نفس التعريف، من جدول AASHTO بحسب السرعة وحجم المرور</td>
-          </tr>
-          <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
-            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">L1</td>
-            <td style="padding:5px 8px;font-weight:600">—</td>
-            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">المسافة الطولية الموازية للطريق، 8-10م (نفسها لكلا نوعي الطريق)</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">أبعد مسافة من العائق يمكن أن تصطدم بها مركبة خارجة عن الطريق — من جدول AASHTO (Table 1.15.4) بحسب السرعة وحجم المرور ADT</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">L1</td>
+            <td style="padding:5px 8px;font-weight:600">Tangent Rail Length</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">الجزء المستقيم الموازي للطريق من الحاجز — 8 إلى 10 أمتار (Table 1.15.4) — نفسه للطريق المفرد والمزدوج</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
             <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">b/a</td>
             <td style="padding:5px 8px;font-weight:600">Flare Rate</td>
-            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">معدل انحراف الحاجز — نفسه للطريق المفرد</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">معدل انحراف الحاجز — الحد الأقصى: Metal-beam 15:1 | Concrete 20:1 (Table 1.15.4) — نفسه لكلا النوعين</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">Y</td>
+            <td style="padding:5px 8px;font-weight:600">Barrier Offset</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">الإزاحة الجانبية لنقطة بداية الحاجز عن المسار — Y = (LH/LR) × L — يُقاس من محور الطريق في الطريق المفرد (Fig. 1.15.11)</td>
+          </tr>
+          <tr style="background:var(--bg)">
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">L</td>
+            <td style="padding:5px 8px;font-weight:600">Required Barrier Length</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">طول الحاجز المطلوب — الناتج المحسوب. الطول الكلي: LT = L1 + L0 + L + Terminal (Section 1.15E)</td>
           </tr>
         </tbody>
       </table>
