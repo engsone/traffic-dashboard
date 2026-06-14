@@ -618,6 +618,27 @@ function showSection(id){
     <div class="result-box" id="rs-result"><div><span class="result-value" id="rs-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="rs-steps"></div></div>
     <div class="alert" id="rs-alert"></div>
   </div>
+
+  <!-- حاسبة التطبيق المتصل -->
+  <div class="calc-card">
+    <div class="calc-title">حاسبة Rumble Strips — تطبيق متصل (بلا فجوات)</div>
+    <div class="eq-box">Lr = L &times; 1.0</div>
+    <div class="source-tag">المصدر: Fig. 5 &amp; 6 — MOT RD1-MOT-RSD-DWG-1812-013</div>
+    <div style="background:#fff8e1;border:1px solid #f59e0b;border-radius:6px;padding:8px 12px;font-size:12px;color:#7c4a00;margin:10px 0">
+      ⚠️ الناتج لـ <strong>جهة واحدة فقط</strong> — اضغط <strong>×2 للجهتين</strong> للإجمالي
+    </div>
+    <div class="form-row">
+      <div class="field"><label>طول القطاع L (متر)</label><input type="number" id="rsc-L" placeholder="مثال: 200" min="0"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcRumbleCont(1)">احسب — جهة واحدة</button>
+      <button class="btn btn-primary" onclick="calcRumbleCont(2)" style="background:#0d9488;border-color:#0d9488">× 2 للجهتين</button>
+      <button class="btn btn-reset" onclick="resetCalc('rsc')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('rsc-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="rsc-result"><div><span class="result-value" id="rsc-result-val">—</span><span class="result-unit">م</span></div><div class="result-steps" id="rsc-steps"></div></div>
+    <div class="alert" id="rsc-alert"></div>
+  </div>
 </section>
 <!-- SECTION 4: Barriers -->
 <section id="s4" class="section">
@@ -2597,6 +2618,16 @@ function calcRumble(){
   const Lr=L*0.60;
   showResult('rs', Lr, `Lr = ${L} × 0.60 = ${Lr.toFixed(2)} م`);
   addHistory('Rumble Strips', `L=${L}م`, `${Lr.toFixed(2)} م`);
+}
+
+// ── Section 3b: Rumble Strips — Continuous ──
+function calcRumbleCont(sides){
+  const L=parseFloat(document.getElementById('rsc-L').value);
+  if(isNaN(L)||L<=0){showAlert('rsc','⚠️ أدخل طول L موجباً');return;}
+  const Lr=L*sides;
+  const label=sides===1?'جهة واحدة':'الجهتان';
+  showResult('rsc', Lr, `Lr = ${L} × ${sides}.0 = ${Lr.toFixed(2)} م (${label})`);
+  addHistory('Rumble Strips متصل',`L=${L}م (${label})`,`${Lr.toFixed(2)} م`);
 }
 
 // ── Section 4: Barrier ──
