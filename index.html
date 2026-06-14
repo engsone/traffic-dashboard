@@ -410,10 +410,7 @@ function showSection(id){
       <div class="field"><label>L2 (متر)</label><input type="number" id="br-L2" placeholder="مثال: 2" min="0" step="0.1"></div>
       <div class="field"><label>LR (متر)</label><input type="number" id="br-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
     </div>
-    <div style="margin:10px 0 4px;display:flex;align-items:center;gap:8px">
-      <input type="checkbox" id="br-single" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer">
-      <label for="br-single" style="font-size:13px;cursor:pointer;color:var(--text)">🛣️ طريق مفرد — احسب الحاجز الإضافي للمرور المعاكس تلقائياً</label>
-    </div>
+    
     <div class="btn-row">
       <button class="btn btn-primary" onclick="calcBarrier()">احسب L</button>
       <button class="btn btn-reset" onclick="resetCalc('br')">إعادة تعيين</button>
@@ -426,14 +423,33 @@ function showSection(id){
         Y = <strong id="br-Y-val">—</strong> م &nbsp;<span style="color:var(--muted);font-size:11px">(إزاحة الحاجز عند نقطة البداية)</span>
       </div>
       <div class="result-steps" id="br-steps"></div>
-      <div id="br-single-result" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #cbd5e1">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L_add — الحاجز الإضافي للمرور المعاكس (Fig. 1.15.11 | LH+3.65، L2+3.65)</div>
-        <div><span class="result-value" id="br-result-add">—</span><span class="result-unit">م</span></div>
-        <div class="result-steps" id="br-steps-add"></div>
-      </div>
+      
       <span class="scroll-btn" onclick="document.getElementById('total-barrier-card').scrollIntoView({behavior:'smooth'})">← انتقل لحساب الطول الكلي Lt</span>
     </div>
     <div class="alert" id="br-alert"></div>
+  </div>
+
+
+  <div class="calc-card" style="border-right:4px solid #059669">
+    <div class="calc-title">حاسبة الإزاحة الجانبية Y — مع Flare Back</div>
+    <div class="eq-box">Y = (LH / LR) × L</div>
+    <div class="source-tag">المصدر: AASHTO Section 1.15</div>
+    <div class="form-row">
+      <div class="field"><label>LH (متر)</label><input type="number" id="y-br-LH" placeholder="مثال: 3" min="0" step="0.1"></div>
+      <div class="field"><label>LR (متر)</label><input type="number" id="y-br-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
+      <div class="field"><label>L (متر)</label><input type="number" id="y-br-L" placeholder="مثال: 15" min="0" step="0.1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcY('y-br')">احسب Y</button>
+      <button class="btn btn-reset" onclick="resetCalc('y-br')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('y-br-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="y-br-result">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Y — الإزاحة الجانبية للحاجز</div>
+      <div><span class="result-value" id="y-br-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="y-br-steps"></div>
+    </div>
+    <div class="alert" id="y-br-alert"></div>
   </div>
 
   <div class="calc-card" id="barrier-L2-card">
@@ -446,10 +462,7 @@ function showSection(id){
       <div class="field"><label>L2 (متر)</label><input type="number" id="br2-L2" placeholder="مثال: 20" min="0" step="0.1"></div>
       <div class="field"><label>LR (متر)</label><input type="number" id="br2-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
     </div>
-    <div style="margin:10px 0 4px;display:flex;align-items:center;gap:8px">
-      <input type="checkbox" id="br2-single" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer">
-      <label for="br2-single" style="font-size:13px;cursor:pointer;color:var(--text)">🛣️ طريق مفرد — احسب الحاجز الإضافي للمرور المعاكس تلقائياً</label>
-    </div>
+    
     <div class="btn-row">
       <button class="btn btn-primary" onclick="calcBarrier2()">احسب L</button>
       <button class="btn btn-reset" onclick="resetCalc('br2')">إعادة تعيين</button>
@@ -459,11 +472,7 @@ function showSection(id){
       <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L — مسافة الحماية</div>
       <div><span class="result-value" id="br2-result-val">—</span><span class="result-unit">م</span></div>
       <div class="result-steps" id="br2-steps"></div>
-      <div id="br2-single-result" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #cbd5e1">
-        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L_add — الحاجز الإضافي للمرور المعاكس (Fig. 1.15.11 | LH+3.65، L2+3.65)</div>
-        <div><span class="result-value" id="br2-result-add">—</span><span class="result-unit">م</span></div>
-        <div class="result-steps" id="br2-steps-add"></div>
-      </div>
+      
       <div class="alert alert-warn show" style="margin-top:8px">🔴 تذكير: يجب تنفيذ نهاية ماصّة للصدمات (Crashworthy Terminal) عند تطبيق هذه الحالة.</div>
       <span class="scroll-btn" onclick="document.getElementById('total-barrier-card').scrollIntoView({behavior:'smooth'})">← انتقل لحساب الطول الكلي Lt</span>
     </div>
@@ -529,6 +538,29 @@ function showSection(id){
       <div class="result-steps" id="brlc-steps"></div>
     </div>
     <div class="alert" id="brlc-alert"></div>
+  </div>
+
+
+  <div class="calc-card" style="border-right:4px solid #7c3aed">
+    <div class="calc-title">حاسبة الإزاحة الجانبية Y — حالة LC</div>
+    <div class="eq-box">Y = (LC / LR) × L</div>
+    <div class="source-tag">المصدر: AASHTO Section 1.15</div>
+    <div class="form-row">
+      <div class="field"><label>LC (متر)</label><input type="number" id="y-brlc-LC" placeholder="مثال: 5" min="0" step="0.1"></div>
+      <div class="field"><label>LR (متر)</label><input type="number" id="y-brlc-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
+      <div class="field"><label>L (متر)</label><input type="number" id="y-brlc-L" placeholder="مثال: 15" min="0" step="0.1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcYLC('y-brlc')">احسب Y</button>
+      <button class="btn btn-reset" onclick="resetCalc('y-brlc')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('y-brlc-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="y-brlc-result">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Y — الإزاحة الجانبية (حالة LC)</div>
+      <div><span class="result-value" id="y-brlc-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="y-brlc-steps"></div>
+    </div>
+    <div class="alert" id="y-brlc-alert"></div>
   </div>
 
   <!-- Single vs Divided Road Note -->
@@ -2262,6 +2294,26 @@ function calcRumble(){
 }
 
 // ── Section 4: Barrier ──
+function calcY(pfx){
+  const LH=parseFloat(document.getElementById(pfx+'-LH').value);
+  const LR=parseFloat(document.getElementById(pfx+'-LR').value);
+  const L=parseFloat(document.getElementById(pfx+'-L').value);
+  if([LH,LR,L].some(isNaN)||LR<=0){showAlert(pfx,'⚠️ أدخل جميع القيم بشكل صحيح');return;}
+  const Y=(LH/LR)*L;
+  const steps=`Y = (${LH} / ${LR}) × ${L} = ${Y.toFixed(2)} م`;
+  showResult(pfx, Y, steps);
+  addHistory('Y — إزاحة الحاجز (Flare Back)',`LH=${LH}، LR=${LR}، L=${L}`,`${Y.toFixed(2)} م`);
+}
+function calcYLC(pfx){
+  const LC=parseFloat(document.getElementById(pfx+'-LC').value);
+  const LR=parseFloat(document.getElementById(pfx+'-LR').value);
+  const L=parseFloat(document.getElementById(pfx+'-L').value);
+  if([LC,LR,L].some(isNaN)||LR<=0){showAlert(pfx,'⚠️ أدخل جميع القيم بشكل صحيح');return;}
+  const Y=(LC/LR)*L;
+  const steps=`Y = (${LC} / ${LR}) × ${L} = ${Y.toFixed(2)} م`;
+  showResult(pfx, Y, steps);
+  addHistory('Y — إزاحة الحاجز (LC)',`LC=${LC}، LR=${LR}، L=${L}`,`${Y.toFixed(2)} م`);
+}
 function calcBarrier(){
   const LH=parseFloat(document.getElementById('br-LH').value);
   const baStr=document.getElementById('br-ba').value;
@@ -2287,19 +2339,6 @@ function calcBarrier(){
   document.getElementById('br-Y-val').textContent = Y.toFixed(2);
   document.getElementById('br-Y-row').style.display = 'block';
   addHistory('مسافة الحماية L + Y', `LH=${LH}، b/a=${baDisplay}، L1=${L1}، L2=${L2}، LR=${LR}`, `L=${Math.abs(L).toFixed(2)}م | Y=${Y.toFixed(2)}م`);
-  // Additional barrier for single road (Fig. 1.15.11)
-  if(document.getElementById('br-single').checked){
-    const LHa=LH+3.65, L2a=L2+3.65;
-    const denomA=ba+(LHa/LR);
-    const La=(LHa+ba*L1-L2a)/denomA;
-    const stepsA=`LH_add = ${LH}+3.65 = ${LHa}<br>L2_add = ${L2}+3.65 = ${L2a}<br>البسط = ${LHa} + ${ba.toFixed(4)}×${L1} − ${L2a} = ${(LHa+ba*L1-L2a).toFixed(3)}<br>المقام = ${ba.toFixed(4)} + (${LHa}/${LR}) = ${denomA.toFixed(4)}<br>L_add = ${Math.abs(La).toFixed(2)} م`;
-    document.getElementById('br-result-add').textContent=Math.abs(La).toFixed(2);
-    document.getElementById('br-steps-add').innerHTML=stepsA;
-    document.getElementById('br-single-result').style.display='block';
-    addHistory('حاجز إضافي — طريق مفرد (Fig.1.15.11)', `LH=${LHa}، b/a=${baDisplay}، L1=${L1}، L2=${L2a}، LR=${LR}`, `${Math.abs(La).toFixed(2)} م`);
-  } else {
-    document.getElementById('br-single-result').style.display='none';
-  }
 }
 
 function calcBarrier2(){
@@ -2315,23 +2354,6 @@ function calcBarrier2(){
   const steps=`(LH − L2) = ${LH} − ${L2} = ${(LH-L2).toFixed(3)}<br>(LR / LH) = ${LR} / ${LH} = ${(LR/LH).toFixed(4)}<br>L = ${(LH-L2).toFixed(3)} × ${(LR/LH).toFixed(4)} = ${L.toFixed(2)} م`;
   showResult('br2', L, steps);
   computedL = L;
-  // Additional barrier for single road (Fig. 1.15.11)
-  if(document.getElementById('br2-single').checked){
-    const LHa=LH+3.65, L2a=L2+3.65;
-    if(L2a>=LHa){
-      document.getElementById('br2-single-result').style.display='none';
-      showAlert('br2','⚠️ الحاجز الإضافي: L2+3.65 يجب أن تكون أصغر من LH+3.65 — تحقق من المدخلات','error');
-    } else {
-      const La=(LHa-L2a)*(LR/LHa);
-      const stepsA=`LH_add = ${LH}+3.65 = ${LHa}<br>L2_add = ${L2}+3.65 = ${L2a}<br>(LH_add − L2_add) = ${(LHa-L2a).toFixed(3)}<br>(LR / LH_add) = ${LR} / ${LHa} = ${(LR/LHa).toFixed(4)}<br>L_add = ${La.toFixed(2)} م`;
-      document.getElementById('br2-result-add').textContent=La.toFixed(2);
-      document.getElementById('br2-steps-add').innerHTML=stepsA;
-      document.getElementById('br2-single-result').style.display='block';
-      addHistory('حاجز إضافي بلا فلير — طريق مفرد (Fig.1.15.11)', `LH=${LHa}، L2=${L2a}، LR=${LR}`, `${La.toFixed(2)} م`);
-    }
-  } else {
-    document.getElementById('br2-single-result').style.display='none';
-  }
   addHistory('مسافة الحماية L (بدون فلير باك)', `LH=${LH}، L2=${L2}، LR=${LR}`, `${L.toFixed(2)} م`);
 }
 
