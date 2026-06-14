@@ -712,61 +712,94 @@ function showSection(id){
     </div>
   </div>
 
-  <!-- Calc 1: With Flare Back – Undivided -->
+  <!-- Calc 1: With Flare Back – Undivided (dual-column) -->
   <div class="calc-card">
     <div class="calc-title">حاسبة مسافة الحماية L — مع تنفيذ الـ Flare Back (طريق مفرد)</div>
     <div class="eq-box">L = [LH + (b/a)(L1) − L2] / [(b/a) + (LH/LR)] &nbsp;|&nbsp; Y = (LH/LR) × L</div>
     <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.11)</div>
+    <!-- Shared inputs -->
     <div class="alert alert-warn show" style="margin-bottom:10px">
-      ⚠️ أدخل LH و L2 مقيسَتَين من <strong>محور الطريق</strong> (مثال: L2 = نصف عرض الطريق + تباعد الحاجز)
+      ⚠️ احسب مرتين: مرة من <strong>الخط الأصفر</strong> ومرة من <strong>محور الطريق (سنتر)</strong>
     </div>
     <div class="form-row">
-      <div class="field"><label>LH (متر) — من محور الطريق إلى العائق</label><input type="number" id="bm1-LH" placeholder="مثال: 15.65" min="0" step="0.1"></div>
-      <div class="field"><label>b/a (نسبة أو عشري)</label><input type="text" id="bm1-ba" placeholder="مثال: 15:1 أو 0.0667"></div>
+      <div class="field"><label>b/a (نسبة أو عشري) — مشترك</label><input type="text" id="bm1-ba" placeholder="مثال: 15:1 أو 0.0667"></div>
+      <div class="field"><label>L1 (متر) — 8-10م — مشترك</label><input type="number" id="bm1-L1" placeholder="مثال: 8" min="0" step="0.1"></div>
+      <div class="field"><label>LR (متر) — مشترك</label><input type="number" id="bm1-LR" placeholder="مثال: 100" min="0" step="1"></div>
     </div>
-    <div class="form-row">
-      <div class="field"><label>L1 (متر) — 8-10م</label><input type="number" id="bm1-L1" placeholder="مثال: 8" min="0" step="0.1"></div>
-      <div class="field"><label>L2 (متر) — من محور الطريق إلى وجه الحاجز</label><input type="number" id="bm1-L2" placeholder="مثال: 5.65" min="0" step="0.1"></div>
-      <div class="field"><label>LR (متر)</label><input type="number" id="bm1-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="calcBarrierMufrad1()">احسب L</button>
-      <button class="btn btn-reset" onclick="resetCalc('bm1')">إعادة تعيين</button>
-      <button class="btn btn-copy" onclick="copyResult('bm1-result-val')">نسخ الناتج</button>
-    </div>
-    <div class="result-box" id="bm1-result">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L — مسافة الحماية (طريق مفرد)</div>
-      <div><span class="result-value" id="bm1-result-val">—</span><span class="result-unit">م</span></div>
-      <div id="bm1-Y-row" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:4px;font-size:13px">
-        Y = <strong id="bm1-Y-val">—</strong> م &nbsp;<span style="color:var(--muted);font-size:11px">(إزاحة الحاجز عند نقطة البداية)</span>
+    <!-- Dual columns -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+      <!-- Column A: from yellow line -->
+      <div style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);border-radius:8px;padding:12px">
+        <div style="font-weight:700;font-size:13px;color:#b45309;margin-bottom:8px">① من الخط الأصفر</div>
+        <div class="field" style="margin-bottom:8px"><label>LH — من الخط الأصفر إلى العائق (م)</label><input type="number" id="bm1a-LH" placeholder="مثال: 12" min="0" step="0.1"></div>
+        <div class="field"><label>L2 — من الخط الأصفر إلى وجه الحاجز (م)</label><input type="number" id="bm1a-L2" placeholder="مثال: 2" min="0" step="0.1"></div>
+        <div id="bm1a-result" style="display:none;margin-top:10px;background:var(--card);border-radius:6px;padding:8px;border:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--muted)">L (من الخط الأصفر)</div>
+          <div><span class="result-value" id="bm1a-result-val" style="font-size:20px">—</span><span class="result-unit"> م</span></div>
+          <div style="margin-top:4px;font-size:12px">Y = <strong id="bm1a-Y-val">—</strong> م</div>
+          <div class="result-steps" id="bm1a-steps" style="font-size:11px;margin-top:4px"></div>
+        </div>
       </div>
-      <div class="result-steps" id="bm1-steps"></div>
+      <!-- Column B: from centerline -->
+      <div style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.25);border-radius:8px;padding:12px">
+        <div style="font-weight:700;font-size:13px;color:#1d4ed8;margin-bottom:8px">② من محور الطريق (سنتر)</div>
+        <div class="field" style="margin-bottom:8px"><label>LH — من السنتر إلى العائق (م)</label><input type="number" id="bm1b-LH" placeholder="مثال: 15.65" min="0" step="0.1"></div>
+        <div class="field"><label>L2 — من السنتر إلى وجه الحاجز (م)</label><input type="number" id="bm1b-L2" placeholder="مثال: 5.65" min="0" step="0.1"></div>
+        <div id="bm1b-result" style="display:none;margin-top:10px;background:var(--card);border-radius:6px;padding:8px;border:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--muted)">L (من السنتر)</div>
+          <div><span class="result-value" id="bm1b-result-val" style="font-size:20px">—</span><span class="result-unit"> م</span></div>
+          <div style="margin-top:4px;font-size:12px">Y = <strong id="bm1b-Y-val">—</strong> م</div>
+          <div class="result-steps" id="bm1b-steps" style="font-size:11px;margin-top:4px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-primary" onclick="calcBarrierMufrad1()">احسب الاثنين</button>
+      <button class="btn btn-reset" onclick="resetMufrad1()">إعادة تعيين</button>
     </div>
     <div class="alert" id="bm1-alert"></div>
   </div>
 
-  <!-- Calc 2: Without Flare Back – Undivided -->
+  <!-- Calc 2: Without Flare Back – Undivided (dual-column) -->
   <div class="calc-card">
-    <div class="calc-title">حاسبة مسافة الحماية L — عند تعذّر تنفيذ الـ Flare Back (طريق مفرد)</div>
+    <div class="calc-title">حاسبة مسافة الحماية L — بدون Flare Back (طريق مفرد)</div>
     <div class="eq-box">L = (LH − L2) × (LR / LH)</div>
     <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.11)</div>
     <div class="alert alert-warn show" style="margin-bottom:10px">
-      ⚠️ أدخل LH و L2 مقيسَتَين من <strong>محور الطريق</strong>
+      ⚠️ احسب مرتين: مرة من <strong>الخط الأصفر</strong> ومرة من <strong>محور الطريق (سنتر)</strong>
     </div>
+    <!-- Shared input -->
     <div class="form-row">
-      <div class="field"><label>LH (متر) — من محور الطريق إلى العائق</label><input type="number" id="bm2-LH" placeholder="مثال: 15.65" min="0" step="0.1"></div>
-      <div class="field"><label>LR (متر) — طول الجريان (من جدول 1.15.4)</label><input type="number" id="bm2-LR" placeholder="مثال: 100" min="0" step="1"></div>
-      <div class="field"><label>L2 (متر) — من محور الطريق إلى وجه الحاجز</label><input type="number" id="bm2-L2" placeholder="مثال: 5.65" min="0" step="0.1"></div>
+      <div class="field"><label>LR (متر) — طول الجريان — مشترك</label><input type="number" id="bm2-LR" placeholder="مثال: 100" min="0" step="1"></div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="calcBarrierMufrad2()">احسب L</button>
-      <button class="btn btn-reset" onclick="resetCalc('bm2')">إعادة تعيين</button>
-      <button class="btn btn-copy" onclick="copyResult('bm2-result-val')">نسخ الناتج</button>
+    <!-- Dual columns -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+      <!-- Column A: from yellow line -->
+      <div style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.3);border-radius:8px;padding:12px">
+        <div style="font-weight:700;font-size:13px;color:#b45309;margin-bottom:8px">① من الخط الأصفر</div>
+        <div class="field" style="margin-bottom:8px"><label>LH — من الخط الأصفر إلى العائق (م)</label><input type="number" id="bm2a-LH" placeholder="مثال: 12" min="0" step="0.1"></div>
+        <div class="field"><label>L2 — من الخط الأصفر إلى وجه الحاجز (م)</label><input type="number" id="bm2a-L2" placeholder="مثال: 2" min="0" step="0.1"></div>
+        <div id="bm2a-result" style="display:none;margin-top:10px;background:var(--card);border-radius:6px;padding:8px;border:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--muted)">L (من الخط الأصفر)</div>
+          <div><span class="result-value" id="bm2a-result-val" style="font-size:20px">—</span><span class="result-unit"> م</span></div>
+          <div class="result-steps" id="bm2a-steps" style="font-size:11px;margin-top:4px"></div>
+        </div>
+      </div>
+      <!-- Column B: from centerline -->
+      <div style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.25);border-radius:8px;padding:12px">
+        <div style="font-weight:700;font-size:13px;color:#1d4ed8;margin-bottom:8px">② من محور الطريق (سنتر)</div>
+        <div class="field" style="margin-bottom:8px"><label>LH — من السنتر إلى العائق (م)</label><input type="number" id="bm2b-LH" placeholder="مثال: 15.65" min="0" step="0.1"></div>
+        <div class="field"><label>L2 — من السنتر إلى وجه الحاجز (م)</label><input type="number" id="bm2b-L2" placeholder="مثال: 5.65" min="0" step="0.1"></div>
+        <div id="bm2b-result" style="display:none;margin-top:10px;background:var(--card);border-radius:6px;padding:8px;border:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--muted)">L (من السنتر)</div>
+          <div><span class="result-value" id="bm2b-result-val" style="font-size:20px">—</span><span class="result-unit"> م</span></div>
+          <div class="result-steps" id="bm2b-steps" style="font-size:11px;margin-top:4px"></div>
+        </div>
+      </div>
     </div>
-    <div class="result-box" id="bm2-result">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L — مسافة الحماية بدون Flare Back (طريق مفرد)</div>
-      <div><span class="result-value" id="bm2-result-val">—</span><span class="result-unit">م</span></div>
-      <div class="result-steps" id="bm2-steps"></div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn btn-primary" onclick="calcBarrierMufrad2()">احسب الاثنين</button>
+      <button class="btn btn-reset" onclick="resetMufrad2()">إعادة تعيين</button>
     </div>
     <div class="alert" id="bm2-alert"></div>
   </div>
@@ -2326,38 +2359,66 @@ function useComputedL(){
 }
 
 function calcBarrierMufrad1(){
-  const LH=parseFloat(document.getElementById('bm1-LH').value);
   const baRaw=document.getElementById('bm1-ba').value.trim();
   const L1=parseFloat(document.getElementById('bm1-L1').value);
-  const L2=parseFloat(document.getElementById('bm1-L2').value);
   const LR=parseFloat(document.getElementById('bm1-LR').value);
-  if([LH,L1,L2,LR].some(isNaN)||!baRaw){showAlert('bm1','⚠️ أدخل جميع القيم');return;}
-  if([LH,L1,L2,LR].some(v=>v<0)){showAlert('bm1','⚠️ القيم يجب أن تكون غير سالبة');return;}
-  let ba; const baDisplay=baRaw;
-  if(baRaw.includes(':')){const p=baRaw.split(':');ba=parseFloat(p[1])/parseFloat(p[0]);}
-  else{ba=parseFloat(baRaw);}
-  if(isNaN(ba)||ba<=0){showAlert('bm1','⚠️ نسبة b/a غير صحيحة');return;}
-  const L=(LH+ba*L1-L2)/(ba+(LH/LR));
-  const Y=(LH/LR)*Math.abs(L);
-  const steps=`L = [${LH} + ${baDisplay}×${L1} − ${L2}] / [${baDisplay} + (${LH}/${LR})]\nL = ${L.toFixed(3)} م (طريق مفرد)\nY = (${LH}/${LR}) × ${Math.abs(L).toFixed(3)} = ${Y.toFixed(2)} م`;
-  showResult('bm1', Math.abs(L), steps);
-  document.getElementById('bm1-Y-val').textContent=Y.toFixed(2);
-  document.getElementById('bm1-Y-row').style.display='block';
-  addHistory('L — طريق مفرد (مع Flare Back)', `LH=${LH}، b/a=${baDisplay}، L1=${L1}، L2=${L2}، LR=${LR}`, `L=${Math.abs(L).toFixed(2)}م | Y=${Y.toFixed(2)}م`);
+  if(!baRaw){showAlert('bm1','⚠️ أدخل b/a');return;}
+  const ba=parseRatio(baRaw);
+  if(!ba||isNaN(ba)||ba<=0){showAlert('bm1','⚠️ نسبة b/a غير صحيحة');return;}
+  if(isNaN(L1)||L1<=0){showAlert('bm1','⚠️ أدخل L1');return;}
+  if(isNaN(LR)||LR<=0){showAlert('bm1','⚠️ أدخل LR');return;}
+  function calcSide(sfx,label){
+    const LH=parseFloat(document.getElementById('bm1'+sfx+'-LH').value);
+    const L2=parseFloat(document.getElementById('bm1'+sfx+'-L2').value);
+    if(isNaN(LH)||LH<=0||isNaN(L2)||L2<0){showAlert('bm1','⚠️ '+label+': أدخل LH و L2');return;}
+    const denom=ba+(LH/LR);
+    if(denom===0){showAlert('bm1','⚠️ قسمة على صفر');return;}
+    const L=(LH+ba*L1-L2)/denom;
+    const Y=(LH/LR)*Math.abs(L);
+    const steps=`L = [${LH} + ${baRaw}×${L1} − ${L2}] / [${baRaw} + (${LH}/${LR})]
+L = ${Math.abs(L).toFixed(2)} م
+Y = (${LH}/${LR}) × ${Math.abs(L).toFixed(2)} = ${Y.toFixed(2)} م`;
+    document.getElementById('bm1'+sfx+'-result-val').textContent=Math.abs(L).toFixed(2);
+    document.getElementById('bm1'+sfx+'-Y-val').textContent=Y.toFixed(2);
+    document.getElementById('bm1'+sfx+'-steps').innerHTML=steps.replace(/
+/g,'<br>');
+    document.getElementById('bm1'+sfx+'-result').style.display='block';
+    addHistory('L+Y طريق مفرد ('+label+')',`LH=${LH}، b/a=${baRaw}، L1=${L1}، L2=${L2}، LR=${LR}`,`L=${Math.abs(L).toFixed(2)}م | Y=${Y.toFixed(2)}م`);
+  }
+  calcSide('a','① من الخط الأصفر');
+  calcSide('b','② من محور الطريق');
+}
+function resetMufrad1(){
+  ['bm1-ba','bm1-L1','bm1-LR','bm1a-LH','bm1a-L2','bm1b-LH','bm1b-L2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['bm1a-result','bm1b-result'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const al=document.getElementById('bm1-alert');if(al)al.className='alert';
 }
 
 function calcBarrierMufrad2(){
-  const LH=parseFloat(document.getElementById('bm2-LH').value);
-  const L2=parseFloat(document.getElementById('bm2-L2').value);
   const LR=parseFloat(document.getElementById('bm2-LR').value);
-  if([LH,L2,LR].some(isNaN)){showAlert('bm2','⚠️ أدخل جميع القيم');return;}
-  if([LH,L2,LR].some(v=>v<0)){showAlert('bm2','⚠️ القيم يجب أن تكون غير سالبة');return;}
-  if(LH<=0){showAlert('bm2','⚠️ LH يجب أن يكون أكبر من صفر');return;}
-  if(L2>=LH){showAlert('bm2','⚠️ L2 يجب أن تكون أصغر من LH');return;}
-  const L=(LH-L2)*(LR/LH);
-  const steps=`(LH − L2) = ${LH} − ${L2} = ${(LH-L2).toFixed(3)}\n(LR / LH) = ${LR} / ${LH} = ${(LR/LH).toFixed(4)}\nL = ${(LH-L2).toFixed(3)} × ${(LR/LH).toFixed(4)} = ${L.toFixed(2)} م`;
-  showResult('bm2', Math.abs(L), steps);
-  addHistory('L — طريق مفرد (بدون Flare Back)', `LH=${LH}، L2=${L2}، LR=${LR}`, `${L.toFixed(2)} م`);
+  if(isNaN(LR)||LR<=0){showAlert('bm2','⚠️ أدخل LR');return;}
+  function calcSide(sfx,label){
+    const LH=parseFloat(document.getElementById('bm2'+sfx+'-LH').value);
+    const L2=parseFloat(document.getElementById('bm2'+sfx+'-L2').value);
+    if(isNaN(LH)||LH<=0||isNaN(L2)||L2<0){showAlert('bm2','⚠️ '+label+': أدخل LH و L2');return;}
+    if(L2>=LH){showAlert('bm2','⚠️ '+label+': L2 يجب أن تكون أصغر من LH');return;}
+    const L=(LH-L2)*(LR/LH);
+    const steps=`(LH − L2) = ${LH} − ${L2} = ${(LH-L2).toFixed(3)}
+(LR / LH) = ${LR} / ${LH} = ${(LR/LH).toFixed(4)}
+L = ${L.toFixed(2)} م`;
+    document.getElementById('bm2'+sfx+'-result-val').textContent=L.toFixed(2);
+    document.getElementById('bm2'+sfx+'-steps').innerHTML=steps.replace(/
+/g,'<br>');
+    document.getElementById('bm2'+sfx+'-result').style.display='block';
+    addHistory('L بدون فلير ('+label+')',`LH=${LH}، L2=${L2}، LR=${LR}`,`${L.toFixed(2)} م`);
+  }
+  calcSide('a','① من الخط الأصفر');
+  calcSide('b','② من محور الطريق');
+}
+function resetMufrad2(){
+  ['bm2-LR','bm2a-LH','bm2a-L2','bm2b-LH','bm2b-L2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['bm2a-result','bm2b-result'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const al=document.getElementById('bm2-alert');if(al)al.className='alert';
 }
 
 function calcTotalBarrierMufrad(){
