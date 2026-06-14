@@ -181,7 +181,8 @@ function showSection(id){
     <button class="nav-item active" onclick="showSection('s1')" data-sec="s1"><span class="nav-icon">↔️</span>التحويلات ومناطق العمل</button>
     <button class="nav-item" onclick="showSection('s2')" data-sec="s2"><span class="nav-icon">🎨</span>الدهانات والعلامات الأرضية</button>
     <button class="nav-item" onclick="showSection('s3')" data-sec="s3"><span class="nav-icon">〰️</span>المطبات الاهتزازية</button>
-    <button class="nav-item" onclick="showSection('s4')" data-sec="s4"><span class="nav-icon">🛡️</span>الحواجز والحمايات المعدنية</button>
+    <button class="nav-item" onclick="showSection('s4')" data-sec="s4"><span class="nav-icon">🛡️</span>الحواجز — مزدوج / سريع</button>
+    <button class="nav-item" onclick="showSection('s4b')" data-sec="s4b"><span class="nav-icon">🛡️</span>الحواجز — طريق مفرد</button>
     <button class="nav-item" onclick="showSection('s5')" data-sec="s5"><span class="nav-icon">📏</span>الخلوص الجانبي Clear Zone</button>
     <button class="nav-item" onclick="showSection('s6')" data-sec="s6"><span class="nav-icon">🔄</span>المنحنيات الأفقية والسرعة الآمنة</button>
     <button class="nav-item" onclick="showSection('s7')" data-sec="s7"><span class="nav-icon">📐</span>المنحنيات الرأسية</button>
@@ -198,7 +199,8 @@ function showSection(id){
   <a class="mob-btn active" id="mob-s1"    href="#s1"    onclick="showSection('s1');return false;">↔️ التحويلات</a>
   <a class="mob-btn"        id="mob-s2"    href="#s2"    onclick="showSection('s2');return false;">🎨 الدهانات</a>
   <a class="mob-btn"        id="mob-s3"    href="#s3"    onclick="showSection('s3');return false;">〰️ المطبات</a>
-  <a class="mob-btn"        id="mob-s4"    href="#s4"    onclick="showSection('s4');return false;">🛡️ الحواجز</a>
+  <a class="mob-btn"        id="mob-s4"    href="#s4"    onclick="showSection('s4');return false;">🛡️ حواجز مزدوج</a>
+  <a class="mob-btn"        id="mob-s4b"   href="#s4b"   onclick="showSection('s4b');return false;">🛡️ حواجز مفرد</a>
   <a class="mob-btn"        id="mob-s5"    href="#s5"    onclick="showSection('s5');return false;">📏 Clear Zone</a>
   <a class="mob-btn"        id="mob-s6"    href="#s6"    onclick="showSection('s6');return false;">🔄 منحنيات H</a>
   <a class="mob-btn"        id="mob-s7"    href="#s7"    onclick="showSection('s7');return false;">📐 منحنيات V</a>
@@ -235,37 +237,6 @@ function showSection(id){
     <div class="alert" id="taper-alert"></div>
   </div>
 
-  <div class="calc-card">
-    <div class="calc-title">حاسبة Taper Length بالنسبة (Ratio × Lane Width)</div>
-    <div class="eq-box">Taper Length = Ratio × Lane Width</div>
-    <div class="source-tag">المصدر: ص 10 — كود الطرق السعودي</div>
-    <div class="form-row">
-      <div class="field">
-        <label>النسبة Ratio</label>
-        <select id="taper-ratio">
-          <option value="70">70:1</option>
-          <option value="50">50:1</option>
-          <option value="25">25:1</option>
-          <option value="custom">مخصص</option>
-        </select>
-      </div>
-      <div class="field" id="taper-custom-wrap" style="display:none">
-        <label>قيمة النسبة المخصصة</label>
-        <input type="number" id="taper-custom-ratio" placeholder="مثال: 40" min="1">
-      </div>
-      <div class="field"><label>عرض الحارة (متر)</label><input type="number" id="taper-lw" placeholder="مثال: 3.75" min="0" step="0.01"></div>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="calcTaperRatio()">احسب</button>
-      <button class="btn btn-reset" onclick="resetCalc('taperR')">إعادة تعيين</button>
-      <button class="btn btn-copy" onclick="copyResult('taperR-result-val')">نسخ الناتج</button>
-    </div>
-    <div class="result-box" id="taperR-result">
-      <div><span class="result-value" id="taperR-result-val">—</span><span class="result-unit">م</span></div>
-      <div class="result-steps" id="taperR-steps"></div>
-    </div>
-    <div class="alert" id="taperR-alert"></div>
-  </div>
 </section>
 
 <!-- SECTION 2: Paint -->
@@ -327,7 +298,12 @@ function showSection(id){
     <div class="eq-box">A = 1.5 × W × X</div>
     <div class="source-tag">المصدر: ص 25 — كود الطرق السعودي</div>
     <div class="form-row">
-      <div class="field"><label>العرض W (متر)</label><input type="number" id="hb-W" placeholder="مثال: 3.75" min="0" step="0.01"></div>
+      <div class="field">
+        <label>عدد المسارات</label>
+        <input type="number" id="hb-lanes" placeholder="مثال: 3" min="1" step="1" oninput="document.getElementById('hb-W').value=(this.value*3.65).toFixed(2)">
+        <span style="font-size:11px;color:var(--muted)">عرض الحارة = 3.65م ← يُحسب تلقائياً</span>
+      </div>
+      <div class="field"><label>عرض الطريق W (متر)</label><input type="number" id="hb-W" placeholder="أو أدخل يدوياً" min="0" step="0.01"></div>
       <div class="field"><label>X (عدد الشرائط)</label><input type="number" id="hb-X" placeholder="مثال: 5" min="1" step="1"></div>
     </div>
     <div class="btn-row">
@@ -361,7 +337,7 @@ function showSection(id){
 </section>
 <!-- SECTION 4: Barriers -->
 <section id="s4" class="section">
-  <div class="section-title">الحواجز والحمايات المعدنية</div>
+  <div class="section-title">الحواجز والحمايات المعدنية — طرق مزدوجة وسريعة</div>
 
   <!-- Symbols Legend -->
   <div class="calc-card" style="background:var(--card);border-right:4px solid var(--accent)">
@@ -369,49 +345,49 @@ function showSection(id){
       📐 شرح الرموز المستخدمة <span style="font-size:12px;color:var(--muted)">(اضغط للطي/التوسيع)</span>
     </div>
     <div id="barrier-legend">
-      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px">
+      <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:8px;table-layout:fixed">
         <thead>
           <tr style="background:var(--primary);color:#fff">
-            <th style="padding:8px 12px;text-align:right;width:80px">الرمز</th>
-            <th style="padding:8px 12px;text-align:right">الاسم</th>
-            <th style="padding:8px 12px;text-align:right">الشرح</th>
+            <th style="padding:6px 8px;text-align:right;width:55px">الرمز</th>
+            <th style="padding:6px 8px;text-align:right;width:160px">الاسم</th>
+            <th style="padding:6px 8px;text-align:right">الشرح</th>
           </tr>
         </thead>
         <tbody>
           <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L</td>
-            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Length of Need</td>
-            <td style="padding:8px 12px;color:var(--muted)">طول الحاجة من حاجز الحماية — الطول المطلوب تنفيذه قبل العائق لضمان اعتراض المركبة المنحرفة ومنع وصولها إلى منطقة الخطر</td>
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">L</td>
+            <td style="padding:5px 8px;font-weight:600">Length of Need</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">طول الحاجة من حاجز الحماية — الطول المطلوب تنفيذه قبل العائق لضمان اعتراض المركبة المنحرفة ومنع وصولها إلى منطقة الخطر</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
-            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">LH</td>
-            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Lateral Distance to Hazard</td>
-            <td style="padding:8px 12px;color:var(--muted)">المسافة الجانبية إلى العائق — تُقاس أفقياً وبشكل عمودي من حافة مسار القيادة أو خط الكتف إلى أبعد نقطة خلفية للعائق، أو إلى حد Clear Zone إذا كان الخطر ممتداً</td>
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">LH</td>
+            <td style="padding:5px 8px;font-weight:600">Lateral Distance to Hazard</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">المسافة الجانبية إلى العائق — تُقاس أفقياً وبشكل عمودي من حافة مسار القيادة أو خط الكتف إلى أبعد نقطة خلفية للعائق، أو إلى حد Clear Zone إذا كان الخطر ممتداً</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">LR</td>
-            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Runout Length</td>
-            <td style="padding:8px 12px;color:var(--muted)">طول الانحراف — المسافة النظرية التي قد تقطعها المركبة بعد مغادرتها المسار حتى تتوقف أو تصل إلى العائق. تعتمد على سرعة التصميم وحجم المرور اليومي ADT</td>
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">LR</td>
+            <td style="padding:5px 8px;font-weight:600">Runout Length</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">طول الانحراف — المسافة النظرية التي قد تقطعها المركبة بعد مغادرتها المسار حتى تتوقف أو تصل إلى العائق. تعتمد على سرعة التصميم وحجم المرور اليومي ADT</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
-            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L1</td>
-            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">—</td>
-            <td style="padding:8px 12px;color:var(--muted)">المسافة الطولية الموازية لمحور الطريق، من بداية حاجز الحماية حتى بداية العائق. تُعتمد كقيمة ثابتة حسب حالة التصميم (مثال: 8م أو 10م)</td>
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">L1</td>
+            <td style="padding:5px 8px;font-weight:600">—</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">المسافة الطولية الموازية لمحور الطريق، من بداية حاجز الحماية حتى بداية العائق. تُعتمد كقيمة ثابتة حسب حالة التصميم (مثال: 8م أو 10م)</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L2</td>
-            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">—</td>
-            <td style="padding:8px 12px;color:var(--muted)">المسافة الجانبية بين حافة مسار القيادة وبداية حاجز الحماية — تمثل موقع تركيب الحاجز بالنسبة للطريق ومدى إبعاده عن حافة المسار</td>
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">L2</td>
+            <td style="padding:5px 8px;font-weight:600">—</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">المسافة الجانبية من الخط الأصفر (منتصف الطريق) إلى وجه الحاجز — تمثل موقع تركيب الحاجز بالنسبة للطريق</td>
           </tr>
           <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
-            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">b/a</td>
-            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">Flare Rate</td>
-            <td style="padding:8px 12px;color:var(--muted)">معدل انحراف الحاجز الجانبي — نسبة التدرج التي يُسحب بها الحاجز بعيداً عن حافة الطريق تدريجياً، لتقليل احتمالية الاصطدام المباشر بالنهاية وتحسين سلوك المركبة عند الانحراف</td>
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">b/a</td>
+            <td style="padding:5px 8px;font-weight:600">Flare Rate</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">معدل انحراف الحاجز الجانبي — نسبة التدرج التي يُسحب بها الحاجز بعيداً عن حافة الطريق تدريجياً، لتقليل احتمالية الاصطدام المباشر بالنهاية وتحسين سلوك المركبة عند الانحراف</td>
           </tr>
           <tr>
-            <td style="padding:8px 12px;font-weight:700;color:var(--accent);font-family:monospace;font-size:15px">L0</td>
-            <td style="padding:8px 12px;font-weight:600;white-space:nowrap">—</td>
-            <td style="padding:8px 12px;color:var(--muted)">طول العائق بموازاة الطريق — الطول الفعلي للعنصر الخطير المراد حمايته قياساً بمحور الطريق</td>
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">L0</td>
+            <td style="padding:5px 8px;font-weight:600">—</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">طول العائق بموازاة الطريق — الطول الفعلي للعنصر الخطير المراد حمايته قياساً بمحور الطريق</td>
           </tr>
         </tbody>
       </table>
@@ -419,9 +395,9 @@ function showSection(id){
   </div>
 
   <div class="calc-card" id="barrier-L-card">
-    <div class="calc-title">حاسبة مسافة الحماية L</div>
-    <div class="eq-box">L = [LH + (b/a)(L1 − L2)] / [(b/a) + (LH/LR)]</div>
-    <div class="source-tag">المصدر: ص 30 — كود الطرق السعودي</div>
+    <div class="calc-title">حاسبة مسافة الحماية L — مع تنفيذ الـ Flare Back</div>
+    <div class="eq-box">L = [LH + (b/a)(L1) − L2] / [(b/a) + (LH/LR)] &nbsp;|&nbsp; Y = (LH/LR) × L</div>
+    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
     <div class="form-row">
       <div class="field"><label>LH (متر)</label><input type="number" id="br-LH" placeholder="مثال: 12" min="0" step="0.1"></div>
       <div class="field">
@@ -430,8 +406,8 @@ function showSection(id){
       </div>
     </div>
     <div class="form-row">
-      <div class="field"><label>L1 (متر)</label><input type="number" id="br-L1" placeholder="مثال: 50" min="0" step="0.1"></div>
-      <div class="field"><label>L2 (متر)</label><input type="number" id="br-L2" placeholder="مثال: 20" min="0" step="0.1"></div>
+      <div class="field"><label>L1 (متر) — موازٍ للطريق، 8-10م</label><input type="number" id="br-L1" placeholder="مثال: 8" min="0" step="0.1"></div>
+      <div class="field"><label>L2 (متر)</label><input type="number" id="br-L2" placeholder="مثال: 2" min="0" step="0.1"></div>
       <div class="field"><label>LR (متر)</label><input type="number" id="br-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
     </div>
     <div style="margin:10px 0 4px;display:flex;align-items:center;gap:8px">
@@ -444,8 +420,11 @@ function showSection(id){
       <button class="btn btn-copy" onclick="copyResult('br-result-val')">نسخ الناتج</button>
     </div>
     <div class="result-box" id="br-result">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:2px" id="br-label-approach">L — مسافة الحماية</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L — مسافة الحماية</div>
       <div><span class="result-value" id="br-result-val">—</span><span class="result-unit">م</span></div>
+      <div id="br-Y-row" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:4px;font-size:13px">
+        Y = <strong id="br-Y-val">—</strong> م &nbsp;<span style="color:var(--muted);font-size:11px">(إزاحة الحاجز عند نقطة البداية)</span>
+      </div>
       <div class="result-steps" id="br-steps"></div>
       <div id="br-single-result" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed #cbd5e1">
         <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L_add — الحاجز الإضافي للمرور المعاكس (Fig. 1.15.11 | LH+3.65، L2+3.65)</div>
@@ -458,10 +437,10 @@ function showSection(id){
   </div>
 
   <div class="calc-card" id="barrier-L2-card">
-    <div class="calc-title">حاسبة مسافة الحماية L — عند تعذّر تنفيذ الفلير باك</div>
+    <div class="calc-title">حاسبة مسافة الحماية L — عند تعذّر تنفيذ الـ Flare Back</div>
     <div class="eq-box">L = (LH − L2) × (LR / LH)</div>
-    <div class="source-tag">المصدر: ص 30 — كود الطرق السعودي</div>
-    <div class="alert alert-warn show" style="margin-bottom:10px">⚠️ تُستخدم هذه المعادلة <strong>فقط</strong> عند تعذّر تنفيذ الفلير باك (Flare Back) بسبب: وادٍ، جبل، ميول عالية، أو عوائق مشابهة. يُشترط في هذه الحالة <strong>تنفيذ نهاية ماصّة للصدمات (Crashworthy Terminal)</strong> في بداية الحاجز.</div>
+    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
+    <div class="alert alert-warn show" style="margin-bottom:10px">⚠️ تُستخدم هذه المعادلة <strong>فقط</strong> عند تعذّر تنفيذ الـ Flare Back بسبب: وادٍ، جبل، ميول عالية، أو عوائق مشابهة. يُشترط في هذه الحالة <strong>تنفيذ نهاية ماصّة للصدمات (Crashworthy Terminal)</strong> في بداية الحاجز.</div>
     <div class="form-row">
       <div class="field"><label>LH (متر)</label><input type="number" id="br2-LH" placeholder="مثال: 12" min="0" step="0.1"></div>
       <div class="field"><label>L2 (متر)</label><input type="number" id="br2-L2" placeholder="مثال: 20" min="0" step="0.1"></div>
@@ -493,10 +472,9 @@ function showSection(id){
 
   <div class="calc-card" id="total-barrier-card">
     <div class="calc-title">حاسبة الطول الكلي للحماية Lt</div>
-    <div class="eq-box">Lt = L1 + Lσ + Crashworthy Terminal + L</div>
-    <div class="source-tag">المصدر: ص 31 — كود الطرق السعودي</div>
+    <div class="eq-box">Lt = Lσ + Crashworthy Terminal + L</div>
+    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
     <div class="form-row">
-      <div class="field"><label>L1 (متر)</label><input type="number" id="lt-L1" placeholder="مثال: 50" min="0" step="0.1"></div>
       <div class="field"><label>Lσ (متر)</label><input type="number" id="lt-Ls" placeholder="مثال: 10" min="0" step="0.1"></div>
       <div class="field"><label>Crashworthy Terminal (متر)</label><input type="number" id="lt-CT" placeholder="مثال: 5" min="0" step="0.1"></div>
       <div class="field">
@@ -515,6 +493,42 @@ function showSection(id){
       <div class="result-steps" id="lt-steps"></div>
     </div>
     <div class="alert" id="lt-alert"></div>
+  </div>
+
+  <!-- LH = LC Special Case -->
+  <div class="calc-card" style="border-right:4px solid #7c3aed">
+    <div class="calc-title">حاسبة الحالة الخاصة: LH ≥ LC (العائق يمتد خارج منطقة الخلوص)</div>
+    <div class="eq-box">L = [LC + (b/a)(L1) − L2] / [(b/a) + (LC/LR)] &nbsp;|&nbsp; Y = (LC/LR) × L</div>
+    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.9) | عند LH ≥ LC يُستبدَل LH بـ LC</div>
+    <div class="alert alert-warn show" style="margin-bottom:10px">
+      ℹ️ تُستخدم هذه الحاسبة عندما يمتد العائق إلى ما وراء حدود منطقة الخلوص (LH ≥ LC) — تُستبدَل قيمة LH بقيمة LC في المعادلة.
+    </div>
+    <div class="form-row">
+      <div class="field"><label>LC — عرض منطقة الخلوص (متر)</label><input type="number" id="brlc-LC" placeholder="مثال: 10" min="0" step="0.1"></div>
+      <div class="field">
+        <label>b/a (نسبة أو عشري)</label>
+        <input type="text" id="brlc-ba" placeholder="مثال: 15:1 أو 0.0667">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>L1 (متر) — 8-10م</label><input type="number" id="brlc-L1" placeholder="مثال: 8" min="0" step="0.1"></div>
+      <div class="field"><label>L2 (متر)</label><input type="number" id="brlc-L2" placeholder="مثال: 2" min="0" step="0.1"></div>
+      <div class="field"><label>LR (متر)</label><input type="number" id="brlc-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcBarrierLC()">احسب L</button>
+      <button class="btn btn-reset" onclick="resetCalc('brlc')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('brlc-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="brlc-result">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L — مسافة الحماية (مع LH=LC)</div>
+      <div><span class="result-value" id="brlc-result-val">—</span><span class="result-unit">م</span></div>
+      <div id="brlc-Y-row" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:4px;font-size:13px">
+        Y = <strong id="brlc-Y-val">—</strong> م
+      </div>
+      <div class="result-steps" id="brlc-steps"></div>
+    </div>
+    <div class="alert" id="brlc-alert"></div>
   </div>
 
   <!-- Single vs Divided Road Note -->
@@ -641,13 +655,164 @@ function showSection(id){
   </div>
 </section>
 
+<!-- SECTION 4b: Barriers – Undivided Roads -->
+<section id="s4b" class="section">
+  <div class="section-title">الحواجز والحمايات المعدنية — طريق مفرد (ذو الاتجاهين)</div>
+
+  <div class="calc-card" style="border-right:4px solid #f59e0b;background:var(--card)">
+    <div class="calc-title">📌 ملاحظة خاصة بالطريق المفرد</div>
+    <p style="font-size:13px;line-height:1.8;margin:0">
+      في الطريق المفرد ذي الاتجاهين، تُقاس المسافات من <strong>محور الطريق (سنتر لاين)</strong> بدلاً من حافة مسار القيادة.
+      هذا يعني إضافة عرض الحارة المعاكسة (3.65م) إلى كل من LH و L2 مقارنةً بحسابات الطريق المزدوج.<br>
+      المعادلة نفسها تُطبَّق (Section 1.15) لكن المُدخلات تعكس القياس من المحور.
+    </p>
+    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers (Fig. 1.15.11)</div>
+  </div>
+
+  <!-- Symbols Legend – Undivided -->
+  <div class="calc-card" style="background:var(--card);border-right:4px solid var(--accent)">
+    <div class="calc-title" style="cursor:pointer;user-select:none" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      📐 شرح الرموز — طريق مفرد <span style="font-size:12px;color:var(--muted)">(اضغط للطي/التوسيع)</span>
+    </div>
+    <div id="barrier-legend-b">
+      <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:8px;table-layout:fixed">
+        <thead><tr style="background:var(--primary);color:#fff">
+          <th style="padding:6px 8px;text-align:right;width:55px">الرمز</th>
+          <th style="padding:6px 8px;text-align:right;width:160px">الاسم</th>
+          <th style="padding:6px 8px;text-align:right">الشرح (طريق مفرد)</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">LH</td>
+            <td style="padding:5px 8px;font-weight:600">Lateral Distance to Hazard</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">يُقاس من <strong>محور الطريق</strong> إلى العائق — يشمل نصف عرض الطريق + المسافة من حافة الكتف</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">L2</td>
+            <td style="padding:5px 8px;font-weight:600">—</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">يُقاس من <strong>محور الطريق</strong> إلى وجه الحاجز — يشمل نصف الطريق + أي مسافة تباعد للحاجز</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">LR</td>
+            <td style="padding:5px 8px;font-weight:600">Runout Length</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">طول الانحراف — نفس التعريف، من جدول AASHTO بحسب السرعة وحجم المرور</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">L1</td>
+            <td style="padding:5px 8px;font-weight:600">—</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">المسافة الطولية الموازية للطريق، 8-10م (نفسها لكلا نوعي الطريق)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:5px 8px;font-weight:700;color:var(--accent);font-family:monospace;font-size:13px">b/a</td>
+            <td style="padding:5px 8px;font-weight:600">Flare Rate</td>
+            <td style="padding:5px 8px;color:var(--muted);font-size:11px;line-height:1.5">معدل انحراف الحاجز — نفسه للطريق المفرد</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Calc 1: With Flare Back – Undivided -->
+  <div class="calc-card">
+    <div class="calc-title">حاسبة مسافة الحماية L — مع تنفيذ الـ Flare Back (طريق مفرد)</div>
+    <div class="eq-box">L = [LH + (b/a)(L1) − L2] / [(b/a) + (LH/LR)] &nbsp;|&nbsp; Y = (LH/LR) × L</div>
+    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.11)</div>
+    <div class="alert alert-warn show" style="margin-bottom:10px">
+      ⚠️ أدخل LH و L2 مقيسَتَين من <strong>محور الطريق</strong> (مثال: L2 = نصف عرض الطريق + تباعد الحاجز)
+    </div>
+    <div class="form-row">
+      <div class="field"><label>LH (متر) — من محور الطريق إلى العائق</label><input type="number" id="bm1-LH" placeholder="مثال: 15.65" min="0" step="0.1"></div>
+      <div class="field"><label>b/a (نسبة أو عشري)</label><input type="text" id="bm1-ba" placeholder="مثال: 15:1 أو 0.0667"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>L1 (متر) — 8-10م</label><input type="number" id="bm1-L1" placeholder="مثال: 8" min="0" step="0.1"></div>
+      <div class="field"><label>L2 (متر) — من محور الطريق إلى وجه الحاجز</label><input type="number" id="bm1-L2" placeholder="مثال: 5.65" min="0" step="0.1"></div>
+      <div class="field"><label>LR (متر)</label><input type="number" id="bm1-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcBarrierMufrad1()">احسب L</button>
+      <button class="btn btn-reset" onclick="resetCalc('bm1')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('bm1-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="bm1-result">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L — مسافة الحماية (طريق مفرد)</div>
+      <div><span class="result-value" id="bm1-result-val">—</span><span class="result-unit">م</span></div>
+      <div id="bm1-Y-row" style="display:none;margin-top:6px;padding:6px 10px;background:rgba(0,0,0,0.04);border-radius:4px;font-size:13px">
+        Y = <strong id="bm1-Y-val">—</strong> م &nbsp;<span style="color:var(--muted);font-size:11px">(إزاحة الحاجز عند نقطة البداية)</span>
+      </div>
+      <div class="result-steps" id="bm1-steps"></div>
+    </div>
+    <div class="alert" id="bm1-alert"></div>
+  </div>
+
+  <!-- Calc 2: Without Flare Back – Undivided -->
+  <div class="calc-card">
+    <div class="calc-title">حاسبة مسافة الحماية L — عند تعذّر تنفيذ الـ Flare Back (طريق مفرد)</div>
+    <div class="eq-box">L = (LH − L2) × (LR / LH)</div>
+    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.11)</div>
+    <div class="alert alert-warn show" style="margin-bottom:10px">
+      ⚠️ أدخل LH و L2 مقيسَتَين من <strong>محور الطريق</strong>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>LH (متر) — من محور الطريق إلى العائق</label><input type="number" id="bm2-LH" placeholder="مثال: 15.65" min="0" step="0.1"></div>
+      <div class="field"><label>LR (متر) — طول الجريان (من جدول 1.15.4)</label><input type="number" id="bm2-LR" placeholder="مثال: 100" min="0" step="1"></div>
+      <div class="field"><label>L2 (متر) — من محور الطريق إلى وجه الحاجز</label><input type="number" id="bm2-L2" placeholder="مثال: 5.65" min="0" step="0.1"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcBarrierMufrad2()">احسب L</button>
+      <button class="btn btn-reset" onclick="resetCalc('bm2')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('bm2-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="bm2-result">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">L — مسافة الحماية بدون Flare Back (طريق مفرد)</div>
+      <div><span class="result-value" id="bm2-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="bm2-steps"></div>
+    </div>
+    <div class="alert" id="bm2-alert"></div>
+  </div>
+
+  <!-- Lt – Undivided -->
+  <div class="calc-card">
+    <div class="calc-title">حاسبة الطول الكلي للحماية Lt (طريق مفرد)</div>
+    <div class="eq-box">Lt = Lσ + Crashworthy Terminal + L</div>
+    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
+    <div class="form-row">
+      <div class="field"><label>Lσ — طول الحاجز العازل (متر)</label><input type="number" id="bm3-Ls" placeholder="مثال: 50" min="0" step="0.1"></div>
+      <div class="field"><label>Crashworthy Terminal (متر)</label><input type="number" id="bm3-CT" placeholder="مثال: 12" min="0" step="0.1"></div>
+      <div class="field"><label>L — مسافة الحماية (متر)</label><input type="number" id="bm3-L" placeholder="من الحسابات أعلاه" min="0" step="0.01"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calcTotalBarrierMufrad()">احسب Lt</button>
+      <button class="btn btn-reset" onclick="resetCalc('bm3')">إعادة تعيين</button>
+      <button class="btn btn-copy" onclick="copyResult('bm3-result-val')">نسخ الناتج</button>
+    </div>
+    <div class="result-box" id="bm3-result">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Lt — الطول الكلي للحماية</div>
+      <div><span class="result-value" id="bm3-result-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="bm3-steps"></div>
+    </div>
+    <div class="alert" id="bm3-alert"></div>
+  </div>
+
+  <!-- Reference to s4 tables -->
+  <div class="calc-card" style="border-right:4px solid var(--accent);background:var(--card)">
+    <div class="calc-title">📋 جداول المرجعية</div>
+    <p style="font-size:13px;line-height:1.8;margin:0">
+      جداول LR (Runout Length) ومنحنيات LC (Clear Zone) متوفرة في صفحة
+      <button class="btn btn-primary" style="padding:4px 14px;font-size:13px;margin-right:6px" onclick="showSection('s4')">الحواجز — مزدوج / سريع</button>
+      والقيم تُطبَّق على الطريق المفرد بنفس الطريقة.
+    </p>
+  </div>
+
+</section>
+
 <!-- SECTION 5: Clear Zone -->
 <section id="s5" class="section">
   <div class="section-title">الخلوص الجانبي Clear Zone</div>
 
   <div class="calc-card">
     <div class="calc-title">جدول Clear Zone — بحث/اختيار</div>
-    <div class="source-tag">المصدر: ص 34 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي — جدول زمن الإدراك والاستجابة</div>
     <div class="form-row">
       <div class="field">
         <label>سرعة الطريق (كم/س)</label>
@@ -699,7 +864,7 @@ function showSection(id){
   <div class="calc-card">
     <div class="calc-title">حاسبة تعديل الخلوص الجانبي بمعامل ADT</div>
     <div class="eq-box">Clear Zone Final = Base Clear Zone × Adjustment Factor (ADT)</div>
-    <div class="source-tag">المصدر: AASHTO Roadside Design Guide — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: Manual Volume 2.2 — AASHTO Roadside Design Guide</div>
 
     <!-- ADT Selection Table -->
     <p style="font-size:12px;color:var(--muted);margin-bottom:8px">اختر نطاق حجم الحركة اليومية — يتحدد المعامل تلقائياً:</p>
@@ -2096,19 +2261,23 @@ function calcBarrier(){
   if(isNaN(LR)||LR<=0){showAlert('br','⚠️ أدخل LR قيمة موجبة');return;}
   const denom = ba + (LH/LR);
   if(denom===0){showAlert('br','⚠️ القسمة على صفر — تحقق من المدخلات');return;}
-  const L=(LH + ba*(L1-L2))/denom;
+  const L=(LH + ba*L1-L2)/denom;
   if(L<0){showAlert('br','⚠️ الناتج سالب — تحقق من قيم L1 وL2','error');}
   const baDisplay=baStr.includes(':')?baStr:`${ba.toFixed(4)}`;
-  const steps=`b/a = ${baDisplay} ≈ ${ba.toFixed(4)}<br>البسط = ${LH} + ${ba.toFixed(4)}×(${L1}−${L2}) = ${(LH+ba*(L1-L2)).toFixed(3)}<br>المقام = ${ba.toFixed(4)} + (${LH}/${LR}) = ${denom.toFixed(4)}<br>L = ${L.toFixed(2)} م`;
+  const steps=`b/a = ${baDisplay} ≈ ${ba.toFixed(4)}<br>البسط = ${LH} + ${ba.toFixed(4)}×${L1} − ${L2} = ${(LH+ba*L1-L2).toFixed(3)}<br>المقام = ${ba.toFixed(4)} + (${LH}/${LR}) = ${denom.toFixed(4)}<br>L = ${L.toFixed(2)} م`;
   showResult('br', Math.abs(L), steps);
   computedL = Math.abs(L);
-  addHistory('مسافة الحماية L', `LH=${LH}، b/a=${baDisplay}، L1=${L1}، L2=${L2}، LR=${LR}`, `${Math.abs(L).toFixed(2)} م`);
+  // Calculate Y
+  const Y = (LH/LR) * Math.abs(L);
+  document.getElementById('br-Y-val').textContent = Y.toFixed(2);
+  document.getElementById('br-Y-row').style.display = 'block';
+  addHistory('مسافة الحماية L + Y', `LH=${LH}، b/a=${baDisplay}، L1=${L1}، L2=${L2}، LR=${LR}`, `L=${Math.abs(L).toFixed(2)}م | Y=${Y.toFixed(2)}م`);
   // Additional barrier for single road (Fig. 1.15.11)
   if(document.getElementById('br-single').checked){
     const LHa=LH+3.65, L2a=L2+3.65;
     const denomA=ba+(LHa/LR);
-    const La=(LHa+ba*(L1-L2a))/denomA;
-    const stepsA=`LH_add = ${LH}+3.65 = ${LHa}<br>L2_add = ${L2}+3.65 = ${L2a}<br>البسط = ${LHa} + ${ba.toFixed(4)}×(${L1}−${L2a}) = ${(LHa+ba*(L1-L2a)).toFixed(3)}<br>المقام = ${ba.toFixed(4)} + (${LHa}/${LR}) = ${denomA.toFixed(4)}<br>L_add = ${Math.abs(La).toFixed(2)} م`;
+    const La=(LHa+ba*L1-L2a)/denomA;
+    const stepsA=`LH_add = ${LH}+3.65 = ${LHa}<br>L2_add = ${L2}+3.65 = ${L2a}<br>البسط = ${LHa} + ${ba.toFixed(4)}×${L1} − ${L2a} = ${(LHa+ba*L1-L2a).toFixed(3)}<br>المقام = ${ba.toFixed(4)} + (${LHa}/${LR}) = ${denomA.toFixed(4)}<br>L_add = ${Math.abs(La).toFixed(2)} م`;
     document.getElementById('br-result-add').textContent=Math.abs(La).toFixed(2);
     document.getElementById('br-steps-add').innerHTML=stepsA;
     document.getElementById('br-single-result').style.display='block';
@@ -2156,22 +2325,84 @@ function useComputedL(){
   document.getElementById('lt-L').value=computedL.toFixed(2);
 }
 
+function calcBarrierMufrad1(){
+  const LH=parseFloat(document.getElementById('bm1-LH').value);
+  const baRaw=document.getElementById('bm1-ba').value.trim();
+  const L1=parseFloat(document.getElementById('bm1-L1').value);
+  const L2=parseFloat(document.getElementById('bm1-L2').value);
+  const LR=parseFloat(document.getElementById('bm1-LR').value);
+  if([LH,L1,L2,LR].some(isNaN)||!baRaw){showAlert('bm1','⚠️ أدخل جميع القيم');return;}
+  if([LH,L1,L2,LR].some(v=>v<0)){showAlert('bm1','⚠️ القيم يجب أن تكون غير سالبة');return;}
+  let ba; const baDisplay=baRaw;
+  if(baRaw.includes(':')){const p=baRaw.split(':');ba=parseFloat(p[1])/parseFloat(p[0]);}
+  else{ba=parseFloat(baRaw);}
+  if(isNaN(ba)||ba<=0){showAlert('bm1','⚠️ نسبة b/a غير صحيحة');return;}
+  const L=(LH+ba*L1-L2)/(ba+(LH/LR));
+  const Y=(LH/LR)*Math.abs(L);
+  const steps=`L = [${LH} + ${baDisplay}×${L1} − ${L2}] / [${baDisplay} + (${LH}/${LR})]\nL = ${L.toFixed(3)} م (طريق مفرد)\nY = (${LH}/${LR}) × ${Math.abs(L).toFixed(3)} = ${Y.toFixed(2)} م`;
+  showResult('bm1', Math.abs(L), steps);
+  document.getElementById('bm1-Y-val').textContent=Y.toFixed(2);
+  document.getElementById('bm1-Y-row').style.display='block';
+  addHistory('L — طريق مفرد (مع Flare Back)', `LH=${LH}، b/a=${baDisplay}، L1=${L1}، L2=${L2}، LR=${LR}`, `L=${Math.abs(L).toFixed(2)}م | Y=${Y.toFixed(2)}م`);
+}
+
+function calcBarrierMufrad2(){
+  const LH=parseFloat(document.getElementById('bm2-LH').value);
+  const L2=parseFloat(document.getElementById('bm2-L2').value);
+  const LR=parseFloat(document.getElementById('bm2-LR').value);
+  if([LH,L2,LR].some(isNaN)){showAlert('bm2','⚠️ أدخل جميع القيم');return;}
+  if([LH,L2,LR].some(v=>v<0)){showAlert('bm2','⚠️ القيم يجب أن تكون غير سالبة');return;}
+  if(LH<=0){showAlert('bm2','⚠️ LH يجب أن يكون أكبر من صفر');return;}
+  if(L2>=LH){showAlert('bm2','⚠️ L2 يجب أن تكون أصغر من LH');return;}
+  const L=(LH-L2)*(LR/LH);
+  const steps=`(LH − L2) = ${LH} − ${L2} = ${(LH-L2).toFixed(3)}\n(LR / LH) = ${LR} / ${LH} = ${(LR/LH).toFixed(4)}\nL = ${(LH-L2).toFixed(3)} × ${(LR/LH).toFixed(4)} = ${L.toFixed(2)} م`;
+  showResult('bm2', Math.abs(L), steps);
+  addHistory('L — طريق مفرد (بدون Flare Back)', `LH=${LH}، L2=${L2}، LR=${LR}`, `${L.toFixed(2)} م`);
+}
+
+function calcTotalBarrierMufrad(){
+  const Ls=parseFloat(document.getElementById('bm3-Ls').value);
+  const CT=parseFloat(document.getElementById('bm3-CT').value);
+  const L=parseFloat(document.getElementById('bm3-L').value);
+  if([Ls,CT,L].some(isNaN)){showAlert('bm3','⚠️ أدخل جميع القيم');return;}
+  if([Ls,CT,L].some(v=>v<0)){showAlert('bm3','⚠️ القيم يجب أن تكون غير سالبة');return;}
+  const Lt=Ls+CT+L;
+  const steps=`Lt = ${Ls} + ${CT} + ${L} = ${Lt.toFixed(2)} م (طريق مفرد)`;
+  showResult('bm3', Lt, steps);
+  addHistory('Lt — طريق مفرد', `Lσ=${Ls}، CT=${CT}، L=${L}`, `${Lt.toFixed(2)} م`);
+}
+
+function calcBarrierLC(){
+  const LC=parseFloat(document.getElementById('brlc-LC').value);
+  const baRaw=document.getElementById('brlc-ba').value.trim();
+  const L1=parseFloat(document.getElementById('brlc-L1').value);
+  const L2=parseFloat(document.getElementById('brlc-L2').value);
+  const LR=parseFloat(document.getElementById('brlc-LR').value);
+  if([LC,L1,L2,LR].some(isNaN)||!baRaw){showAlert('brlc','⚠️ أدخل جميع القيم');return;}
+  if([LC,L1,L2,LR].some(v=>v<0)){showAlert('brlc','⚠️ القيم يجب أن تكون غير سالبة');return;}
+  let ba; const baDisplay=baRaw;
+  if(baRaw.includes(':')){const p=baRaw.split(':');ba=parseFloat(p[1])/parseFloat(p[0]);}
+  else{ba=parseFloat(baRaw);}
+  if(isNaN(ba)||ba<=0){showAlert('brlc','⚠️ نسبة b/a غير صحيحة');return;}
+  const L=(LC+ba*L1-L2)/(ba+(LC/LR));
+  const Y=(LC/LR)*Math.abs(L);
+  const steps=`L = [${LC} + ${baDisplay}×${L1} − ${L2}] / [${baDisplay} + (${LC}/${LR})]\nL = ${L.toFixed(3)} م\nY = (${LC}/${LR}) × ${Math.abs(L).toFixed(3)} = ${Y.toFixed(2)} م`;
+  showResult('brlc', Math.abs(L), steps);
+  document.getElementById('brlc-Y-val').textContent=Y.toFixed(2);
+  document.getElementById('brlc-Y-row').style.display='block';
+  addHistory('مسافة الحماية L (LH=LC)', `LC=${LC}، b/a=${baDisplay}، L1=${L1}، L2=${L2}، LR=${LR}`, `L=${Math.abs(L).toFixed(2)}م | Y=${Y.toFixed(2)}م`);
+}
+
 function calcTotalBarrier(){
-  const L1=parseFloat(document.getElementById('lt-L1').value);
   const Ls=parseFloat(document.getElementById('lt-Ls').value);
   const CT=parseFloat(document.getElementById('lt-CT').value);
   const L=parseFloat(document.getElementById('lt-L').value);
-  if([L1,Ls,CT,L].some(isNaN)){showAlert('lt','⚠️ أدخل جميع القيم');return;}
-  if([L1,Ls,CT,L].some(v=>v<0)){showAlert('lt','⚠️ القيم يجب أن تكون غير سالبة');return;}
-  const Lt=L1+Ls+CT+L;
-  const steps=`Lt = ${L1} + ${Ls} + ${CT} + ${L} = ${Lt.toFixed(2)} م`;
+  if([Ls,CT,L].some(isNaN)){showAlert('lt','⚠️ أدخل جميع القيم');return;}
+  if([Ls,CT,L].some(v=>v<0)){showAlert('lt','⚠️ القيم يجب أن تكون غير سالبة');return;}
+  const Lt=Ls+CT+L;
+  const steps=`Lt = ${Ls} + ${CT} + ${L} = ${Lt.toFixed(2)} م`;
   showResult('lt', Lt, steps);
-  // Check if L1 matches barrier's L1
-  const brL1=parseFloat(document.getElementById('br-L1').value);
-  if(!isNaN(brL1)&&Math.abs(brL1-L1)<0.01){
-    showAlert('lt','ℹ️ تنبيه: قيمة L1 المدخلة هنا تطابق L1 في معادلة الحماية. تأكد أن هذا مقصود ولا يسبب ازدواجية.','warn');
-  }
-  addHistory('الطول الكلي Lt', `L1=${L1}، Lσ=${Ls}، CT=${CT}، L=${L}`, `${Lt.toFixed(2)} م`);
+  addHistory('الطول الكلي Lt', `Lσ=${Ls}، CT=${CT}، L=${L}`, `${Lt.toFixed(2)} م`);
 }
 
 // ── Section 5: Clear Zone ──
