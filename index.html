@@ -314,6 +314,290 @@ function showSection(id){
     <div class="result-box" id="hb-result"><div><span class="result-value" id="hb-result-val">—</span><span class="result-unit">م²</span></div><div class="result-steps" id="hb-steps"></div></div>
     <div class="alert" id="hb-alert"></div>
   </div>
+
+  <!-- ===== SHC 602 REFERENCE TABLES ===== -->
+  <div class="calc-card" style="border-right:4px solid #0284c7">
+    <div class="calc-title" style="cursor:pointer;user-select:none" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display='none'?'block':'none'">
+      📋 جداول SHC 602 — أبعاد الخطوط حسب السرعة <span style="font-size:12px;color:var(--muted)">(اضغط للطي/التوسيع)</span>
+    </div>
+    <div id="shc-tables">
+      <div class="source-tag" style="margin:8px 0 12px">المصدر: كود الطرق السعودي — القسم 602 (ص 181–268) | تقرير م. حسان عبد الله الحلبي</div>
+
+      <!-- L1-1 Center Line -->
+      <div style="margin-bottom:16px">
+        <div style="font-weight:700;font-size:12px;color:var(--primary);margin-bottom:6px;padding:4px 8px;background:var(--bg);border-radius:4px">L1-1 — خط الوسط Center Line (أبيض)</div>
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">
+          <thead>
+            <tr style="background:var(--primary);color:#fff">
+              <th style="padding:5px 8px;text-align:right">السرعة المعلنة (كم/س)</th>
+              <th style="padding:5px 8px;text-align:center">A — طول الدهان (مم)</th>
+              <th style="padding:5px 8px;text-align:center">B — طول الفجوة (مم)</th>
+              <th style="padding:5px 8px;text-align:center">C — العرض (مم)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-weight:600">≥ 100</td>
+              <td style="padding:5px 8px;text-align:center">6000</td>
+              <td style="padding:5px 8px;text-align:center">12000</td>
+              <td style="padding:5px 8px;text-align:center">150</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+              <td style="padding:5px 8px;font-weight:600">80 — 100</td>
+              <td style="padding:5px 8px;text-align:center">3000</td>
+              <td style="padding:5px 8px;text-align:center">6000</td>
+              <td style="padding:5px 8px;text-align:center">150</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-weight:600">&lt; 80</td>
+              <td style="padding:5px 8px;text-align:center">2000</td>
+              <td style="padding:5px 8px;text-align:center">4000</td>
+              <td style="padding:5px 8px;text-align:center">100–150</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- L2-1 Lane Lines -->
+      <div style="margin-bottom:16px">
+        <div style="font-weight:700;font-size:12px;color:var(--primary);margin-bottom:6px;padding:4px 8px;background:var(--bg);border-radius:4px">L2-1 — خطوط الفصل بين المسارات Lane Lines (أبيض)</div>
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">
+          <thead>
+            <tr style="background:var(--primary);color:#fff">
+              <th style="padding:5px 8px;text-align:right">السرعة المعلنة (كم/س)</th>
+              <th style="padding:5px 8px;text-align:center">A — طول الدهان (مم)</th>
+              <th style="padding:5px 8px;text-align:center">B — طول الفجوة (مم)</th>
+              <th style="padding:5px 8px;text-align:center">C — العرض (مم)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-weight:600">≥ 100</td>
+              <td style="padding:5px 8px;text-align:center">6000</td>
+              <td style="padding:5px 8px;text-align:center">12000</td>
+              <td style="padding:5px 8px;text-align:center">200</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+              <td style="padding:5px 8px;font-weight:600">80 — 100</td>
+              <td style="padding:5px 8px;text-align:center">3000</td>
+              <td style="padding:5px 8px;text-align:center">6000</td>
+              <td style="padding:5px 8px;text-align:center">150</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-weight:600">&lt; 80</td>
+              <td style="padding:5px 8px;text-align:center">2000</td>
+              <td style="padding:5px 8px;text-align:center">4000</td>
+              <td style="padding:5px 8px;text-align:center">100–150</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- L4-1 No-Passing / Channelizing Lines -->
+      <div style="margin-bottom:16px">
+        <div style="font-weight:700;font-size:12px;color:#b45309;margin-bottom:6px;padding:4px 8px;background:var(--bg);border-radius:4px">L4-1 — خطوط منع التجاوز والخطوط التوجيهية No-Passing / Channelizing (أصفر)</div>
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead>
+            <tr style="background:#b45309;color:#fff">
+              <th style="padding:5px 8px;text-align:right">الحالة</th>
+              <th style="padding:5px 8px;text-align:center">السرعة (كم/س)</th>
+              <th style="padding:5px 8px;text-align:center">العرض (مم)</th>
+              <th style="padding:5px 8px;text-align:right">ملاحظة</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-weight:600">L4-1</td>
+              <td style="padding:5px 8px;text-align:center">&gt; 100</td>
+              <td style="padding:5px 8px;text-align:center">200</td>
+              <td style="padding:5px 8px;color:var(--muted);font-size:10px">خط منع مسار مفصول</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+              <td style="padding:5px 8px;font-weight:600">L4-1</td>
+              <td style="padding:5px 8px;text-align:center">80 — 100</td>
+              <td style="padding:5px 8px;text-align:center">150</td>
+              <td style="padding:5px 8px;color:var(--muted);font-size:10px">خط منع مسار مفصول</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-weight:600">L4-1</td>
+              <td style="padding:5px 8px;text-align:center">≤ 80</td>
+              <td style="padding:5px 8px;text-align:center">120</td>
+              <td style="padding:5px 8px;color:var(--muted);font-size:10px">يُستخدم خطاً وسطياً إن كان غير مفصول</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+              <td style="padding:5px 8px;font-weight:600">L4-1</td>
+              <td style="padding:5px 8px;text-align:center">≤ 80</td>
+              <td style="padding:5px 8px;text-align:center">150</td>
+              <td style="padding:5px 8px;color:var(--muted);font-size:10px">خط وسطي — طريق غير مفصول باتجاهين متعاكسين</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px;padding:4px 8px;border-right:3px solid #b45309">⚠️ عند التقاطعات: تمتد خطوط المنع 25م على الأقل من خط التوقف أو خط أعطِ الأفضلية</div>
+      </div>
+
+      <!-- L5-1 Edge Lines -->
+      <div style="margin-bottom:16px">
+        <div style="font-weight:700;font-size:12px;color:#b45309;margin-bottom:6px;padding:4px 8px;background:var(--bg);border-radius:4px">L5-1 — خطوط حافة الرصف Edge Lines (أصفر)</div>
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead>
+            <tr style="background:#b45309;color:#fff">
+              <th style="padding:5px 8px;text-align:right">الرمز</th>
+              <th style="padding:5px 8px;text-align:right">تكوين الطريق</th>
+              <th style="padding:5px 8px;text-align:center">السرعة (كم/س)</th>
+              <th style="padding:5px 8px;text-align:center">العرض (مم)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-family:monospace;font-weight:700">L5-1a</td>
+              <td style="padding:5px 8px">غير مفصول — مسار واحد بكل اتجاه</td>
+              <td style="padding:5px 8px;text-align:center">≥ 100</td>
+              <td style="padding:5px 8px;text-align:center">150</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+              <td style="padding:5px 8px;font-family:monospace;font-weight:700">L5-1b</td>
+              <td style="padding:5px 8px">مفصول الاتجاهين</td>
+              <td style="padding:5px 8px;text-align:center">≥ 100</td>
+              <td style="padding:5px 8px;text-align:center">150</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-family:monospace;font-weight:700">L5-1c</td>
+              <td style="padding:5px 8px">مفصول الاتجاهين</td>
+              <td style="padding:5px 8px;text-align:center">&gt; 100</td>
+              <td style="padding:5px 8px;text-align:center">200</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- L3-1 No-Passing Zone widths -->
+      <div style="margin-bottom:16px">
+        <div style="font-weight:700;font-size:12px;color:#dc2626;margin-bottom:6px;padding:4px 8px;background:var(--bg);border-radius:4px">L3-1 / L3-2 — خطوط منع التجاوز No-Passing Zone (أصفر)</div>
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead>
+            <tr style="background:#dc2626;color:#fff">
+              <th style="padding:5px 8px;text-align:center">السرعة (كم/س)</th>
+              <th style="padding:5px 8px;text-align:center">عرض الخط (مم)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;text-align:center;font-weight:600">&gt; 80</td>
+              <td style="padding:5px 8px;text-align:center">150</td>
+            </tr>
+            <tr style="background:var(--bg)">
+              <td style="padding:5px 8px;text-align:center;font-weight:600">≤ 80</td>
+              <td style="padding:5px 8px;text-align:center">100</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- RPMs -->
+      <div style="margin-bottom:16px">
+        <div style="font-weight:700;font-size:12px;color:#6d28d9;margin-bottom:6px;padding:4px 8px;background:var(--bg);border-radius:4px">العلامات الأرضية المرتفعة RPMs — أبعاد التباعد (مم)</div>
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead>
+            <tr style="background:#6d28d9;color:#fff">
+              <th style="padding:5px 8px;text-align:right">النوع</th>
+              <th style="padding:5px 8px;text-align:right">التطبيق</th>
+              <th style="padding:5px 8px;text-align:center">&gt; 100 كم/س</th>
+              <th style="padding:5px 8px;text-align:center">80–100 كم/س</th>
+              <th style="padding:5px 8px;text-align:center">&lt; 80 كم/س</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-family:monospace;font-weight:700">L3-1Ra</td>
+              <td style="padding:5px 8px">خط الوسط المزدوج — متصل</td>
+              <td style="padding:5px 8px;text-align:center">9000</td>
+              <td style="padding:5px 8px;text-align:center">6000</td>
+              <td style="padding:5px 8px;text-align:center">4000</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+              <td style="padding:5px 8px;font-family:monospace;font-weight:700">L2-1Ra</td>
+              <td style="padding:5px 8px">خطوط المسار — متقطعة</td>
+              <td style="padding:5px 8px;text-align:center">6000</td>
+              <td style="padding:5px 8px;text-align:center">3000</td>
+              <td style="padding:5px 8px;text-align:center">2000</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-family:monospace;font-weight:700">L5-1Ra</td>
+              <td style="padding:5px 8px">خطوط الحافة — متصلة</td>
+              <td style="padding:5px 8px;text-align:center">18000</td>
+              <td style="padding:5px 8px;text-align:center">9000</td>
+              <td style="padding:5px 8px;text-align:center">6000</td>
+            </tr>
+            <tr style="background:var(--bg)">
+              <td style="padding:5px 8px;font-family:monospace;font-weight:700">L4-1Ra</td>
+              <td style="padding:5px 8px">خطوط التوجيه — متصلة</td>
+              <td style="padding:5px 8px;text-align:center">18000</td>
+              <td style="padding:5px 8px;text-align:center">9000</td>
+              <td style="padding:5px 8px;text-align:center">6000</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- L6-1 Chevron Marks -->
+      <div style="margin-bottom:8px">
+        <div style="font-weight:700;font-size:12px;color:#0284c7;margin-bottom:6px;padding:4px 8px;background:var(--bg);border-radius:4px">L6-1 — الخطوط المائلة Chevron Markings (أبيض)</div>
+        <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead>
+            <tr style="background:#0284c7;color:#fff">
+              <th style="padding:5px 8px;text-align:right">الرمز</th>
+              <th style="padding:5px 8px;text-align:right">التطبيق</th>
+              <th style="padding:5px 8px;text-align:center">السرعة</th>
+              <th style="padding:5px 8px;text-align:center">العرض (مم)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-family:monospace;font-weight:700">L6-1a</td>
+              <td style="padding:5px 8px">فصل تدفقات المرور المتعارضة — طريق مسار واحد</td>
+              <td style="padding:5px 8px;text-align:center">كما في الجدول</td>
+              <td style="padding:5px 8px;text-align:center">150</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:var(--bg)">
+              <td style="padding:5px 8px;font-family:monospace;font-weight:700">L6-1b</td>
+              <td style="padding:5px 8px">مدخل مكان أو منحدر — طريق مسار واحد</td>
+              <td style="padding:5px 8px;text-align:center">كما في الجدول</td>
+              <td style="padding:5px 8px;text-align:center">150</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:5px 8px;font-family:monospace;font-weight:700">L6-1c</td>
+              <td style="padding:5px 8px">تحديد منطقة الطريق — مفصول الاتجاهين</td>
+              <td style="padding:5px 8px;text-align:center">&lt; 100</td>
+              <td style="padding:5px 8px;text-align:center">200</td>
+            </tr>
+            <tr style="background:var(--bg)">
+              <td style="padding:5px 8px;font-family:monospace;font-weight:700">L6-1d</td>
+              <td style="padding:5px 8px">الإشارة إلى نهاية الحافة — مفصول الاتجاهين</td>
+              <td style="padding:5px 8px;text-align:center">&lt; 100 / &gt; 100</td>
+              <td style="padding:5px 8px;text-align:center">150 / 200</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px;padding:4px 8px;border-right:3px solid #dc2626">⚠️ تعارض داخلي في L6-1a: راجع المصدر قبل التطبيق (ص.194 تعارض مع جدول 4-11)</div>
+      </div>
+
+    </div>
+  </div>
+
 </section>
 
 <!-- SECTION 3: Rumble Strips -->
@@ -1906,6 +2190,13 @@ function showSection(id){
         <div class="dwg-name">المنحنيات الرأسية</div>
         <div class="dwg-eng">Vertical Curves</div>
         <a class="btn btn-primary dwg-btn" href="المراجع/المنحنيات.pdf" target="_blank">فتح المرجع</a>
+      </div>
+      <div class="dwg-card" data-name="الدهانات الارضية أبعاد العلامات الأرضية SHC 602">
+        <div class="dwg-icon">🎨</div>
+        <div class="dwg-name">أبعاد الدهانات والعلامات الأرضية</div>
+        <div class="dwg-eng">Pavement Marking Dimensions — SHC 602</div>
+        <div style="font-size:10px;color:var(--muted);text-align:center;margin:2px 0 4px">م. حسان عبد الله الحلبي — 2026</div>
+        <a class="btn btn-primary dwg-btn" href="المراجع/الدهانات الارضية.pdf" target="_blank">فتح المرجع</a>
       </div>
     </div>
   </div>
