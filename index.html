@@ -2566,8 +2566,10 @@ function exportCSV(){
 }
 
 // ── Section 1: Taper ──
-document.getElementById('taper-ratio').addEventListener('change',function(){
-  document.getElementById('taper-custom-wrap').style.display=this.value==='custom'?'flex':'none';
+var _taperRatioEl=document.getElementById('taper-ratio');
+if(_taperRatioEl)_taperRatioEl.addEventListener('change',function(){
+  var _tcw=document.getElementById('taper-custom-wrap');
+  if(_tcw)_tcw.style.display=this.value==='custom'?'flex':'none';
 });
 
 function calcTaper(){
@@ -3748,6 +3750,4 @@ window.addEventListener('load', function(){
   if(typeof Chart !== 'undefined') drawCharts();
 });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" onload="drawCharts()"></script>
-</body>
-</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.
