@@ -2436,6 +2436,14 @@ function showSection(id){
 // showSection is defined in <head> script — no duplicate needed here
 
 // Init on DOMContentLoaded
+window.onerror = function(msg, src, line, col, err) {
+  var d = document.createElement('div');
+  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#dc2626;color:#fff;padding:10px;z-index:9999;font-size:13px;direction:ltr';
+  d.textContent = 'JS Error: ' + msg + ' (line ' + line + ')';
+  document.body.appendChild(d);
+  setTimeout(function(){d.remove();}, 8000);
+  return false;
+};
 document.addEventListener('DOMContentLoaded', function(){
   renderHistory();
   if(typeof Chart !== 'undefined') drawCharts();
@@ -3415,6 +3423,7 @@ function calcLC() {
   var slopeAr = terrain==='flat'?'':(' — ميل '+slope+':1');
   document.getElementById('lcs-result-val').textContent = w;
   document.getElementById('lcs-result').classList.add('show');
+  document.getElementById('lcs-result').scrollIntoView({behavior:'smooth',block:'nearest'});
   document.getElementById('lcs-steps').innerHTML =
     'سرعة التصميم: <strong>'+speed+' كم/س</strong> | نوع الأرض: <strong>'+terrainAr+'</strong>'+slopeAr+'<br>'+
     '<strong>LC المطلوب = '+w+' م</strong> (من شارت AASHTO Clear Zone)';
