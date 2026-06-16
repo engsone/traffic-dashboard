@@ -3247,6 +3247,7 @@ function calcSdc1() {
   Sa = 2*R*Math.acos(1 - m/R);
   Sa = Math.round(Sa*10)/10;
   document.getElementById('sdc1-result-val').textContent = Sa;
+  document.getElementById('sdc1-result').classList.add('show');
   var status = '';
   var steps = 'R = '+R+' م | m = '+m+' م<br>Sₐ = 2 × '+R+' × cos⁻¹(1 − '+m+'/'+R+') = <strong>'+Sa+' م</strong>';
   if(!isNaN(ssd) && ssd>0){
@@ -3281,6 +3282,7 @@ function calcSdc2() {
   var m = R*(1 - Math.cos(Sa/(2*R)));
   m = Math.round(m*100)/100;
   document.getElementById('sdc2-result-val').textContent = m;
+  document.getElementById('sdc2-result').classList.add('show');
   document.getElementById('sdc2-steps').innerHTML =
     'R = '+R+' م | Sₐ = '+Sa+' م<br>m = '+R+' × (1 − cos('+Sa+'/(2×'+R+'))) = <strong>'+m+' م</strong><br>'+
     '<span style="color:var(--muted);font-size:12px">يجب إبقاء المسافة الجانبية للعائق ≥ '+m+' م لضمان مسافة الرؤية</span>';
@@ -3406,6 +3408,7 @@ function calcLC() {
   var terrainAr = terrain==='fill'?'ردم':terrain==='cut'?'قطع':'مستوي';
   var slopeAr = terrain==='flat'?'':(' — ميل '+slope+':1');
   document.getElementById('lcs-result-val').textContent = w;
+  document.getElementById('lcs-result').classList.add('show');
   document.getElementById('lcs-steps').innerHTML =
     'سرعة التصميم: <strong>'+speed+' كم/س</strong> | نوع الأرض: <strong>'+terrainAr+'</strong>'+slopeAr+'<br>'+
     '<strong>LC المطلوب = '+w+' م</strong> (من شارت AASHTO Clear Zone)';
@@ -3452,6 +3455,7 @@ function calcCZSlope() {
   var terrainAr = terrain==='fill'?'ردم':terrain==='cut'?'قطع':'مستوي';
   var slopeAr = terrain==='flat'?'':(' — ميل '+slope+':1');
   document.getElementById('czs-result-val').textContent = w;
+  document.getElementById('czs-result').classList.add('show');
   document.getElementById('czs-steps').innerHTML =
     'سرعة التصميم: <strong>'+speed+' كم/س</strong> | نوع الأرض: <strong>'+terrainAr+'</strong>'+slopeAr+'<br>'+
     '<strong>Clear Zone المطلوب = '+w+' م</strong>';
@@ -3478,9 +3482,9 @@ function calcCZSlope() {
 function drawCharts(){
   if(typeof Chart==='undefined'||!Chart.getChart) return;
   // Draw only if czChart not yet initialized (idempotent)
+  // CZ Chart (s5) — lazy: draw only when canvas visible
   var czCanv=document.getElementById('czChart');
-  if(!czCanv||Chart.getChart(czCanv)) return;
-  // CZ Chart
+  if(czCanv&&!Chart.getChart(czCanv)&&czCanv.offsetWidth>0){
   const czCtx=czCanv.getContext('2d');
   // Build slope-based chart: X=CZ width, Y=slope index, 7 speed curves
   var speeds=[50,60,70,80,90,100,110];
@@ -3568,10 +3572,11 @@ function drawCharts(){
       },animation:{duration:400}
     }
   });
+  } // end czChart
 
-  // LC Chart (barriers section — same AASHTO data as CZ chart)
+  // LC Chart (s4) — lazy
   var lcCtxEl = document.getElementById('lcChart');
-  if (lcCtxEl) {
+  if (lcCtxEl&&!Chart.getChart(lcCtxEl)&&lcCtxEl.offsetWidth>0) {
     var lcCtx = lcCtxEl.getContext('2d');
     var lcDatasets = speeds.map(function(sp, si) {
       var d = CZ_SLOPE_DATA[sp];
@@ -3650,7 +3655,7 @@ function drawCharts(){
 
   // SDC Chart — Sight Distance on Curves (Figure 4-11)
   var sdcCtxEl = document.getElementById('sdcChart');
-  if(sdcCtxEl){
+  if(sdcCtxEl&&!Chart.getChart(sdcCtxEl)&&sdcCtxEl.offsetWidth>0){
     var sdcCtx = sdcCtxEl.getContext('2d');
     var sdcRadii = [25,50,100,200,300,400,500,750,1000,1500,2000,3000];
     var sdcColors = ['#6366f1','#8b5cf6','#a855f7','#ec4899','#ef4444','#f97316',
@@ -3690,8 +3695,9 @@ function drawCharts(){
     });
   }
 
-  // CV Chart
-  var cvCanv=document.getElementById('cvChart'); if(!cvCanv) return;
+  // CV Chart (s6) — lazy
+  var cvCanv=document.getElementById('cvChart');
+  if(cvCanv&&!Chart.getChart(cvCanv)&&cvCanv.offsetWidth>0){
   const cvCtx=cvCanv.getContext('2d');
   const vSpeeds=['20','30','40','50','60','70','80','90','100','110','120','130','140'];
   new Chart(cvCtx,{type:'line',data:{
@@ -3704,9 +3710,11 @@ function drawCharts(){
       {label:'e=12%',data:vSpeeds.map(v=>CV_DATA[v].e12),borderColor:'#dc2626',tension:.3,pointRadius:3}
     ]
   },options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{title:{display:true,text:'سرعة التصميم (كم/س)'}},y:{title:{display:true,text:'نصف القطر R (م)'}}}}});
+  } // end cvChart
 
-  // SSD Chart
-  var ssdCanv=document.getElementById('ssdChart'); if(!ssdCanv) return;
+  // SSD Chart (s8) — lazy
+  var ssdCanv=document.getElementById('ssdChart');
+  if(ssdCanv&&!Chart.getChart(ssdCanv)&&ssdCanv.offsetWidth>0){
   const ssdCtx=ssdCanv.getContext('2d');
   const vArr=[40,50,60,70,80,90,100,110,120];
   const ssdF=0.35,ssdT=2.5;
@@ -3715,6 +3723,7 @@ function drawCharts(){
     labels:vArr,
     datasets:[{label:'SSD (f=0.35, t=2.5s, مستوٍ)',data:vArr.map(ssdCalc),borderColor:'#2563a8',backgroundColor:'rgba(37,99,168,.1)',tension:.3,pointRadius:4,fill:true}]
   },options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{title:{display:true,text:'السرعة (كم/س)'}},y:{title:{display:true,text:'SSD (م)'}}}}});
+  } // end ssdChart
 
 }
 
