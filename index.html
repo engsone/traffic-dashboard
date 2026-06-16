@@ -157,6 +157,8 @@ function showSection(id){
   var mobActive=document.getElementById('mob-'+id);
   if(mobActive){mobActive.classList.add('active');try{mobActive.scrollIntoView({block:'nearest',inline:'center'});}catch(e){}}
   window.scrollTo(0,0);
+  // Trigger chart resize when section becomes visible
+  setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 60);
 }
 </script>
 </head>
