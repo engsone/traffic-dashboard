@@ -3474,6 +3474,12 @@ function calcCZSlope() {
 }
 
 function drawCharts(){
+  // Guard: don't draw twice
+  if(drawCharts._done) return; drawCharts._done=true;
+  // Temporarily show chart-sections so canvas has real dimensions
+  var _csecs=['s4','s4b','s5','s6','s8'];
+  var _prev={};
+  _csecs.forEach(function(sid){var s=document.getElementById(sid);if(s&&s.style.display==='none'||s&&!s.classList.contains('active')){_prev[sid]=s.style.display;s.style.visibility='hidden';s.style.display='block';}});
   // CZ Chart
   const czCtx=document.getElementById('czChart').getContext('2d');
   // Build slope-based chart: X=CZ width, Y=slope index, 7 speed curves
@@ -3707,6 +3713,8 @@ function drawCharts(){
     labels:vArr,
     datasets:[{label:'SSD (f=0.35, t=2.5s, مستوٍ)',data:vArr.map(ssdCalc),borderColor:'#2563a8',backgroundColor:'rgba(37,99,168,.1)',tension:.3,pointRadius:4,fill:true}]
   },options:{responsive:true,plugins:{legend:{position:'top'}},scales:{x:{title:{display:true,text:'السرعة (كم/س)'}},y:{title:{display:true,text:'SSD (م)'}}}}});
+  // Restore section visibility
+  _csecs.forEach(function(sid){if(_prev.hasOwnProperty(sid)){var s=document.getElementById(sid);if(s){s.style.display=_prev[sid]||'none';s.style.visibility='';}}});
 }
 
 // Charts init on load
