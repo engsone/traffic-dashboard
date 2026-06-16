@@ -158,16 +158,22 @@ function showSection(id){
   var mobActive=document.getElementById('mob-'+id);
   if(mobActive){mobActive.classList.add('active');try{mobActive.scrollIntoView({block:'nearest',inline:'center'});}catch(e){}}
   window.scrollTo(0,0);
-  // Resize Chart.js instances in the newly shown section
-  setTimeout(function(){
+  // Draw/resize charts — retry up to 1.8s if Chart.js still loading from CDN
+  var _retries=0;
+  function _tryDraw(){
     var sec=document.getElementById(id);
-    if(!sec||typeof Chart==='undefined'||!Chart.getChart) return;
+    if(!sec) return;
+    if(typeof Chart==='undefined'||!Chart.getChart){
+      if(_retries++<6) setTimeout(_tryDraw,300);
+      return;
+    }
     drawCharts();
-    sec.querySelectorAll('canvas').forEach(function(c){
-      var ch=Chart.getChart(c);
+    sec.querySelectorAll('canvas').forEach(function(cv){
+      var ch=Chart.getChart(cv);
       if(ch) ch.resize();
     });
-  }, 80);
+  }
+  setTimeout(_tryDraw,150);
 }
 </script>
 </head>
@@ -3236,10 +3242,10 @@ function calcSdc1() {
   var R = parseFloat(document.getElementById('sdc1-R').value);
   var m = parseFloat(document.getElementById('sdc1-m').value);
   var ssd = parseFloat(document.getElementById('sdc1-ssd').value);
-  var al = document.getElementById('sdc1-alert'); al.textContent='';
-  if(isNaN(R)||R<=0){al.textContent='⚠️ أدخل R';return;}
-  if(isNaN(m)||m<=0){al.textContent='⚠️ أدخل m';return;}
-  if(m>=R){al.textContent='⚠️ m يجب أن تكون أصغر من R';return;}
+  var al = document.getElementById('sdc1-alert'); al.textContent=''; al.classList.remove('show');
+  if(isNaN(R)||R<=0){al.textContent='⚠️ أدخل R';al.classList.add('show');return;}
+  if(isNaN(m)||m<=0){al.textContent='⚠️ أدخل m';al.classList.add('show');return;}
+  if(m>=R){al.textContent='⚠️ m يجب أن تكون أصغر من R';al.classList.add('show');return;}
   var Sa = 2*R*Math.acos(1 - m/R) * (180/Math.PI);
   // convert: acos returns radians, formula needs degrees converted to arc
   // Actually formula is in radians for cos, Sa in meters:
@@ -3276,9 +3282,9 @@ function calcSdc1() {
 function calcSdc2() {
   var R = parseFloat(document.getElementById('sdc2-R').value);
   var Sa = parseFloat(document.getElementById('sdc2-Sa').value);
-  var al = document.getElementById('sdc2-alert'); al.textContent='';
-  if(isNaN(R)||R<=0){al.textContent='⚠️ أدخل R';return;}
-  if(isNaN(Sa)||Sa<=0){al.textContent='⚠️ أدخل Sₐ';return;}
+  var al = document.getElementById('sdc2-alert'); al.textContent=''; al.classList.remove('show');
+  if(isNaN(R)||R<=0){al.textContent='⚠️ أدخل R';al.classList.add('show');return;}
+  if(isNaN(Sa)||Sa<=0){al.textContent='⚠️ أدخل Sₐ';al.classList.add('show');return;}
   var m = R*(1 - Math.cos(Sa/(2*R)));
   m = Math.round(m*100)/100;
   document.getElementById('sdc2-result-val').textContent = m;
@@ -3401,10 +3407,10 @@ function calcLC() {
   var terrain = document.getElementById('lcs-terrain').value;
   var slope = document.getElementById('lcs-slope').value;
   var alert = document.getElementById('lcs-alert');
-  alert.textContent = '';
-  if (!speed) { alert.textContent = 'اختر سرعة التصميم'; return; }
+  alert.textContent = ''; alert.classList.remove('show');
+  if (!speed) { alert.textContent = 'اختر سرعة التصميم'; alert.classList.add('show'); return; }
   var w = getCZWidth(speed, terrain, slope);
-  if (!w) { alert.textContent = 'لا توجد قيمة لهذا الاختيار'; return; }
+  if (!w) { alert.textContent = 'لا توجد قيمة لهذا الاختيار'; alert.classList.add('show'); return; }
   var terrainAr = terrain==='fill'?'ردم':terrain==='cut'?'قطع':'مستوي';
   var slopeAr = terrain==='flat'?'':(' — ميل '+slope+':1');
   document.getElementById('lcs-result-val').textContent = w;
@@ -3432,6 +3438,7 @@ function calcLC() {
 
 function resetLCCalc() {
   document.getElementById('lcs-speed').value = '';
+  document.getElementById('lcs-result').classList.remove('show');
   document.getElementById('lcs-result-val').textContent = '—';
   document.getElementById('lcs-steps').innerHTML = '';
   document.getElementById('lcs-alert').textContent = '';
@@ -3448,10 +3455,10 @@ function calcCZSlope() {
   var terrain = document.getElementById('czs-terrain').value;
   var slope = document.getElementById('czs-slope').value;
   var alert = document.getElementById('czs-alert');
-  alert.textContent = '';
-  if (!speed) { alert.textContent = 'اختر سرعة التصميم'; return; }
+  alert.textContent = ''; alert.classList.remove('show');
+  if (!speed) { alert.textContent = 'اختر سرعة التصميم'; alert.classList.add('show'); return; }
   var w = getCZWidth(speed, terrain, slope);
-  if (!w) { alert.textContent = 'لا توجد قيمة لهذا الاختيار'; return; }
+  if (!w) { alert.textContent = 'لا توجد قيمة لهذا الاختيار'; alert.classList.add('show'); return; }
   var terrainAr = terrain==='fill'?'ردم':terrain==='cut'?'قطع':'مستوي';
   var slopeAr = terrain==='flat'?'':(' — ميل '+slope+':1');
   document.getElementById('czs-result-val').textContent = w;
