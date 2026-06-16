@@ -3499,14 +3499,14 @@ function calcCZSlope() {
 
 function drawCharts(){
   if(typeof Chart==='undefined'||!Chart.getChart) return;
-  // Draw only if czChart not yet initialized (idempotent)
+  // Shared across all charts — must be declared before any lazy if-block
+  var speeds=[50,60,70,80,90,100,110];
+  var speedColors=['#6366f1','#8b5cf6','#ec4899','#ef4444','#f97316','#22c55e','#0ea5e9'];
   // CZ Chart (s5) — lazy: draw only when canvas visible
   var czCanv=document.getElementById('czChart');
   if(czCanv&&!Chart.getChart(czCanv)&&czCanv.offsetWidth>0){
   const czCtx=czCanv.getContext('2d');
   // Build slope-based chart: X=CZ width, Y=slope index, 7 speed curves
-  var speeds=[50,60,70,80,90,100,110];
-  var speedColors=['#6366f1','#8b5cf6','#ec4899','#ef4444','#f97316','#22c55e','#0ea5e9'];
   var czDatasets=speeds.map(function(sp,si){
     var d=CZ_SLOPE_DATA[sp];
     return {
@@ -3750,4 +3750,4 @@ window.addEventListener('load', function(){
   if(typeof Chart !== 'undefined') drawCharts();
 });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.
+<script src="https://cdnjs.cloudflare.com
