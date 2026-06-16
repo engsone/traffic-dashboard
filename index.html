@@ -157,8 +157,15 @@ function showSection(id){
   var mobActive=document.getElementById('mob-'+id);
   if(mobActive){mobActive.classList.add('active');try{mobActive.scrollIntoView({block:'nearest',inline:'center'});}catch(e){}}
   window.scrollTo(0,0);
-  // Trigger chart resize when section becomes visible
-  setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 60);
+  // Resize Chart.js instances in the newly shown section
+  setTimeout(function(){
+    var sec=document.getElementById(id);
+    if(!sec||typeof Chart==='undefined'||!Chart.getChart) return;
+    sec.querySelectorAll('canvas').forEach(function(c){
+      var ch=Chart.getChart(c);
+      if(ch) ch.resize();
+    });
+  }, 80);
 }
 </script>
 </head>
@@ -1454,7 +1461,7 @@ function showSection(id){
 
   <div class="chart-container">
     <div class="chart-title">شارت السرعة على المنحنيات — R مقابل سرعة التصميم</div>
-    <canvas id="cvChart"></canvas>
+    <div style="position:relative;height:320px;width:100%"><canvas id="cvChart"></canvas></div>
   </div>
 
   <!-- Sight Distance on Curves -->
@@ -1673,7 +1680,7 @@ function showSection(id){
 
   <div class="chart-container">
     <div class="chart-title">مخطط مسافة الرؤية — SSD مقابل السرعة</div>
-    <canvas id="ssdChart"></canvas>
+    <div style="position:relative;height:320px;width:100%"><canvas id="ssdChart"></canvas></div>
   </div>
 </section>
 
