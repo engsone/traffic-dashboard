@@ -976,6 +976,7 @@ function showSection(id){
   <!-- LC Chart (same AASHTO CZ chart, shared data) -->
   <div class="chart-container" style="padding:20px;margin-top:16px">
     <div class="chart-title">شارت LC — استخراج الخلوص الجانبي للحواجز من منحنيات AASHTO</div>
+    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.11)</div>
     <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">المحور الأفقي: LC المطلوب (م) | المحور الرأسي: نوع وميل الأرض | كل خط = سرعة تصميم</p>
     <div style="position:relative;height:500px;width:100%">
       <canvas id="lcChart"></canvas>
@@ -1229,6 +1230,7 @@ function showSection(id){
 
   <div class="calc-card">
     <div class="calc-title">جدول Clear Zone الكامل</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي — جدول زمن الإدراك والاستجابة (PRT)</div>
     <div class="table-wrap">
       <table id="cz-table">
         <thead><tr>
@@ -1355,6 +1357,7 @@ function showSection(id){
   <!-- Proper Clear Zone Chart: X=CZ width, Y=slope, 7 speed curves -->
   <div class="chart-container" style="padding:20px">
     <div class="chart-title">شارت Clear Zone — الميل والسرعة وعرض الخلوص المطلوب</div>
+    <div class="source-tag">المصدر: AASHTO Roadside Design Guide — Manual Volume 2.2</div>
     <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">المحور الأفقي: عرض Clear Zone (م) | المحور الرأسي: نوع وميل الأرض | كل خط = سرعة تصميم</p>
     <div style="position:relative;height:520px;width:100%">
       <canvas id="czChart"></canvas>
@@ -1377,7 +1380,7 @@ function showSection(id){
   <div class="calc-card">
     <div class="calc-title">حاسبة السرعة الآمنة على المنحنى</div>
     <div class="eq-box">V = √[127 × R × (e + f)]</div>
-    <div class="source-tag">المصدر: ص 40 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 84 (قيم الاحتكاك f) | معادلة قياسية V=√(127·R·(e+f))</div>
     <div class="form-row">
       <div class="field"><label>نصف القطر R (متر)</label><input type="number" id="vc-R" placeholder="مثال: 300" min="0" step="1"></div>
       <div class="field"><label>معدل التعلية e (عشري أو %)</label><input type="text" id="vc-e" placeholder="مثال: 0.06 أو 6%"></div>
@@ -1395,7 +1398,7 @@ function showSection(id){
   <div class="calc-card">
     <div class="calc-title">حاسبة نصف قطر المنحنى</div>
     <div class="eq-box">R = V² / [127 × (e + f)]</div>
-    <div class="source-tag">المصدر: ص 42 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 84 (قيم f وجدول نصف القطر)</div>
     <div class="form-row">
       <div class="field"><label>السرعة V (كم/س)</label><input type="number" id="rc-V" placeholder="مثال: 80" min="0" step="1"></div>
       <div class="field"><label>معدل التعلية e (عشري أو %)</label><input type="text" id="rc-e" placeholder="مثال: 0.06 أو 6%"></div>
@@ -1412,7 +1415,7 @@ function showSection(id){
 
   <div class="calc-card">
     <div class="calc-title">جدول السرعة على المنحنيات — Lookup</div>
-    <div class="source-tag">المصدر: ص 41 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 83-84 (جدول نصف القطر الأدنى)</div>
     <div class="form-row">
       <div class="field">
         <label>سرعة التصميم (كم/س)</label>
@@ -1442,6 +1445,7 @@ function showSection(id){
 
   <div class="calc-card">
     <div class="calc-title">جدول السرعة على المنحنيات الكامل</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 83-84 (جدول نصف القطر الأدنى)</div>
     <div class="table-wrap">
       <table id="cv-table">
         <thead><tr>
@@ -1469,6 +1473,7 @@ function showSection(id){
 
   <div class="chart-container">
     <div class="chart-title">شارت السرعة على المنحنيات — R مقابل سرعة التصميم</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 83-84 (جدول نصف القطر الأدنى)</div>
     <div style="position:relative;height:320px;width:100%"><canvas id="cvChart"></canvas></div>
   </div>
 
@@ -1478,7 +1483,7 @@ function showSection(id){
     <div class="eq-box" style="font-size:13px;line-height:2">
       m = R · (1 − cos(Sₐ / 2R)) &nbsp;|&nbsp; Sₐ = 2R · cos⁻¹(1 − m/R)
     </div>
-    <div class="source-tag">المصدر: Figure 4-11 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 80 (معادلتا 4-2 و4-3)</div>
 
     <!-- Field data warning -->
     <div style="background:rgba(245,158,11,0.1);border:1.5px solid #f59e0b;border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13px;font-family:Cairo,sans-serif">
@@ -1557,7 +1562,8 @@ function showSection(id){
 
   <!-- SDC Chart -->
   <div class="chart-container" style="padding:20px;margin-top:16px">
-    <div class="chart-title">شارت مسافة الرؤية في المنحنيات — Figure 4-11</div>
+    <div class="chart-title">شارت مسافة الرؤية في المنحنيات — معادلتا 4-2 و4-3</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 80 (معادلتا 4-2 و4-3)</div>
     <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">
       المحور الأفقي: مسافة الرؤية المتاحة Sₐ (م) &nbsp;|&nbsp; المحور الرأسي: المسافة الجانبية للعائق m (م) &nbsp;|&nbsp; كل خط = نصف قطر R
     </p>
@@ -1578,7 +1584,7 @@ function showSection(id){
   <div class="calc-card">
     <div class="calc-title">حاسبة معامل K</div>
     <div class="eq-box">K = L / A</div>
-    <div class="source-tag">المصدر: ص 45 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 88 (معادلتا 4-7 و4-8)</div>
     <div class="form-row">
       <div class="field"><label>طول المنحنى L (متر)</label><input type="number" id="kv-L" placeholder="مثال: 200" min="0" step="1"></div>
       <div class="field"><label>الفرق الجبري A (%)</label><input type="number" id="kv-A" placeholder="مثال: 4" min="0" step="0.01"></div>
@@ -1595,7 +1601,7 @@ function showSection(id){
   <div class="calc-card">
     <div class="calc-title">حاسبة طول المنحنى الرأسي L</div>
     <div class="eq-box">L = K × A</div>
-    <div class="source-tag">المصدر: ص 47 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 87-88 (المنحنيات الرأسية)</div>
     <div class="form-row">
       <div class="field"><label>معامل K</label><input type="number" id="lv-K" placeholder="مثال: 50" min="0" step="1"></div>
       <div class="field"><label>الفرق الجبري A (%)</label><input type="number" id="lv-A" placeholder="مثال: 4" min="0" step="0.01"></div>
@@ -1616,7 +1622,7 @@ function showSection(id){
   <div class="calc-card">
     <div class="calc-title">حاسبة مسافة الرؤية للتوقف SSD</div>
     <div class="eq-box">SSD = 0.278 × V × t + V² / [254 × (f ± G)]</div>
-    <div class="source-tag">المصدر: ص 49 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 77 (معادلة 4-1)</div>
     <div class="form-row">
       <div class="field"><label>السرعة V (كم/س)</label><input type="number" id="ssd-V" placeholder="مثال: 80" min="0" step="1"></div>
       <div class="field"><label>زمن الاستجابة t (ثانية)</label><input type="number" id="ssd-t" placeholder="مثال: 2.5" min="0" step="0.1" value="2.5"></div>
@@ -1644,7 +1650,7 @@ function showSection(id){
 
   <div class="calc-card">
     <div class="calc-title">جدول SSD التقريبي (مرجع سريع)</div>
-    <div class="source-tag">المصدر: ص 7 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 78-79 (جدول SSD حسب السرعة والميل)</div>
     <div class="table-wrap">
       <table><thead><tr><th>السرعة</th><th>60 كم/س</th><th>80 كم/س</th><th>100 كم/س</th><th>120 كم/س</th></tr></thead>
       <tbody><tr><td><strong>SSD تقريبي</strong></td><td>85 م</td><td>130 م</td><td>185 م</td><td>245 م</td></tr></tbody></table>
@@ -1654,7 +1660,7 @@ function showSection(id){
   <div class="calc-card">
     <div class="calc-title">حاسبة الخلوص الجانبي للعائق m</div>
     <div class="eq-box">m = R × [1 − cos(Sa / 2R)] &nbsp;(Sa بالراديان)</div>
-    <div class="source-tag">المصدر: ص 50 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 80 (معادلة 4-2)</div>
     <div class="form-row">
       <div class="field"><label>نصف القطر R (متر)</label><input type="number" id="obs-R" placeholder="مثال: 300" min="0" step="1"></div>
       <div class="field"><label>Sa مسافة الرؤية المتاحة (متر)</label><input type="number" id="obs-Sa" placeholder="مثال: 130" min="0" step="1"></div>
@@ -1671,7 +1677,7 @@ function showSection(id){
   <div class="calc-card">
     <div class="calc-title">حاسبة مسافة الرؤية المتاحة Sa + فحص الأمان</div>
     <div class="eq-box">Sa = 2R × cos⁻¹(1 − m/R)</div>
-    <div class="source-tag">المصدر: ص 50 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 80 (معادلة 4-3)</div>
     <div class="form-row">
       <div class="field"><label>نصف القطر R (متر)</label><input type="number" id="sa-R" placeholder="مثال: 300" min="0" step="1"></div>
       <div class="field"><label>الخلوص الجانبي m (متر)</label><input type="number" id="sa-m" placeholder="مثال: 5" min="0" step="0.1"></div>
@@ -1688,6 +1694,7 @@ function showSection(id){
 
   <div class="chart-container">
     <div class="chart-title">مخطط مسافة الرؤية — SSD مقابل السرعة</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 77-78 (مسافة الوقوف SSD)</div>
     <div style="position:relative;height:320px;width:100%"><canvas id="ssdChart"></canvas></div>
   </div>
 </section>
@@ -1697,15 +1704,15 @@ function showSection(id){
   <div class="section-title">مسافة الرؤية للتجاوز PSD</div>
   <div class="calc-card">
     <div class="calc-title">جدول PSD — بحث بالسرعة</div>
-    <div class="source-tag">المصدر: ص 53 — كود الطرق السعودي</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 81 (الطريقة1: AASHTO 2018 / الطريقة2: TxDOT 2022)</div>
     <div class="form-row">
       <div class="field">
         <label>سرعة التصميم (كم/س)</label>
         <select id="psd-speed">
           <option value="">اختر السرعة</option>
-          <option value="40">40</option><option value="50">50</option><option value="60">60</option>
-          <option value="70">70</option><option value="80">80</option><option value="90">90</option>
-          <option value="100">100</option><option value="110">110</option><option value="120">120</option>
+          <option value="20">20</option><option value="30">30</option><option value="40">40</option>
+          <option value="50">50</option><option value="60">60</option><option value="70">70</option>
+          <option value="80">80</option><option value="90">90</option><option value="100">100</option><option value="110">110</option>
         </select>
       </div>
     </div>
@@ -1719,16 +1726,19 @@ function showSection(id){
 
   <div class="calc-card">
     <div class="calc-title">جدول PSD الكامل</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 81 (الطريقة1: AASHTO 2018 / الطريقة2: TxDOT 2022)</div>
     <div class="table-wrap">
       <table id="psd-table">
         <thead><tr>
-          <th>سرعة التصميم (كم/س)</th>
-          <th>40</th><th>50</th><th>60</th><th>70</th><th>80</th><th>90</th><th>100</th><th>110</th><th>120</th>
+          <th>السرعة التصميمية (كم/س)</th>
+          <th>20</th><th>30</th><th>40</th><th>50</th><th>60</th><th>70</th><th>80</th><th>90</th><th>100</th><th>110</th>
         </tr></thead>
-        <tbody><tr>
-          <td><strong>PSD (م)</strong></td>
-          <td>170</td><td>210</td><td>270</td><td>320</td><td>390</td><td>460</td><td>540</td><td>630</td><td>730</td>
-        </tr></tbody>
+        <tbody>
+          <tr><td><strong>الطريقة 1 — منبسطة (م)</strong></td>
+          <td data-s="20">130</td><td data-s="30">200</td><td data-s="40">270</td><td data-s="50">345</td><td data-s="60">410</td><td data-s="70">485</td><td data-s="80">540</td><td data-s="90">615</td><td data-s="100">670</td><td data-s="110">730</td></tr>
+          <tr><td><strong>الطريقة 2 — تلالية/جبلية (م)</strong></td>
+          <td data-s="20">100</td><td data-s="30">120</td><td data-s="40">140</td><td data-s="50">160</td><td data-s="60">180</td><td data-s="70">210</td><td data-s="80">245</td><td data-s="90">280</td><td data-s="100">320</td><td data-s="110">355</td></tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -3036,24 +3046,20 @@ function calcSa(){
 }
 
 // ── Section 9: PSD ──
-const PSD_DATA={40:170,50:210,60:270,70:320,80:390,90:460,100:540,110:630,120:730};
+// SHC 301 ص81 — الطريقة1: AASHTO 2018 (تضاريس منبسطة) | الطريقة2: TxDOT 2022 (تلالية/جبلية)
+const PSD_DATA={20:{m1:130,m2:100},30:{m1:200,m2:120},40:{m1:270,m2:140},50:{m1:345,m2:160},60:{m1:410,m2:180},70:{m1:485,m2:210},80:{m1:540,m2:245},90:{m1:615,m2:280},100:{m1:670,m2:320},110:{m1:730,m2:355}};
 function lookupPSD(){
   const spd=parseInt(document.getElementById('psd-speed').value);
   if(!spd){showAlert('psd','⚠️ اختر سرعة التصميم');return;}
   const psd=PSD_DATA[spd];
   if(!psd){
-    const keys=Object.keys(PSD_DATA).map(Number).sort((a,b)=>a-b);
-    const lower=keys.filter(k=>k<spd).pop();
-    const upper=keys.filter(k=>k>spd).shift();
-    showAlert('psd',`⚠️ السرعة ${spd} غير موجودة في الجدول. أقرب القيم: ${lower||'—'} كم/س = ${PSD_DATA[lower]||'—'} م، ${upper||'—'} كم/س = ${PSD_DATA[upper]||'—'} م. يتطلب تحقق هندسي قبل الاعتماد.`,'warn');
+    showAlert('psd',`⚠️ السرعة ${spd} كم/س غير مجدوَلة لمسافة الرؤية للتجاوز في كود الطرق السعودي (الجدول من 20 إلى 110 كم/س). على الطرق عالية السرعة لا يُعتمد على PSD.`,'warn');
     return;
   }
-  // highlight
   document.querySelectorAll('#psd-table td').forEach(td=>td.classList.remove('hit'));
-  const cells=[...document.getElementById('psd-table').querySelectorAll('tbody td')];
-  cells.forEach(td=>{if(parseInt(td.textContent)===psd) td.classList.add('hit');});
-  showResult('psd', psd, `PSD عند V=${spd} كم/س = ${psd} م`);
-  addHistory('PSD Lookup', `V=${spd}كم/س`, `${psd} م`);
+  document.querySelectorAll(`#psd-table td[data-s="${spd}"]`).forEach(td=>td.classList.add('hit'));
+  showResult('psd', `${psd.m1} / ${psd.m2}`, `<div>الطريقة 1 (منبسطة — AASHTO 2018): <strong>${psd.m1} م</strong></div><div>الطريقة 2 (تلالية/جبلية — TxDOT 2022): <strong>${psd.m2} م</strong></div><div style="margin-top:6px;color:#64748b">عند V=${spd} كم/س — اختيار الطريقة حسب التضاريس (كود الطرق السعودي 301 ص81)</div>`);
+  addHistory('PSD Lookup', `V=${spd}كم/س`, `ط1=${psd.m1}م / ط2=${psd.m2}م`);
 }
 
 // ── Section 10: Speed Change Lanes ──
