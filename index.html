@@ -201,7 +201,7 @@ function showSection(id){
     </div>
   </div>
   <div class="nav-list">
-    <button class="nav-item active" onclick="showSection('s1')" data-sec="s1"><span class="nav-icon">↔️</span>التحويلات ومناطق العمل</button>
+    <button class="nav-item active" onclick="showSection('s1')" data-sec="s1"><span class="nav-icon">↔️</span>المنطقة الانتقالية</button>
     <button class="nav-item" onclick="showSection('s2')" data-sec="s2"><span class="nav-icon">🎨</span>الدهانات والعلامات الأرضية</button>
     <button class="nav-item" onclick="showSection('s3')" data-sec="s3"><span class="nav-icon">〰️</span>المطبات الاهتزازية</button>
     <button class="nav-item" onclick="showSection('s4')" data-sec="s4"><span class="nav-icon">🛡️</span>الحواجز — مزدوج / سريع</button>
@@ -214,12 +214,13 @@ function showSection(id){
     <button class="nav-item" onclick="showSection('s10')" data-sec="s10"><span class="nav-icon">🚀</span>حارات التسارع والتباطؤ</button>
     <button class="nav-item" onclick="showSection('s12')" data-sec="s12"><span class="nav-icon">📚</span>المراجع</button>
     <button class="nav-item" onclick="showSection('s11')" data-sec="s11"><span class="nav-icon">📐</span>المخططات القياسية</button>
+    <button class="nav-item" onclick="showSection('sapp')" data-sec="sapp"><span class="nav-icon">📎</span>الملحقات</button>
     <button class="nav-item" onclick="showSection('shist')" data-sec="shist"><span class="nav-icon">📋</span>سجل الحسابات</button>
   </div>
 </nav>
 <!-- Mobile nav bar — href="#sX" = native browser hash navigation, no JS needed (iOS safe) -->
 <div class="mob-nav-bar" id="mob-nav-bar">
-  <a class="mob-btn active" id="mob-s1"    href="#s1"    onclick="showSection('s1');return false;">↔️ التحويلات</a>
+  <a class="mob-btn active" id="mob-s1"    href="#s1"    onclick="showSection('s1');return false;">↔️ المنطقة الانتقالية</a>
   <a class="mob-btn"        id="mob-s2"    href="#s2"    onclick="showSection('s2');return false;">🎨 الدهانات</a>
   <a class="mob-btn"        id="mob-s3"    href="#s3"    onclick="showSection('s3');return false;">〰️ المطبات</a>
   <a class="mob-btn"        id="mob-s4"    href="#s4"    onclick="showSection('s4');return false;">🛡️ حواجز مزدوج</a>
@@ -232,13 +233,14 @@ function showSection(id){
   <a class="mob-btn"        id="mob-s10"   href="#s10"   onclick="showSection('s10');return false;">🚀 التسارع</a>
   <a class="mob-btn" id="mob-s12" href="#s12" onclick="showSection('s12');return false;">📚 المراجع</a>
   <a class="mob-btn" id="mob-s11" href="#s11" onclick="showSection('s11');return false;">📐 المخططات</a>
+  <a class="mob-btn" id="mob-sapp" href="#sapp" onclick="showSection('sapp');return false;">📎 الملحقات</a>
   <a class="mob-btn"        id="mob-shist" href="#shist" onclick="showSection('shist');return false;">📋 السجل</a>
 </div>
 <!-- MAIN -->
 <main class="main">
 <!-- SECTION 1: Taper Length -->
 <section id="s1" class="section active">
-  <div class="section-title">التحويلات ومناطق العمل</div>
+  <div class="section-title">المنطقة الانتقالية</div>
 
   <div class="calc-card mix-card">
     <div class="calc-title">حاسبة طول منطقة الانتقال Taper Length (بالمعادلة)</div>
@@ -2266,25 +2268,6 @@ function showSection(id){
     </div>
   </div>
 
-  <!-- Arabic References -->
-  <div class="dwg-category" data-cat="مراجع عربية" style="margin-top:20px">
-    <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--primary)">📝 مراجع عربية</div>
-    <div class="dwg-grid">
-      <div class="dwg-card" data-name="المنحنيات الرأسية">
-        <div class="dwg-icon">📄</div>
-        <div class="dwg-name">المنحنيات الرأسية</div>
-        <div class="dwg-eng">Vertical Curves</div>
-        <a class="btn btn-primary dwg-btn" href="المراجع/المنحنيات.pdf" target="_blank">فتح المرجع</a>
-      </div>
-      <div class="dwg-card" data-name="الدهانات الارضية أبعاد العلامات الأرضية SHC 602">
-        <div class="dwg-icon">🎨</div>
-        <div class="dwg-name">أبعاد الدهانات والعلامات الأرضية</div>
-        <div class="dwg-eng">Pavement Marking Dimensions — SHC 602</div>
-        <div style="font-size:10px;color:var(--muted);text-align:center;margin:2px 0 4px">م. حسان عبد الله الحلبي — 2026</div>
-        <a class="btn btn-primary dwg-btn" href="المراجع/الدهانات الارضية.pdf" target="_blank">فتح المرجع</a>
-      </div>
-    </div>
-  </div>
 </section>
 
 <section id="s11" class="section">
@@ -2450,6 +2433,27 @@ function showSection(id){
         <a class="btn btn-primary dwg-btn" href="المخططات القياسية/المخطط القياسي لتقاطع رباعي.pdf" target="_blank">فتح</a>
       </div>
       
+  </div>
+</section>
+
+<!-- SECTION: Appendices الملحقات -->
+<section id="sapp" class="section">
+  <div class="section-title">📎 الملحقات</div>
+  <p style="font-size:13px;color:var(--muted);margin:0 0 16px;line-height:1.8">ملاحق ومستندات مساندة من إعداد م. حسان عبد الله الحلبي.</p>
+  <div class="dwg-grid">
+    <div class="dwg-card" data-name="المنحنيات الرأسية Vertical Curves">
+      <div class="dwg-icon">📄</div>
+      <div class="dwg-name">المنحنيات الرأسية</div>
+      <div class="dwg-eng">Vertical Curves</div>
+      <a class="btn btn-primary dwg-btn" href="المراجع/المنحنيات الرأسية.pdf" target="_blank">فتح الملف</a>
+    </div>
+    <div class="dwg-card" data-name="أبعاد الدهانات والعلامات الأرضية SHC 602">
+      <div class="dwg-icon">🎨</div>
+      <div class="dwg-name">أبعاد الدهانات والعلامات الأرضية</div>
+      <div class="dwg-eng">Pavement Marking Dimensions — SHC 602</div>
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin:2px 0 4px">م. حسان عبد الله الحلبي — 2026</div>
+      <a class="btn btn-primary dwg-btn" href="المراجع/الدهانات الارضية.pdf" target="_blank">فتح الملف</a>
+    </div>
   </div>
 </section>
 
