@@ -40,6 +40,9 @@ body:has(.section:target) .section:target{display:block}
 .calc-title{font-size:14px;font-weight:700;color:var(--primary);margin-bottom:4px}
 .eq-box{background:#f7fafc;border:1px solid #dbe7f3;border-radius:4px;padding:8px 12px;font-family:"Courier New",monospace;font-size:13px;text-align:center;direction:ltr;margin:8px 0;color:#1a3a5c;font-weight:600}
 .source-tag{font-size:11px;color:var(--muted);margin-bottom:10px}
+.ext-card{border-right:4px solid #7c3aed !important;background:rgba(124,58,237,0.05)}
+.source-tag.ext-source{color:#7c3aed;font-weight:700}
+.ext-badge{display:inline-block;background:#7c3aed;color:#fff;font-size:10px;font-weight:700;border-radius:4px;padding:1px 7px;font-family:Cairo,sans-serif;margin-left:6px}
 /* Form */
 .form-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
 .field{display:flex;flex-direction:column;gap:3px;min-width:140px;flex:1}
@@ -234,10 +237,10 @@ function showSection(id){
 <section id="s1" class="section active">
   <div class="section-title">التحويلات ومناطق العمل</div>
 
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">حاسبة طول منطقة الانتقال Taper Length (بالمعادلة)</div>
     <div class="eq-box" id="taper-eq-display">L = (W × S²) / 155.4 &nbsp;|&nbsp; L = (W × S) / 1.61</div>
-    <div class="source-tag">المصدر: كود الطرق السعودي 305 — ص 13 (جدول الاستدقاق §4-2) | المعادلة قياسية MUTCD</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: كود الطرق السعودي 305 — ص 13 (جدول الاستدقاق §4-2) | المعادلة قياسية MUTCD</div>
     <div class="form-row">
       <div class="field"><label>عرض الحارة W (متر)</label><input type="number" id="taper-W" placeholder="مثال: 3.75" min="0" step="0.01"></div>
       <div class="field"><label>السرعة S (كم/س)</label><input type="number" id="taper-S" placeholder="مثال: 80" min="0" step="1"></div>
@@ -637,10 +640,10 @@ function showSection(id){
   </div>
 
   <!-- حاسبة التطبيق المتصل -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">حاسبة Rumble Strips — تطبيق متصل (بلا فجوات)</div>
     <div class="eq-box">Lr = L &times; 1.0</div>
-    <div class="source-tag">المصدر: Fig. 5 &amp; 6 — MOT RD1-MOT-RSD-DWG-1812-013</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: Fig. 5 &amp; 6 — MOT RD1-MOT-RSD-DWG-1812-013</div>
     <div style="background:#fff8e1;border:1px solid #f59e0b;border-radius:6px;padding:8px 12px;font-size:12px;color:#7c4a00;margin:10px 0">
       ⚠️ الناتج لـ <strong>جهة واحدة فقط</strong> — اضغط <strong>×2 للجهتين</strong> للإجمالي
     </div>
@@ -716,10 +719,10 @@ function showSection(id){
     </div>
   </div>
 
-  <div class="calc-card" id="barrier-L-card">
+  <div class="calc-card ext-card" id="barrier-L-card">
     <div class="calc-title">حاسبة مسافة الحماية L — مع تنفيذ الـ Flare Back</div>
     <div class="eq-box">L = [LH + (b/a)(L1) − L2] / [(b/a) + (LH/LR)] &nbsp;|&nbsp; Y = (LH/LR) × L</div>
-    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
     <div class="form-row">
       <div class="field"><label>LH (متر)</label><input type="number" id="br-LH" placeholder="مثال: 12" min="0" step="0.1"></div>
       <div class="field">
@@ -752,10 +755,10 @@ function showSection(id){
   </div>
 
 
-  <div class="calc-card" style="border-right:4px solid #059669">
+  <div class="calc-card ext-card" style="border-right:4px solid #059669">
     <div class="calc-title">حاسبة الإزاحة الجانبية Y — مع Flare Back</div>
     <div class="eq-box">Y = (LH / LR) × L</div>
-    <div class="source-tag">المصدر: AASHTO Section 1.15</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Section 1.15</div>
     <div class="form-row">
       <div class="field"><label>LH (متر)</label><input type="number" id="y-br-LH" placeholder="مثال: 3" min="0" step="0.1"></div>
       <div class="field"><label>LR (متر)</label><input type="number" id="y-br-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
@@ -774,10 +777,10 @@ function showSection(id){
     <div class="alert" id="y-br-alert"></div>
   </div>
 
-  <div class="calc-card" id="barrier-L2-card">
+  <div class="calc-card ext-card" id="barrier-L2-card">
     <div class="calc-title">حاسبة مسافة الحماية L — عند تعذّر تنفيذ الـ Flare Back</div>
     <div class="eq-box">L = (LH − L2) × (LR / LH)</div>
-    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
     <div class="alert alert-warn show" style="margin-bottom:10px">⚠️ تُستخدم هذه المعادلة <strong>فقط</strong> عند تعذّر تنفيذ الـ Flare Back بسبب: وادٍ، جبل، ميول عالية، أو عوائق مشابهة. يُشترط في هذه الحالة <strong>تنفيذ نهاية ماصّة للصدمات (Crashworthy Terminal)</strong> في بداية الحاجز.</div>
     <div class="form-row">
       <div class="field"><label>LH (متر)</label><input type="number" id="br2-LH" placeholder="مثال: 12" min="0" step="0.1"></div>
@@ -801,10 +804,10 @@ function showSection(id){
     <div class="alert" id="br2-alert"></div>
   </div>
 
-  <div class="calc-card" id="total-barrier-card">
+  <div class="calc-card ext-card" id="total-barrier-card">
     <div class="calc-title">حاسبة الطول الكلي للحماية Lt</div>
     <div class="eq-box">Lt = Lσ + Crashworthy Terminal + L</div>
-    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
     <div class="form-row">
       <div class="field"><label>Lσ (متر)</label><input type="number" id="lt-Ls" placeholder="مثال: 10" min="0" step="0.1"></div>
       <div class="field"><label>Crashworthy Terminal (متر)</label><input type="number" id="lt-CT" placeholder="مثال: 5" min="0" step="0.1"></div>
@@ -827,10 +830,10 @@ function showSection(id){
   </div>
 
   <!-- LH = LC Special Case -->
-  <div class="calc-card" style="border-right:4px solid #7c3aed">
+  <div class="calc-card ext-card" style="border-right:4px solid #7c3aed">
     <div class="calc-title">حاسبة الحالة الخاصة: LH ≥ LC (العائق يمتد خارج منطقة الخلوص)</div>
     <div class="eq-box">L = [LC + (b/a)(L1) − L2] / [(b/a) + (LC/LR)] &nbsp;|&nbsp; Y = (LC/LR) × L</div>
-    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.9) | عند LH ≥ LC يُستبدَل LH بـ LC</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.9) | عند LH ≥ LC يُستبدَل LH بـ LC</div>
     <div class="alert alert-warn show" style="margin-bottom:10px">
       ℹ️ تُستخدم هذه الحاسبة عندما يمتد العائق إلى ما وراء حدود منطقة الخلوص (LH ≥ LC) — تُستبدَل قيمة LH بقيمة LC في المعادلة.
     </div>
@@ -863,10 +866,10 @@ function showSection(id){
   </div>
 
 
-  <div class="calc-card" style="border-right:4px solid #7c3aed">
+  <div class="calc-card ext-card" style="border-right:4px solid #7c3aed">
     <div class="calc-title">حاسبة الإزاحة الجانبية Y — حالة LC</div>
     <div class="eq-box">Y = (LC / LR) × L</div>
-    <div class="source-tag">المصدر: AASHTO Section 1.15</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Section 1.15</div>
     <div class="form-row">
       <div class="field"><label>LC (متر)</label><input type="number" id="y-brlc-LC" placeholder="مثال: 5" min="0" step="0.1"></div>
       <div class="field"><label>LR (متر)</label><input type="number" id="y-brlc-LR" placeholder="مثال: 100" min="0" step="0.1"></div>
@@ -889,9 +892,9 @@ function showSection(id){
   
 
   <!-- LR Reference Table -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">جدول قيم LR — طول الانسياب وأبعاد الفلير</div>
-    <div class="source-tag">المصدر: كود الطرق السعودي — Barrier Design</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: كود الطرق السعودي — Barrier Design</div>
     <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
       * الفلير يمكن أن يكون أكثر انبساطاً (a:b أكبر) &nbsp;|&nbsp; ** LR = Runout Length
     </p>
@@ -923,9 +926,9 @@ function showSection(id){
   </div>
 
   <!-- LC Calculator using AASHTO CZ Chart -->
-  <div class="calc-card" style="margin-top:20px;border-top:2px solid var(--primary)">
+  <div class="calc-card ext-card" style="margin-top:20px;border-top:2px solid var(--primary)">
     <div class="calc-title">حاسبة LC — الخلوص الجانبي للحواجز</div>
-    <div class="source-tag">المصدر: AASHTO Roadside Design Guide — الخلوص الجانبي يُستخرج من شارت Clear Zone</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Roadside Design Guide — الخلوص الجانبي يُستخرج من شارت Clear Zone</div>
     <p style="font-size:12px;color:var(--muted);margin-bottom:8px">
       LC هو المسافة من حافة الحارة المرورية إلى الحاجز — يُحدَّد بناءً على سرعة التصميم وطبيعة الأرض وميلها.
       الشارت أدناه هو نفس شارت AASHTO المستخدم في Clear Zone.
@@ -974,9 +977,9 @@ function showSection(id){
   </div>
 
   <!-- LC Chart (same AASHTO CZ chart, shared data) -->
-  <div class="chart-container" style="padding:20px;margin-top:16px">
+  <div class="chart-container ext-card" style="padding:20px;margin-top:16px">
     <div class="chart-title">شارت LC — استخراج الخلوص الجانبي للحواجز من منحنيات AASHTO</div>
-    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.11)</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.11)</div>
     <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">المحور الأفقي: LC المطلوب (م) | المحور الرأسي: نوع وميل الأرض | كل خط = سرعة تصميم</p>
     <div style="position:relative;height:500px;width:100%">
       <canvas id="lcChart"></canvas>
@@ -996,14 +999,14 @@ function showSection(id){
 <section id="s4b" class="section">
   <div class="section-title">الحواجز والحمايات المعدنية — طريق مفرد (ذو الاتجاهين)</div>
 
-  <div class="calc-card" style="border-right:4px solid #f59e0b;background:var(--card)">
+  <div class="calc-card ext-card" style="border-right:4px solid #f59e0b;background:var(--card)">
     <div class="calc-title">📌 ملاحظة خاصة بالطريق المفرد</div>
     <p style="font-size:13px;line-height:1.8;margin:0">
       في الطريق المفرد ذي الاتجاهين، تُقاس المسافات من <strong>محور الطريق (سنتر لاين)</strong> بدلاً من حافة مسار القيادة.
       هذا يعني إضافة عرض الحارة المعاكسة (3.65م) إلى كل من LH و L2 مقارنةً بحسابات الطريق المزدوج.<br>
       المعادلة نفسها تُطبَّق (Section 1.15) لكن المُدخلات تعكس القياس من المحور.
     </p>
-    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers (Fig. 1.15.11)</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers (Fig. 1.15.11)</div>
   </div>
 
   <!-- Symbols Legend – Undivided -->
@@ -1065,10 +1068,10 @@ function showSection(id){
   </div>
 
   <!-- Calc 1: With Flare Back – Undivided (dual-column) -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">حاسبة مسافة الحماية L — مع تنفيذ الـ Flare Back (طريق مفرد)</div>
     <div class="eq-box">L = [LH + (b/a)(L1) − L2] / [(b/a) + (LH/LR)] &nbsp;|&nbsp; Y = (LH/LR) × L</div>
-    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.11)</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.11)</div>
     <!-- Shared inputs -->
     <div class="alert alert-warn show" style="margin-bottom:10px">
       ⚠️ احسب مرتين: مرة من <strong>الخط الأصفر</strong> ومرة من <strong>محور الطريق (سنتر)</strong>
@@ -1113,10 +1116,10 @@ function showSection(id){
   </div>
 
   <!-- Calc 2: Without Flare Back – Undivided (dual-column) -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">حاسبة مسافة الحماية L — بدون Flare Back (طريق مفرد)</div>
     <div class="eq-box">L = (LH − L2) × (LR / LH)</div>
-    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.11)</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Highway Design Manual — Section 1.15 (Fig. 1.15.11)</div>
     <div class="alert alert-warn show" style="margin-bottom:10px">
       ⚠️ احسب مرتين: مرة من <strong>الخط الأصفر</strong> ومرة من <strong>محور الطريق (سنتر)</strong>
     </div>
@@ -1157,10 +1160,10 @@ function showSection(id){
   </div>
 
   <!-- Lt – Undivided -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">حاسبة الطول الكلي للحماية Lt (طريق مفرد)</div>
     <div class="eq-box">Lt = Lσ + Crashworthy Terminal + L</div>
-    <div class="source-tag">المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Highway Design Manual — Section 1.15 Traffic Barriers</div>
     <div class="form-row">
       <div class="field"><label>Lσ — طول الحاجز العازل (متر)</label><input type="number" id="bm3-Ls" placeholder="مثال: 50" min="0" step="0.1"></div>
       <div class="field"><label>Crashworthy Terminal (متر)</label><input type="number" id="bm3-CT" placeholder="مثال: 12" min="0" step="0.1"></div>
@@ -1195,9 +1198,9 @@ function showSection(id){
 <section id="s5" class="section">
   <div class="section-title">الخلوص الجانبي Clear Zone</div>
 
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">جدول Clear Zone — بحث/اختيار</div>
-    <div class="source-tag">المصدر: كود الطرق السعودي — جدول زمن الإدراك والاستجابة</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: كود الطرق السعودي — جدول زمن الإدراك والاستجابة</div>
     <div class="form-row">
       <div class="field">
         <label>سرعة الطريق (كم/س)</label>
@@ -1228,9 +1231,9 @@ function showSection(id){
     <div class="alert" id="cz-alert"></div>
   </div>
 
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">جدول Clear Zone الكامل</div>
-    <div class="source-tag">المصدر: كود الطرق السعودي — جدول زمن الإدراك والاستجابة (PRT)</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: كود الطرق السعودي — جدول زمن الإدراك والاستجابة (PRT)</div>
     <div class="table-wrap">
       <table id="cz-table">
         <thead><tr>
@@ -1247,10 +1250,10 @@ function showSection(id){
     </div>
   </div>
 
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">حاسبة تعديل الخلوص الجانبي بمعامل ADT</div>
     <div class="eq-box">Clear Zone Final = Base Clear Zone × Adjustment Factor (ADT)</div>
-    <div class="source-tag">المصدر: Manual Volume 2.2 — AASHTO Roadside Design Guide</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: Manual Volume 2.2 — AASHTO Roadside Design Guide</div>
 
     <!-- ADT Selection Table -->
     <p style="font-size:12px;color:var(--muted);margin-bottom:8px">اختر نطاق حجم الحركة اليومية — يتحدد المعامل تلقائياً:</p>
@@ -1307,9 +1310,9 @@ function showSection(id){
   </div>
 
   <!-- Clear Zone Slope Calculator -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">حاسبة Clear Zone — بالسرعة والميل</div>
-    <div class="source-tag">المصدر: AASHTO Roadside Design Guide — كود الطرق السعودي</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Roadside Design Guide — كود الطرق السعودي</div>
     <p style="font-size:12px;color:var(--muted);margin-bottom:8px">اختر سرعة التصميم ونوع الأرض والميل — تظهر القيمة مع تمييزها على الشارت</p>
     <div class="form-row">
       <div class="field">
@@ -1355,9 +1358,9 @@ function showSection(id){
   </div>
 
   <!-- Proper Clear Zone Chart: X=CZ width, Y=slope, 7 speed curves -->
-  <div class="chart-container" style="padding:20px">
+  <div class="chart-container ext-card" style="padding:20px">
     <div class="chart-title">شارت Clear Zone — الميل والسرعة وعرض الخلوص المطلوب</div>
-    <div class="source-tag">المصدر: AASHTO Roadside Design Guide — Manual Volume 2.2</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: AASHTO Roadside Design Guide — Manual Volume 2.2</div>
     <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">المحور الأفقي: عرض Clear Zone (م) | المحور الرأسي: نوع وميل الأرض | كل خط = سرعة تصميم</p>
     <div style="position:relative;height:520px;width:100%">
       <canvas id="czChart"></canvas>
@@ -1377,10 +1380,10 @@ function showSection(id){
 <section id="s6" class="section">
   <div class="section-title">المنحنيات الأفقية والسرعة الآمنة</div>
 
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">حاسبة السرعة الآمنة على المنحنى</div>
     <div class="eq-box">V = √[127 × R × (e + f)]</div>
-    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 84 (قيم الاحتكاك f) | معادلة قياسية V=√(127·R·(e+f))</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: كود الطرق السعودي 301 — ص 84 (قيم الاحتكاك f) | معادلة قياسية V=√(127·R·(e+f))</div>
     <div class="form-row">
       <div class="field"><label>نصف القطر R (متر)</label><input type="number" id="vc-R" placeholder="مثال: 300" min="0" step="1"></div>
       <div class="field"><label>معدل التعلية e (عشري أو %)</label><input type="text" id="vc-e" placeholder="مثال: 0.06 أو 6%"></div>
@@ -1395,10 +1398,10 @@ function showSection(id){
     <div class="alert" id="vc-alert"></div>
   </div>
 
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">حاسبة نصف قطر المنحنى</div>
     <div class="eq-box">R = V² / [127 × (e + f)]</div>
-    <div class="source-tag">المصدر: كود الطرق السعودي 301 — ص 84 (قيم f وجدول نصف القطر)</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: كود الطرق السعودي 301 — ص 84 (قيم f من الكود) | معادلة قياسية R=V²/(127·(e+f))</div>
     <div class="form-row">
       <div class="field"><label>السرعة V (كم/س)</label><input type="number" id="rc-V" placeholder="مثال: 80" min="0" step="1"></div>
       <div class="field"><label>معدل التعلية e (عشري أو %)</label><input type="text" id="rc-e" placeholder="مثال: 0.06 أو 6%"></div>
@@ -1767,9 +1770,9 @@ function showSection(id){
   <div class="section-title">حارات التسارع والتباطؤ</div>
 
   <!-- Acceleration Lookup -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">Lookup — حارة التسارع (Minimum Acceleration Length)</div>
-    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 2</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 2</div>
     <div class="form-row">
       <div class="field">
         <label>سرعة الطريق التصميمية (كم/س)</label>
@@ -1808,9 +1811,9 @@ function showSection(id){
   </div>
 
   <!-- Acceleration Table -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">جدول حارات التسارع الكامل (Entrance Ramp — Acceleration)</div>
-    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 2</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 2</div>
     <div class="table-wrap">
       <table id="acc-table" style="font-size:11px">
         <thead>
@@ -1865,9 +1868,9 @@ function showSection(id){
   </div>
 
   <!-- Deceleration Lookup -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">Lookup — حارة التباطؤ (Minimum Deceleration Length)</div>
-    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3</div>
     <div class="form-row">
       <div class="field">
         <label>سرعة الطريق التصميمية (كم/س)</label>
@@ -1906,9 +1909,9 @@ function showSection(id){
   </div>
 
   <!-- Deceleration Table -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">جدول حارات التباطؤ الكامل (Exit Ramp — Deceleration)</div>
-    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3</div>
     <div class="table-wrap">
       <table id="dec-table" style="font-size:11px">
         <thead>
@@ -1957,9 +1960,9 @@ function showSection(id){
   </div>
 
   <!-- Grade Adjustment Table -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">جدول معاملات تعديل الطول بسبب الانحدار — حارات التباطؤ</div>
-    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3 — وزارة النقل / TEC Engineering</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3 — وزارة النقل / TEC Engineering</div>
     <p style="font-size:12px;color:var(--muted);margin-bottom:8px">المعامل × الطول الأساسي على مستوٍ = الطول المعدَّل على الانحدار</p>
     <div class="table-wrap">
       <table style="font-size:12px">
@@ -1974,9 +1977,9 @@ function showSection(id){
     </div>
   </div>
 
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">جدول معاملات تعديل الطول بسبب الانحدار — حارات التسارع</div>
-    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3 — وزارة النقل / TEC Engineering</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3 — وزارة النقل / TEC Engineering</div>
     <p style="font-size:12px;color:var(--muted);margin-bottom:8px">الأعمدة = سرعة تصميم منحنى الدخول (كم/س) — الصفوف = سرعة تصميم الطريق الرئيسي (كم/س)</p>
 
     <div class="tabs">
@@ -2063,10 +2066,10 @@ function showSection(id){
   </div>
 
   <!-- Grade Adjustment Calculator -->
-  <div class="calc-card">
+  <div class="calc-card ext-card">
     <div class="calc-title">حاسبة تعديل الطول بسبب الانحدار</div>
     <div class="eq-box">Ladjusted = Lbasic × Adjustment Factor</div>
-    <div class="source-tag">المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3 — RD1-MOT-RSD-PDF-1812-001</div>
+    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: Speed Change Lanes Lengths with Complementary Speed Values.pdf، ص 3 — RD1-MOT-RSD-PDF-1812-001</div>
     <div class="form-row">
       <div class="field">
         <label>نوع الحارة</label>
