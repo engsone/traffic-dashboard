@@ -41,6 +41,9 @@ body:has(.section:target) .section:target{display:block}
 .eq-box{background:#f7fafc;border:1px solid #dbe7f3;border-radius:4px;padding:8px 12px;font-family:"Courier New",monospace;font-size:13px;text-align:center;direction:ltr;margin:8px 0;color:#1a3a5c;font-weight:600}
 .source-tag{font-size:11px;color:var(--muted);margin-bottom:10px}
 .ext-card{border-right:4px solid #7c3aed !important;background:rgba(124,58,237,0.05)}
+.mix-card{border-right:4px solid #0d9488 !important;background:rgba(13,148,136,0.05)}
+.source-tag.mix-source{color:#0d9488;font-weight:700}
+.mix-badge{display:inline-block;background:#0d9488;color:#fff;font-size:10px;font-weight:700;border-radius:4px;padding:1px 7px;font-family:Cairo,sans-serif;margin-left:6px}
 .source-tag.ext-source{color:#7c3aed;font-weight:700}
 .ext-badge{display:inline-block;background:#7c3aed;color:#fff;font-size:10px;font-weight:700;border-radius:4px;padding:1px 7px;font-family:Cairo,sans-serif;margin-left:6px}
 /* Form */
@@ -237,10 +240,10 @@ function showSection(id){
 <section id="s1" class="section active">
   <div class="section-title">التحويلات ومناطق العمل</div>
 
-  <div class="calc-card ext-card">
+  <div class="calc-card mix-card">
     <div class="calc-title">حاسبة طول منطقة الانتقال Taper Length (بالمعادلة)</div>
     <div class="eq-box" id="taper-eq-display">L = (W × S²) / 155.4 &nbsp;|&nbsp; L = (W × S) / 1.61</div>
-    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: كود الطرق السعودي 305 — ص 13 (جدول الاستدقاق §4-2) | المعادلة قياسية MUTCD</div>
+    <div class="source-tag mix-source"><span class="mix-badge">مختلط</span>المصدر: كود الطرق السعودي 305 — ص 13 (جدول الاستدقاق §4-2) | المعادلة قياسية MUTCD</div>
     <div class="form-row">
       <div class="field"><label>عرض الحارة W (متر)</label><input type="number" id="taper-W" placeholder="مثال: 3.75" min="0" step="0.01"></div>
       <div class="field"><label>السرعة S (كم/س)</label><input type="number" id="taper-S" placeholder="مثال: 80" min="0" step="1"></div>
@@ -1380,10 +1383,10 @@ function showSection(id){
 <section id="s6" class="section">
   <div class="section-title">المنحنيات الأفقية والسرعة الآمنة</div>
 
-  <div class="calc-card ext-card">
+  <div class="calc-card mix-card">
     <div class="calc-title">حاسبة السرعة الآمنة على المنحنى</div>
     <div class="eq-box">V = √[127 × R × (e + f)]</div>
-    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: كود الطرق السعودي 301 — ص 84 (قيم الاحتكاك f) | معادلة قياسية V=√(127·R·(e+f))</div>
+    <div class="source-tag mix-source"><span class="mix-badge">مختلط</span>المصدر: كود الطرق السعودي 301 — ص 84 (قيم الاحتكاك f) | معادلة قياسية V=√(127·R·(e+f))</div>
     <div class="form-row">
       <div class="field"><label>نصف القطر R (متر)</label><input type="number" id="vc-R" placeholder="مثال: 300" min="0" step="1"></div>
       <div class="field"><label>معدل التعلية e (عشري أو %)</label><input type="text" id="vc-e" placeholder="مثال: 0.06 أو 6%"></div>
@@ -1398,10 +1401,10 @@ function showSection(id){
     <div class="alert" id="vc-alert"></div>
   </div>
 
-  <div class="calc-card ext-card">
+  <div class="calc-card mix-card">
     <div class="calc-title">حاسبة نصف قطر المنحنى</div>
     <div class="eq-box">R = V² / [127 × (e + f)]</div>
-    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: كود الطرق السعودي 301 — ص 84 (قيم f من الكود) | معادلة قياسية R=V²/(127·(e+f))</div>
+    <div class="source-tag mix-source"><span class="mix-badge">مختلط</span>المصدر: كود الطرق السعودي 301 — ص 84 (قيم f من الكود) | معادلة قياسية R=V²/(127·(e+f))</div>
     <div class="form-row">
       <div class="field"><label>السرعة V (كم/س)</label><input type="number" id="rc-V" placeholder="مثال: 80" min="0" step="1"></div>
       <div class="field"><label>معدل التعلية e (عشري أو %)</label><input type="text" id="rc-e" placeholder="مثال: 0.06 أو 6%"></div>
