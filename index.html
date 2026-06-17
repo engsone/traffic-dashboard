@@ -260,6 +260,37 @@ function showSection(id){
     <div class="alert" id="taper-alert"></div>
   </div>
 
+  <div class="calc-card">
+    <div class="calc-title">📋 الجدول الرسمي — أطوال منطقة الانتقال (Taper) حسب السرعة وعرض الإزاحة</div>
+    <div class="source-tag">المصدر: كود الطرق السعودي 305 — ص 13 (§4-2 المُستدِّقة)</div>
+    <div class="table-wrap">
+      <table id="taper-table">
+        <thead>
+          <tr><th rowspan="2">السرعة (كم/س)</th><th colspan="7">المسافة التي يلزم فيها إزاحة المرور — حسب عرض الإزاحة W (م)</th></tr>
+          <tr><th>1.5</th><th>2.5</th><th>2.75</th><th>3.0</th><th>3.25</th><th>3.5</th><th>3.65</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>45</strong></td><td>20</td><td>33</td><td>36</td><td>39</td><td>42</td><td>46</td><td>49</td></tr>
+          <tr><td><strong>50</strong></td><td>24</td><td>40</td><td>44</td><td>48</td><td>52</td><td>56</td><td>60</td></tr>
+          <tr><td><strong>55</strong></td><td>29</td><td>49</td><td>54</td><td style="background:#fef3c7;color:#b45309;font-weight:700" title="الكود يطبع 48 — خطأ مطبعي واضح يكسر التسلسل؛ الصواب ≈58م حسب المعادلة">48 ⚠️</td><td>63</td><td>68</td><td>73</td></tr>
+          <tr><td><strong>60</strong></td><td>35</td><td>58</td><td>64</td><td>70</td><td>75</td><td>81</td><td>87</td></tr>
+          <tr><td><strong>65</strong></td><td>41</td><td>68</td><td>75</td><td>82</td><td>88</td><td>95</td><td>102</td></tr>
+          <tr><td><strong>70</strong></td><td>65</td><td>109</td><td>120</td><td>131</td><td>141</td><td>152</td><td>163</td></tr>
+          <tr><td><strong>75</strong></td><td>70</td><td>117</td><td>128</td><td>140</td><td>152</td><td>163</td><td>175</td></tr>
+          <tr><td><strong>80</strong></td><td>75</td><td>124</td><td>137</td><td>149</td><td>162</td><td>174</td><td>186</td></tr>
+          <tr><td><strong>85</strong></td><td>79</td><td>132</td><td>145</td><td>158</td><td>172</td><td>185</td><td>198</td></tr>
+          <tr><td><strong>90</strong></td><td>84</td><td>140</td><td>154</td><td>168</td><td>182</td><td>196</td><td>210</td></tr>
+          <tr><td><strong>95</strong></td><td>89</td><td>148</td><td>162</td><td>177</td><td>192</td><td>207</td><td>221</td></tr>
+          <tr><td><strong>100 (استثنائي)</strong></td><td>93</td><td>155</td><td>171</td><td>186</td><td>202</td><td>218</td><td>233</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.7">
+      ⚠️ <strong>الخلية المظللة (55كم/س، W=3.0):</strong> الكود يطبع <strong>48م</strong> وهي خطأ مطبعي واضح (تكسر التسلسل التصاعدي 54→؟→63)؛ القيمة الصحيحة حسب المعادلة ≈ <strong>58م</strong>.<br>
+      ملاحظة: القيم في الجدول تُعيد إنتاج معادلة الحاسبة أعلاه (الكود يعرضها كجدول لا كمعادلة).
+    </div>
+  </div>
+
 </section>
 
 <!-- SECTION 2: Paint -->
