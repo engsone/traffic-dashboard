@@ -2889,7 +2889,7 @@ function calcLtBothDirections(){
   var ba=g('bm1-ba'),L1=g('bm1-L1'),LR=g('bm1-LR');
   var LHa=g('bm1a-LH'),L2a=g('bm1a-L2'),LHb=g('bm1b-LH'),L2b=g('bm1b-L2');
   var Ls=g('bm3-Ls'),CT=g('bm3-CT');
-  var v=document.getElementById('ltboth-val'),s=document.getElementById('ltboth-steps');
+  var v=document.getElementById('ltboth-val'),s=document.getElementById('ltboth-steps');var rbx=document.getElementById('ltboth-result');if(rbx)rbx.classList.add('show');
   if(!LR||!ba||(!LHa&&!LHb)){ v.textContent='—'; s.innerHTML='<span style="color:#b91c1c">أدخل قيم حاسبة الحماية L (Flare Back) للاتجاهين أولاً.</span>'; return; }
   var La=(LHa + ba*L1 - L2a)/(ba + LHa/LR);
   var Lb=(LHb + ba*L1 - L2b)/(ba + LHb/LR);
