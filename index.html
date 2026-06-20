@@ -863,6 +863,13 @@ function showSection(id){
       <div class="result-steps" id="lt-steps"></div>
     </div>
     <div class="alert" id="lt-alert"></div>
+    <div class="btn-row" style="margin-top:12px;border-top:1px dashed #e5e7eb;padding-top:12px">
+      <button class="btn btn-primary" style="background:#0e7490" onclick="calcLtBothDirections()">احسب LT الإجمالي للاتجاهين (مجموع)</button>
+    </div>
+    <div class="result-box" id="ltboth-result">
+      <div><span class="result-value" id="ltboth-val">—</span><span class="result-unit">م</span></div>
+      <div class="result-steps" id="ltboth-steps"></div>
+    </div>
   </div>
 
   <!-- LH = LC Special Case -->
@@ -2875,6 +2882,20 @@ function calcBarrierLC(){
   document.getElementById('brlc-Y-val').textContent=Y.toFixed(2);
   document.getElementById('brlc-Y-row').style.display='block';
   addHistory('مسافة الحماية L (LH=LC)', `LC=${LC}، b/a=${baDisplay}، L1=${L1}، L2=${L2}، LR=${LR}`, `L=${Math.abs(L).toFixed(2)}م | Y=${Y.toFixed(2)}م`);
+}
+
+function calcLtBothDirections(){
+  var g=function(id){var e=document.getElementById(id);return e?(parseFloat(e.value)||0):0;};
+  var ba=g('bm1-ba'),L1=g('bm1-L1'),LR=g('bm1-LR');
+  var LHa=g('bm1a-LH'),L2a=g('bm1a-L2'),LHb=g('bm1b-LH'),L2b=g('bm1b-L2');
+  var Ls=g('lt-Ls'),CT=g('lt-CT');
+  var v=document.getElementById('ltboth-val'),s=document.getElementById('ltboth-steps');
+  if(!LR||!ba||(!LHa&&!LHb)){ v.textContent='—'; s.innerHTML='<span style="color:#b91c1c">أدخل قيم حاسبة الحماية L (Flare Back) للاتجاهين أولاً.</span>'; return; }
+  var La=(LHa + ba*L1 - L2a)/(ba + LHa/LR);
+  var Lb=(LHb + ba*L1 - L2b)/(ba + LHb/LR);
+  var total=La + Lb + Ls + 2*CT;
+  v.textContent=total.toFixed(2);
+  s.innerHTML='L (من الخط الأصفر) = '+La.toFixed(2)+' م<br>L (من سنتر الطريق) = '+Lb.toFixed(2)+' م<br>Lt الإجمالي = L(أصفر) + L(سنتر) + Lσ + 2×Terminal<br>= '+La.toFixed(2)+' + '+Lb.toFixed(2)+' + '+Ls.toFixed(2)+' + 2×'+CT.toFixed(2)+' = <b>'+total.toFixed(2)+' م</b><br><span style="color:#b45309">⚠️ ملاحظة: طول العائق Lσ يُحسب مرة واحدة فقط (غير مكرّر)، ويجب تنفيذ نهايتين ماصّتين للصدمات — واحدة عند كل طرف من الحاجز.</span>';
 }
 
 function calcTotalBarrier(){
