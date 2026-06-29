@@ -1216,13 +1216,6 @@ function showSection(id){
       <div class="result-steps" id="bm3-steps"></div>
     </div>
     <div class="alert" id="bm3-alert"></div>
-    <div class="btn-row" style="margin-top:12px;border-top:1px dashed #e5e7eb;padding-top:12px">
-      <button class="btn btn-primary" style="background:#0e7490" onclick="calcLtBothDirections()">احسب LT الإجمالي للاتجاهين (مجموع)</button>
-    </div>
-    <div class="result-box" id="ltboth-result">
-      <div><span class="result-value" id="ltboth-val">—</span><span class="result-unit">م</span></div>
-      <div class="result-steps" id="ltboth-steps"></div>
-    </div>
   </div>
 
   <!-- Reference to s4 tables -->
@@ -1240,58 +1233,6 @@ function showSection(id){
 <!-- SECTION 5: Clear Zone -->
 <section id="s5" class="section">
   <div class="section-title">الخلوص الجانبي Clear Zone</div>
-
-  <div class="calc-card ext-card">
-    <div class="calc-title">جدول Clear Zone — بحث/اختيار</div>
-    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: كود الطرق السعودي — جدول زمن الإدراك والاستجابة</div>
-    <div class="form-row">
-      <div class="field">
-        <label>سرعة الطريق (كم/س)</label>
-        <select id="cz-speed">
-          <option value="">اختر السرعة</option>
-          <option value="50">50</option><option value="60">60</option>
-          <option value="80">80</option><option value="100">100</option>
-          <option value="110">110</option><option value="120">120</option>
-          <option value="130">130</option><option value="140">140</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>زمن الإدراك والاستجابة</label>
-        <select id="cz-prt">
-          <option value="1.2">1.2 ثانية</option>
-          <option value="2.5">2.5 ثانية</option>
-        </select>
-      </div>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="lookupCZ()">بحث</button>
-      <button class="btn btn-reset" onclick="resetCalc('cz')">إعادة تعيين</button>
-    </div>
-    <div class="result-box" id="cz-result">
-      <div><span class="result-value" id="cz-result-val">—</span><span class="result-unit">م</span></div>
-      <div class="result-steps" id="cz-steps"></div>
-    </div>
-    <div class="alert" id="cz-alert"></div>
-  </div>
-
-  <div class="calc-card ext-card">
-    <div class="calc-title">جدول Clear Zone الكامل</div>
-    <div class="source-tag ext-source"><span class="ext-badge">خارج الكود</span>المصدر: كود الطرق السعودي — جدول زمن الإدراك والاستجابة (PRT)</div>
-    <div class="table-wrap">
-      <table id="cz-table">
-        <thead><tr>
-          <th>زمن الإدراك / السرعة</th>
-          <th>50 كم/س</th><th>60 كم/س</th><th>80 كم/س</th>
-          <th>100 كم/س</th><th>110 كم/س</th><th>120 كم/س</th>
-          <th>130 كم/س</th><th>140 كم/س</th>
-        </tr></thead>
-        <tbody>
-          <tr><td><strong>1.2 ث (م)</strong></td><td>7</td><td>10</td><td>20</td><td>33</td><td>40</td><td>45</td><td>50</td><td>58</td></tr>
-          <tr><td><strong>2.5 ث (م)</strong></td><td>11</td><td>16</td><td>27</td><td>42</td><td>50</td><td>60</td><td>65</td><td>75</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 
   <div class="calc-card ext-card">
     <div class="calc-title">حاسبة تعديل الخلوص الجانبي بمعامل ADT</div>
@@ -2884,20 +2825,6 @@ function calcBarrierLC(){
   addHistory('مسافة الحماية L (LH=LC)', `LC=${LC}، b/a=${baDisplay}، L1=${L1}، L2=${L2}، LR=${LR}`, `L=${Math.abs(L).toFixed(2)}م | Y=${Y.toFixed(2)}م`);
 }
 
-function calcLtBothDirections(){
-  var g=function(id){var e=document.getElementById(id);return e?(parseFloat(e.value)||0):0;};
-  var ba=g('bm1-ba'),L1=g('bm1-L1'),LR=g('bm1-LR');
-  var LHa=g('bm1a-LH'),L2a=g('bm1a-L2'),LHb=g('bm1b-LH'),L2b=g('bm1b-L2');
-  var Ls=g('bm3-Ls'),CT=g('bm3-CT');
-  var v=document.getElementById('ltboth-val'),s=document.getElementById('ltboth-steps');var rbx=document.getElementById('ltboth-result');if(rbx)rbx.classList.add('show');
-  if(!LR||!ba||(!LHa&&!LHb)){ v.textContent='—'; s.innerHTML='<span style="color:#b91c1c">أدخل قيم حاسبة الحماية L (Flare Back) للاتجاهين أولاً.</span>'; return; }
-  var La=(LHa + ba*L1 - L2a)/(ba + LHa/LR);
-  var Lb=(LHb + ba*L1 - L2b)/(ba + LHb/LR);
-  var total=La + Lb + Ls + 2*CT;
-  v.textContent=total.toFixed(2);
-  s.innerHTML='L (من الخط الأصفر) = '+La.toFixed(2)+' م<br>L (من سنتر الطريق) = '+Lb.toFixed(2)+' م<br>Lt الإجمالي = L(أصفر) + L(سنتر) + Lσ + 2×Terminal<br>= '+La.toFixed(2)+' + '+Lb.toFixed(2)+' + '+Ls.toFixed(2)+' + 2×'+CT.toFixed(2)+' = <b>'+total.toFixed(2)+' م</b><br><span style="color:#b45309">⚠️ ملاحظة: طول العائق Lσ يُحسب مرة واحدة فقط (غير مكرّر)، ويجب تنفيذ نهايتين ماصّتين للصدمات — واحدة عند كل طرف من الحاجز.</span>';
-}
-
 function calcTotalBarrier(){
   const Ls=parseFloat(document.getElementById('lt-Ls').value);
   const CT=parseFloat(document.getElementById('lt-CT').value);
@@ -2911,25 +2838,6 @@ function calcTotalBarrier(){
 }
 
 // ── Section 5: Clear Zone ──
-const CZ_DATA = {
-  '50':  {'1.2': 7,  '2.5': 11},
-  '60':  {'1.2': 10, '2.5': 16},
-  '80':  {'1.2': 20, '2.5': 27},
-  '100': {'1.2': 33, '2.5': 42},
-  '110': {'1.2': 40, '2.5': 50},
-  '120': {'1.2': 45, '2.5': 60},
-  '130': {'1.2': 50, '2.5': 65},
-  '140': {'1.2': 58, '2.5': 75}
-};
-function lookupCZ(){
-  const spd=document.getElementById('cz-speed').value;
-  const prt=document.getElementById('cz-prt').value;
-  if(!spd){showAlert('cz','⚠️ اختر سرعة الطريق');return;}
-  const val=CZ_DATA[spd]?.[prt];
-  if(!val){showAlert('cz','⚠️ القيمة غير متوفرة في الجدول');return;}
-  showResult('cz', val, `Clear Zone عند سرعة ${spd} كم/س وزمن إدراك ${prt} ث = ${val} م`);
-  addHistory('Clear Zone Lookup', `V=${spd}، PRT=${prt}ث`, `${val} م`);
-}
 function selectADT(row, label, factor) {
   // Deselect all
   document.querySelectorAll('.adt-row').forEach(function(r){
