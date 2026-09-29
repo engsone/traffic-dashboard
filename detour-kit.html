@@ -333,7 +333,7 @@ function idx(){return MK.indexOf(mk());}
 function num(v){const x=parseFloat(v);return isNaN(x)?0:x;}
 function derived(){const m=mk();if(!m||!num(S.mod.speed))return null;const p=PAR[m];const Sp=num(S.mod.speed),W=num(S.mod.W),len=num(S.mod.len);
  const L=Math.round(W*Sp/1.61),L1=p[2]?3*Sp:0,sets=Math.ceil(len/500);
- const c={taperL:p[0]*(Math.ceil(L/10)+1),taper20:p[1]*3,tan:Math.ceil(L1/10),buf:Math.ceil(p[3]/10),work:p[4]*Math.ceil(len/10),end:p[5]*3};
+ const c={taperL:p[0]*(Math.ceil(L/10)+1),taper20:p[1]*3,tan:Math.ceil(L1/10),buf:Math.ceil(p[3]/10),work:p[4]*Math.ceil(len/10),end:(p[5]===2?8:6)};
  c.total=c.taperL+c.taper20+c.tan+c.buf+c.work+c.end;
  return {L,L1,sets,c,tl:p[0]?L+' م':'20 م (حرم الطريق)',chev:p[6]*p[0]*Math.ceil(L/30),rep:p[7],height:MODELS[m].road==='مفرد'?750:1000,tma:MODELS[m].tma,buf:p[3]};}
 function items(){const d=derived();if(!d)return[];const i=idx();const out=[];
