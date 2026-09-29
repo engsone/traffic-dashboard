@@ -160,7 +160,7 @@ td.pt{background:#F6EFD6!important;color:#5a4506;font-weight:700}
         <li>اختر <span class="k">النموذج القياسي</span> الأشد الذي ستعمل به الفرقة، وأدخل <span class="k">سرعة الطريق</span> و<span class="k">عرض الإغلاق</span> و<span class="k">طول منطقة العمل</span>؛ تُحسب الكميات المطلوبة تلقائياً.</li>
         <li>قارن ما مع الفرقة بصورة كل لوحة وعددها المطلوب، واختر: <span class="k">مطابق</span> (العدد كامل)، أو <span class="k">جزئي</span> وأدخل العدد الموجود، أو <span class="k">غير مطابق</span> (غير موجودة).</li>
         <li>أرفق أو صوّر الأدوات الموجودة مع الفرقة.</li>
-        <li>اضغط <span class="k">تنزيل PDF</span> لإصدار تقرير الفحص.</li>
+        <li>اضغط <span class="k">حفظ PDF / طباعة</span>، ثم اختر في نافذة الطباعة «حفظ كـ PDF» (Save as PDF) لإصدار تقرير الفحص.</li>
       </ol>
       <details class="more"><summary>قواعد الحساب</summary>
         <div style="margin-top:6px">
@@ -209,8 +209,7 @@ td.pt{background:#F6EFD6!important;color:#5a4506;font-weight:700}
   <div><div class="tot"><span id="total">0</span><small>% مكتمل</small></div><span class="badge" id="badge">غير مكتمل</span></div>
   <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
     <button class="btn d" onclick="resetAll()">مسح</button>
-    <button class="btn s" onclick="doPrint()">طباعة</button>
-    <button class="btn p" onclick="downloadPdf()">تنزيل PDF</button>
+    <button class="btn p" onclick="doPrint()">حفظ PDF / طباعة</button>
   </div>
 </div>
 <div id="print"></div>
@@ -416,9 +415,10 @@ ${shortTbl()}
 function shortTbl(){const its=items().filter(it=>{const h=have(it);return h!==null&&h<it.req});const ch=CHK.filter((q,i)=>S.chk[i]==='n');
  if(!its.length&&!ch.length)return '';
  return `<table class="t" style="margin-top:3mm"><tr><th colspan="4">النواقص المطلوب استكمالها قبل الموافقة</th></tr><tr><th>البند</th><th style="width:13%">المطلوب</th><th style="width:13%">الموجود</th><th style="width:13%">النقص</th></tr>${its.map(it=>{const h=have(it);return `<tr><td style="text-align:right">${it.n}</td><td>${it.req}</td><td>${h}</td><td class="no">${it.req-h}</td></tr>`}).join('')}${ch.map(q=>`<tr><td style="text-align:right">${q}</td><td colspan="2">نعم</td><td class="no">لا</td></tr>`).join('')}</table>`;}
-function doPrint(){if(buildPrint())setTimeout(()=>window.print(),300);}
-function downloadPdf(){if(!buildPrint())return;const el=document.getElementById('print');el.style.display='block';
- html2pdf().set({margin:[12,14,14,14],filename:'RGA-KIT-'+(S.hdr.contract||'XX')+'-'+(S.hdr.team||'team').replace(/\s+/g,'_')+'-'+(S.hdr.date||'draft')+'.pdf',image:{type:'jpeg',quality:.85},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(el).save().then(()=>{el.style.display=''});}
+function doPrint(){if(!buildPrint())return;const old=document.title;document.title='RGA-KIT-'+(S.hdr.contract||'XX')+'-'+(S.hdr.team||'team').replace(/\s+/g,'_')+'-'+(S.hdr.date||'draft');
+ const tip=document.createElement('div');tip.textContent='اختر «حفظ كـ PDF» (Save as PDF) من قائمة الطابعة';tip.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#3E7761;color:#fff;padding:10px 16px;border-radius:10px;z-index:99;font:14px Cairo,sans-serif';document.body.appendChild(tip);
+ setTimeout(()=>{window.print();document.title=old;setTimeout(()=>tip.remove(),1500)},400);}
+function downloadPdf(){doPrint();}
 load();render();
 ['evaluator','evno','sup','supm'].forEach(id=>{document.getElementById(id).value=S.hdr['_'+id]||''});
 </script>
