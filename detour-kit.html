@@ -84,6 +84,7 @@ table.t td.g{background:#F2F2F2;font-weight:700}
 .pgrid img{width:86mm;height:65mm;object-fit:cover;border:0.5pt solid #999}
 
 /* إضافات صفحة فحص الأدوات */
+@media print{#ptip{display:none!important} table.t{break-inside:avoid;page-break-inside:avoid}}
 .guide{font-size:13.5px;line-height:1.9;color:#2b3036}
 .guide ol{margin:6px 0 0;padding-right:20px}
 .guide li{margin-bottom:2px}
@@ -166,7 +167,7 @@ td.pt{background:#F6EFD6!important;color:#5a4506;font-weight:700}
         <div style="margin-top:6px">
         • طول التيبر L = W × S ÷ 1.61 (W العرض المغلق بالمتر، S سرعة الطريق كم/س). التيبر على حرم الطريق 20 م ثابت. المماس بين تيبرين L1 = 3 × S.<br>
         • الأقماع كل 10 م على التيبر والفاصلة ومنطقة العمل والنهاية؛ كل تيبر + قمع البداية. الارتفاع 1000 مم للطرق السريعة والمزدوجة و750 مم للمفردة.<br>
-        • الفاصلة 100 م في إغلاق المسارات و10 م في أعمال الحرم. النهاية 10 م + 20 م ثم لوحة «نهاية أعمال الطريق» بعد 150 م.<br>
+        • المنطقة الفاصلة 100 م ثابتة في كل النماذج. النهاية 10 م + 20 م ثم لوحة «نهاية أعمال الطريق» بعد 150 م.<br>
         • لوحات «عمال» و«تمهّل» (وحد السرعة في إغلاق المسارات) تتكرر كل 500 م داخل منطقة العمل.<br>
         • اللوحة المرسومة على جانبي الطريق في النموذج محسوبة لوحتين. قيم حدود السرعة كما في النموذج؛ إذا اختلفت سرعة الطريق يبقى العدد وتتدرّج القيم منها.<br>
         • النماذج لا تعفي المقاول من تكثيف وسائل السلامة إذا تطلّب الموقع؛ والمخطط المعتمد من الفرع هو المرجع عند الاختلاف.
@@ -247,9 +248,9 @@ const MODELS={
  '8A':{t:'أعمال في الجزيرة الوسطية (مع فاصل)',road:'مزدوج',tma:1},
  '8B':{t:'أعمال في الجزيرة الوسطية (بلا فاصل)',road:'مزدوج',tma:2}};
 /* معاملات: تيبر L، تيبر 20 م، مماس 3S، الفاصلة، خطوط أقماع العمل، النهايات، شيفرون، تكرار[عمال، تمهل، سرعة، باتجاهين] */
-const PAR={'1':[2,0,1,100,1,1,1,[2,1,1,0]],'2':[1,0,0,100,1,1,1,[2,1,1,0]],'3':[0,1,0,10,1,1,0,[1,1,0,0]],
- '4':[1,0,0,100,1,1,1,[2,1,1,0]],'5':[0,1,0,10,1,1,0,[1,1,0,0]],'6':[1,0,0,10,1,1,1,[0,0,2,2]],
- '7':[0,1,0,10,1,1,0,[1,1,0,0]],'8A':[1,0,0,100,1,1,0,[1,1,0,0]],'8B':[1,1,1,100,2,2,0,[2,2,0,0]]};
+const PAR={'1':[2,0,1,100,1,1,1,[2,1,1,0]],'2':[1,0,0,100,1,1,1,[2,1,1,0]],'3':[0,1,0,100,1,1,0,[1,1,0,0]],
+ '4':[1,0,0,100,1,1,1,[2,1,1,0]],'5':[0,1,0,100,1,1,0,[1,1,0,0]],'6':[1,0,0,100,1,1,1,[0,0,2,2]],
+ '7':[0,1,0,100,1,1,0,[1,1,0,0]],'8A':[1,0,0,100,1,1,0,[1,1,0,0]],'8B':[1,1,1,100,2,2,0,[2,2,0,0]]};
 
 const DESC={'1':'طريق سريع بثلاثة مسارات للاتجاه، والعمل يغلق مسارين أو مساراً ونصفاً؛ تُحوَّل الحركة على مرحلتين بتيبرين بينهما 3×السرعة.',
  '2':'طريق سريع، والعمل يغلق المسار الأيمن (الخارجي) فقط.','3':'طريق سريع، والعمل داخل المنطقة الخالية (الكتف أو الحرم) دون إغلاق أي مسار.',
@@ -316,7 +317,6 @@ const REP=[
  {k:'rv',n:'حد السرعة — تكرار كل 500 م (80، أو 50 في النموذج 6)',ic:IC.sp(80),i:2},
  {k:'r2',n:'حركة باتجاهين — تكرار كل 500 م',ic:IC.two,i:3}];
 const EQ=[
- {k:'lamp',n:'ومّاض أصفر على لوحة «أمامك تحويلة»',ic:IC.lamp,q:[2,2,0,2,0,4,0,0,0]},
  {k:'barr',n:'متراس Type II بسهم تحويلة وضوء أحمر (طقم)',ic:IC.barr,q:[2,1,0,1,0,1,0,1,2]},
  {k:'tma',n:'شاحنة ماص صدمات بأضواء تحذيرية (TMA)',ic:IC.tma,tma:true},
  {k:'flag',n:'حامل راية (بالراية والسترة العاكسة)',ic:IC.flag,q:[1,1,1,1,1,0,1,1,2]}];
@@ -362,7 +362,7 @@ function render(){
  document.getElementById('gnote').value=S.gnote||'';renderPhotos();calc();}
 function refresh(){const d=derived();const m=mk();
  document.getElementById('modinfo').innerHTML=m?`<div class="lockmsg" style="margin-top:10px">النموذج ${m}: طريق ${MODELS[m].road} — ارتفاع الأقماع <b>${MODELS[m].road==='مفرد'?750:1000} مم</b> — شاحنات الماص: <b>${MODELS[m].tma}</b></div>`:'<div class="lockmsg" style="margin-top:10px">اختر النموذج والسرعة لحساب الكميات المطلوبة</div>';
- document.getElementById('kpis').innerHTML=d?[[d.tl,'طول التيبر'],[d.L1?d.L1+' م':'—','المماس L1'],[d.c.total,'الأقماع المطلوبة'],[items().filter(x=>x.sec==='sg'||x.sec==='rp').reduce((a,b)=>a+b.req,0),'اللوحات المطلوبة']].map(x=>`<div class="kpi"><b>${x[0]}</b><span>${x[1]}</span></div>`).join(''):'';
+ document.getElementById('kpis').innerHTML=d?[[d.tl,'طول التيبر'],['100 م','المنطقة الفاصلة'],[d.c.total,'الأقماع المطلوبة'],[items().filter(x=>x.sec==='sg'||x.sec==='rp').reduce((a,b)=>a+b.req,0),'اللوحات المطلوبة']].map(x=>`<div class="kpi"><b>${x[0]}</b><span>${x[1]}</span></div>`).join(''):'';
  renderSections();}
 function rowHtml(it){const s=S.st[it.k]||'';
  return `<div class="row" id="r_${it.k}"><div class="ic">${it.ic}</div><div><div class="nm">${it.n}</div><div class="rq">المطلوب: <b>${it.req}</b></div></div>
@@ -416,7 +416,7 @@ function shortTbl(){const its=items().filter(it=>{const h=have(it);return h!==nu
  if(!its.length&&!ch.length)return '';
  return `<table class="t" style="margin-top:3mm"><tr><th colspan="4">النواقص المطلوب استكمالها قبل الموافقة</th></tr><tr><th>البند</th><th style="width:13%">المطلوب</th><th style="width:13%">الموجود</th><th style="width:13%">النقص</th></tr>${its.map(it=>{const h=have(it);return `<tr><td style="text-align:right">${it.n}</td><td>${it.req}</td><td>${h}</td><td class="no">${it.req-h}</td></tr>`}).join('')}${ch.map(q=>`<tr><td style="text-align:right">${q}</td><td colspan="2">نعم</td><td class="no">لا</td></tr>`).join('')}</table>`;}
 function doPrint(){if(!buildPrint())return;const old=document.title;document.title='RGA-KIT-'+(S.hdr.contract||'XX')+'-'+(S.hdr.team||'team').replace(/\s+/g,'_')+'-'+(S.hdr.date||'draft');
- const tip=document.createElement('div');tip.textContent='اختر «حفظ كـ PDF» (Save as PDF) من قائمة الطابعة';tip.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#3E7761;color:#fff;padding:10px 16px;border-radius:10px;z-index:99;font:14px Cairo,sans-serif';document.body.appendChild(tip);
+ const tip=document.createElement('div');tip.id='ptip';tip.textContent='اختر «حفظ كـ PDF» (Save as PDF) من قائمة الطابعة';tip.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);background:#3E7761;color:#fff;padding:10px 16px;border-radius:10px;z-index:99;font:14px Cairo,sans-serif';document.body.appendChild(tip);
  setTimeout(()=>{window.print();document.title=old;setTimeout(()=>tip.remove(),1500)},400);}
 function downloadPdf(){doPrint();}
 load();render();
