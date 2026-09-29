@@ -323,7 +323,7 @@ const EQ=[
  {k:'flag',n:'حامل راية (بالراية والسترة العاكسة)',ic:IC.flag,q:[1,1,1,1,1,0,1,1,2]}];
 const CHK=[];
 
-const S={hdr:{},mod:{model:'',speed:'',W:'3.75',len:'2000'},st:{},cnt:{},chk:{},photos:[],gnote:''};
+const S={hdr:{},mod:{model:'',speed:'',W:'3.65',len:'2000'},st:{},cnt:{},chk:{},photos:[],gnote:''};
 const HDR=[
  ['region','المنطقة','select',Object.keys(REG).map(k=>k+' — '+REG[k])],
  ['contract','رقم العقد','contract'],['contractor','المقاول','text'],
@@ -386,8 +386,8 @@ function calc(){const its=items();let tot=0,done=0,miss=0;
 function renderPhotos(){const el=document.getElementById('photos');el.innerHTML=S.photos.map((src,i)=>`<div class="ph-wrap"><img class="ph" src="${src}"><button class="ph-x" onclick="S.photos.splice(${i},1);renderPhotos();save()">✕</button></div>`).join('');}
 function addPhotos(files){[...files].forEach(f=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');const Rr=8.6/6.5;let w=img.width,h=img.height,sx=0,sy=0,sw=w,sh=h;if(w/h>Rr){sw=h*Rr;sx=(w-sw)/2}else{sh=w/Rr;sy=(h-sh)/2}c.width=1200;c.height=Math.round(1200/Rr);c.getContext('2d').drawImage(img,sx,sy,sw,sh,0,0,c.width,c.height);S.photos.push(c.toDataURL('image/jpeg',.8));renderPhotos();save();};img.src=e.target.result};r.readAsDataURL(f)});}
 function save(){try{localStorage.setItem('dkit',JSON.stringify(S))}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem('dkit'));if(s)Object.assign(S,s)}catch(e){}}
-function resetAll(){if(!confirm('مسح كل البيانات؟'))return;Object.assign(S,{hdr:{},mod:{model:'',speed:'',W:'3.75',len:'2000'},st:{},cnt:{},chk:{},photos:[],gnote:''});save();render();}
+function load(){try{const s=JSON.parse(localStorage.getItem('dkit'));if(s)Object.assign(S,s);if(S.mod&&S.mod.W==='3.75')S.mod.W='3.65'}catch(e){}}
+function resetAll(){if(!confirm('مسح كل البيانات؟'))return;Object.assign(S,{hdr:{},mod:{model:'',speed:'',W:'3.65',len:'2000'},st:{},cnt:{},chk:{},photos:[],gnote:''});save();render();}
 document.getElementById('gnote').addEventListener('input',e=>{S.gnote=e.target.value;save()});
 ['evaluator','evno','sup','supm'].forEach(id=>{const el=document.getElementById(id);el.value=(S.hdr['_'+id]||'');el.addEventListener('input',()=>{S.hdr['_'+id]=el.value;save()})});
 
