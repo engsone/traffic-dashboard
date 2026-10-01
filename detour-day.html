@@ -60,6 +60,7 @@ textarea{resize:vertical;min-height:64px}
   body{background:#fff}
   .app,.bar{display:none!important}
   #print{display:block}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   @page{size:A4;margin:12mm 14mm 14mm 14mm}
 }
 .pg{font-family:Cairo,sans-serif;color:#111;direction:rtl;width:182mm;margin:0 auto;page-break-after:always}
@@ -255,8 +256,7 @@ function buildPrint(){const r=calc();if(!model()||!r.done||r.missNotes.length){a
   const pd=S.photos['d']||[];if(pd.length)h+=`<div class="pgrid">${pd.map(p=>`<img src="${p}">`).join('')}</div>`;h+=`</div>`;
   document.getElementById('print').innerHTML=h;return true;}
 function doPrint(){if(buildPrint())setTimeout(()=>window.print(),300);}
-function downloadPdf(){if(!buildPrint())return;const el=document.getElementById('print');el.style.display='block';
-  html2pdf().set({margin:[12,14,14,14],filename:'RGA-DDT-'+((S.hdr.region||'').split(' ')[0]||'XX')+'-'+(S.hdr.date||'draft')+'.pdf',image:{type:'jpeg',quality:.85},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(el).save().then(()=>{el.style.display=''});}
+function downloadPdf(){doPrint();}
 load();render();
 </script>
 </body>
