@@ -82,6 +82,7 @@ table.t td.g{background:#F2F2F2;font-weight:700}
 .c0{background:#3E7761!important;color:#fff}.c1{background:#9FC3B3!important;color:#1F3D31}.c2{background:#C6A230!important;color:#3B2F05}.c3{background:#A8483D!important;color:#fff}
 .res{color:#fff;font-weight:700;font-size:11pt}
 .notes{font-size:9pt;margin:6px 0 2px}
+.t td.na{color:#bbb;background:#f6f6f6}
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-top:3mm}
 .pgrid img{width:86mm;height:65mm;object-fit:cover;border:0.5pt solid #999}
 </style>
@@ -276,13 +277,13 @@ function buildPrint(){const r=calc();if(!model()||!r.done||r.missNotes.length){a
   Z.forEach((z,zi)=>{const zv=zoneView(zi);const s=zoneScore(zi).s;const nts=zv.items.filter(it=>!it.g&&S.notes[it.k]).map(it=>S.notes[it.k]).join('، ');h+=`<tr><td class="g">${zv.t}</td><td>${z.max}</td><td>${s}</td><td style="text-align:right;font-size:8pt">${nts}</td></tr>`});
   h+=`<tr><td class="g">حسم الملاحظات العامة</td><td>−20</td><td>−${r.d}</td><td style="text-align:right;font-size:8pt">${S.dednote||''}</td></tr><tr><td class="g">المجموع</td><td class="g">100</td><td class="g">${r.tot}</td><td></td></tr><tr><td class="g">تصنيف النتيجة</td><td colspan="3" class="res" style="background:${r.tot>=90?'#3E7761':'#A8483D'}">${r.tot>=90?'التحويلة نظامية':'التحويلة خطرة'} (${r.tot} ${r.tot>=90?'≥':'<'} 90)</td></tr></table></div>`;
   Z.forEach((z,zi)=>{const zv=zoneView(zi);const locked=false;const zs=zoneScore(zi).s;
-    h+=`<div class="pg">${pageHead()}<table class="t mx"><tr><th colspan="6">${zv.t} (${z.max} نقطة)${zv.note?'<br><small>'+zv.note+'</small>':''}</th></tr><tr><th style="width:15%">البند</th><th class="h0">ممتاز</th><th class="h1">جيد</th><th class="h2">مقبول</th><th class="h3">ضعيف</th><th>التقييم</th></tr>`;
+    h+=`<div class="pg">${pageHead()}<table class="t mx"><tr><th colspan="6">${zv.t} (${z.max} نقطة)${zv.note?'<br><small>'+zv.note+'</small>':''}</th></tr><tr><th style="width:16%">البند</th><th class="h0" style="width:19%">ممتاز</th><th class="h1" style="width:19%">جيد</th><th class="h2" style="width:19%">مقبول</th><th class="h3" style="width:19%">ضعيف</th><th style="width:8%">التقييم</th></tr>`;
     zv.items.forEach(it=>{if(it.g){h+=`<tr><td colspan="6" class="g">${it.g}</td></tr>`;return}
       const n=it.v.length;const na=(it.only&&roadType()!==it.only)||locked;
       if(it.tma){const req=m.tma;let v=S.tmaPresent===null?0:3*S.tmaPresent/req;if(S.tmaHalf)v/=2;v=+v.toFixed(2);const cls=v>=3?0:(v>=1.5?1:(v>0?2:3));
         h+=`<tr><td class="n">${it.n}<br>(3 نقاط — تُوزَّع على ${req} شاحنة مطلوبة)</td><td class="d" colspan="4">المتوفر: ${S.tmaPresent} من ${req}${S.tmaHalf?' — ناقصة التجهيز (نصف الدرجة)':' — ماص صدمات مثبت وأضواء تحذيرية'}</td><td class="s c${cls}">${v}</td></tr>`;return}
-      const ci=na?0:S.sel[it.k];const g=gradeIdx(n,ci);const spans=n===4?[1,1,1,1]:(n===3?[1,2,1]:[2,2]);
-      h+=`<tr><td class="n" rowspan="2">${it.n}<br>(${it.v[0]} ${it.v[0]===1?'نقطة':'نقاط'})${na&&!locked?'<br><small>غير منطبق — درجة كاملة</small>':''}</td>${it.d.map((tx,i)=>`<td class="d" colspan="${spans[i]}">${tx}</td>`).join('')}<td class="s c${g}" rowspan="2">${it.v[ci]}</td></tr><tr>${it.v.map((v,i)=>`<td colspan="${spans[i]}" class="${i===ci?'c'+gradeIdx(n,i):''}" style="font-weight:700">${v}</td>`).join('')}</tr>`;});
+      const ci=na?0:S.sel[it.k];const g=gradeIdx(n,ci);const col=[0,1,2,3].map(c=>{const i=it.v.findIndex((_,j)=>gradeIdx(n,j)===c);return i;});
+      h+=`<tr><td class="n" rowspan="2">${it.n}<br>(${it.v[0]} ${it.v[0]===1?'نقطة':'نقاط'})${na&&!locked?'<br><small>غير منطبق — درجة كاملة</small>':''}</td>${col.map(i=>i<0?`<td class="d na">—</td>`:`<td class="d">${it.d[i]}</td>`).join('')}<td class="s c${g}" rowspan="2">${it.v[ci]}</td></tr><tr>${col.map(i=>i<0?`<td class="na">—</td>`:`<td class="${i===ci?'c'+gradeIdx(n,i):''}" style="font-weight:700">${it.v[i]}</td>`).join('')}</tr>`;});
     h+=`<tr><td colspan="5" class="g">مجموع نقاط ${zv.t}</td><td class="g">${zs}</td></tr></table>`;
     const nts=zv.items.filter(it=>!it.g&&S.notes[it.k]).map(it=>S.notes[it.k]).join('، ');h+=`<div class="notes"><b>أبرز الملاحظات:</b> ${nts||'لا توجد ملاحظات'}</div>`;
     const ph=S.photos[zi]||[];if(ph.length)h+=`<div class="notes"><b>الصور</b></div><div class="pgrid">${ph.map(p=>`<img src="${p}">`).join('')}</div>`;h+=`</div>`;});
