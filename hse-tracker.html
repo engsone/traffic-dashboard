@@ -1,0 +1,410 @@
+<!-- test -->
+line2<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>متابعة مهام السلامة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+:root{
+  --primary:#407189; --brick:#A8483D; --gray:#636569; --green:#3E7761; --gold:#C6A230;
+  --bg:#F3F6F7; --surface:#FFFFFF; --sunk:#E8EEF1; --line:#D3DDE2; --fg:#1F2E36; --muted:#5D686F;
+  --st-done:#3E7761; --st-part:#B08E1F; --st-rej:#A8483D; --st-claim:#407189; --st-open:#8A8D91;
+  --tint-done:#E3EFEA; --tint-part:#F6EFD6; --tint-rej:#F4E2DF; --tint-claim:#E1ECF1; --tint-open:#ECEDEE;
+  --on-accent:#FFFFFF; --neutral-strong:#636569;
+  --f-display:"Readex Pro","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif; --r:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#12191D; --surface:#1A2328; --sunk:#222E34; --line:#30404A; --fg:#E4EBEE; --muted:#9AA7AE;
+  --primary:#6A9DB5; --st-done:#5FA586; --st-part:#D4B24A; --st-rej:#CF6E62; --st-claim:#6A9DB5; --st-open:#8E9499;
+  --tint-done:#1E3329; --tint-part:#352E16; --tint-rej:#3A211E; --tint-claim:#1B2E38; --tint-open:#262D31;
+  --on-accent:#0F171B; --neutral-strong:#C3CBD0; color-scheme:dark }}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-top:env(safe-area-inset-top,0px)}
+main{max-width:780px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 120px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+header.top{position:sticky;top:0;z-index:5;background:var(--surface);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:12px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+.titlerow{display:flex;align-items:baseline;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+h1{font-family:var(--f-display);font-weight:700;font-size:1.2rem;margin:0;text-wrap:balance}
+.who{font-size:.85rem;color:var(--muted)}
+.due{font-size:.82rem;color:var(--muted)}
+.due b{color:var(--st-rej);font-weight:600}
+.tabs{display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.tabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 14px;cursor:pointer;font-size:.88rem;display:flex;gap:6px;align-items:baseline}
+.tabs button small{color:var(--muted);font-size:.75rem}
+.tabs button[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--on-accent);font-weight:600}
+.tabs button[aria-pressed="true"] small{color:var(--on-accent);opacity:.8}
+section.block{margin-top:16px}
+.eyebrow{font-size:.74rem;letter-spacing:.04em;color:var(--muted);font-weight:600;margin:0 0 8px;display:flex;justify-content:space-between;gap:8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.headline{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big{font-family:var(--f-display);font-size:2rem;font-weight:700;line-height:1;color:var(--st-done)}
+.of{color:var(--muted);font-size:.9rem}
+.bar{display:flex;height:10px;border-radius:999px;overflow:hidden;background:var(--sunk);margin:12px 0 10px}
+.bar span{display:block;height:100%}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.legend button{display:flex;align-items:center;gap:8px;border:1px solid transparent;background:var(--bg);border-radius:8px;padding:6px 8px;cursor:pointer;text-align:start}
+.legend button[aria-pressed="true"]{border-color:var(--fg)}
+.legend i{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+.legend .n{font-family:var(--f-display);font-weight:600;margin-inline-start:auto}
+.legend .l{font-size:.82rem}
+.ledger{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.ledger button{display:grid;grid-template-columns:1fr auto;gap:2px 12px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 14px;cursor:pointer;text-align:start}
+.ledger button:last-child{border-bottom:0}
+.ledger button[aria-pressed="true"]{background:var(--tint-claim)}
+.ledger .nm{font-weight:600;font-size:.92rem}
+.ledger .ct{font-size:.82rem;color:var(--muted)}
+.ledger .bar{grid-column:1/-1;margin:4px 0 0;height:6px}
+.filters{position:sticky;top:var(--hh,96px);z-index:4;background:var(--bg);padding:10px 0 8px;display:flex;flex-direction:column;gap:8px}
+.search{display:flex;gap:8px}
+.search input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 12px}
+.search button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:0 12px;cursor:pointer;font-size:.85rem;white-space:nowrap}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.82rem;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.count{font-size:.82rem;color:var(--muted)}
+.group h3{font-family:var(--f-display);font-weight:600;font-size:1rem;margin:18px 0 8px;display:flex;justify-content:space-between;gap:8px}
+.group h3 small{font-family:var(--f-body);font-weight:500;color:var(--muted);font-size:.8rem}
+.items{display:flex;flex-direction:column;gap:8px}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);border-inline-start:4px solid var(--c,var(--st-open));overflow:hidden}
+.item>.head{display:block;width:100%;background:none;border:0;padding:10px 12px;text-align:start;cursor:pointer}
+.meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.code{font-family:var(--f-display);font-weight:600;font-size:.85rem;direction:ltr;unicode-bidi:isolate}
+.tag{font-size:.7rem;border-radius:4px;padding:1px 6px;background:var(--sunk);color:var(--muted);font-weight:500}
+.tag.crit{background:var(--tint-rej);color:var(--st-rej)}
+.pill{margin-inline-start:auto;font-size:.74rem;font-weight:600;border-radius:999px;padding:2px 10px;background:var(--t,var(--tint-open));color:var(--c,var(--st-open))}
+.task{margin:0;font-size:.93rem}
+.sub{margin-top:6px;font-size:.8rem;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+.sub b{color:var(--fg);font-weight:500}
+.fb{margin-top:8px;font-size:.82rem;border-radius:8px;padding:8px 10px;background:var(--tint-rej);color:var(--fg)}
+.fb.part{background:var(--tint-part)}
+.editor{border-top:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:12px;background:var(--bg)}
+.field .lab,.field label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:5px}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 12px;font-size:.84rem;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--c,var(--neutral-strong));border-color:var(--c,var(--neutral-strong));color:var(--on-accent);font-weight:600}
+textarea{width:100%;min-height:58px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;resize:vertical}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:.76rem;color:var(--muted)}
+.btn{border:0;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer;background:var(--primary);color:var(--on-accent)}
+.btn[disabled]{opacity:.5;cursor:default}
+.linkbtn{border:1px solid var(--primary);color:var(--primary);background:none;border-radius:8px;padding:5px 10px;font-size:.8rem;cursor:pointer}
+.report{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px;font-size:.84rem;display:flex;flex-direction:column;gap:4px}
+.photos{display:flex;flex-wrap:wrap;gap:6px}
+.photos a{display:block;width:72px;height:72px;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--sunk);position:relative}
+.photos img{width:100%;height:100%;object-fit:cover}
+.photos .pdf{display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:var(--muted);height:100%}
+.photos .x{position:absolute;inset:2px 2px auto auto;width:22px;height:22px;border-radius:50%;border:0;background:var(--fg);color:var(--bg);font-size:.8rem;line-height:22px;padding:0;cursor:pointer}
+.up{display:inline-flex;align-items:center;gap:6px;border:1px dashed var(--primary);color:var(--primary);border-radius:8px;padding:8px 12px;font-size:.84rem;cursor:pointer}
+.up input{display:none}
+.links{display:flex;flex-direction:column;gap:8px}
+.links .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.links code{flex:1 1 220px;min-width:0;font-size:.72rem;direction:ltr;text-align:left;background:var(--sunk);border-radius:6px;padding:6px 8px;overflow-wrap:anywhere}
+.dock{position:fixed;inset:auto 0 0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.dock .in{max-width:780px;margin:0 auto;display:flex;gap:8px}
+.dock button{flex:1;border:0;border-radius:8px;padding:10px;font-weight:600;cursor:pointer;font-size:.88rem}
+.dock .p{background:var(--primary);color:var(--on-accent)}
+.dock .s{background:var(--sunk);color:var(--fg)}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:24px;text-align:center;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:8px;font-size:.85rem;z-index:20;max-width:calc(100% - 32px)}
+dialog{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--fg);width:min(640px,calc(100% - 32px));padding:16px}
+dialog::backdrop{background:#0008}
+dialog textarea{min-height:50vh;font-size:.85rem}
+.hist{font-size:.8rem;display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto}
+.hist div{border-bottom:1px solid var(--line);padding-bottom:6px}
+@media (prefers-reduced-motion:no-preference){.bar span{transition:width .3s}}
+</style>
+</head>
+<body>
+<main>
+  <header class="top" id="top">
+    <div class="titlerow"><h1 id="h1">متابعة مهام السلامة</h1><div class="due num" id="due"></div></div>
+    <div class="who" id="who"></div>
+    <div class="tabs" id="tabs" role="group" aria-label="العقد"></div>
+  </header>
+  <div id="app"><section class="block"><div class="empty" id="boot">جارٍ التحميل…</div></section></div>
+</main>
+<div class="dock" id="dock" hidden><div class="in" id="dockIn"></div></div>
+<dialog id="dlg"><p style="margin:0 0 8px;font-weight:600" id="dlgT"></p><div id="dlgB"></div>
+  <div style="display:flex;gap:8px;margin-top:10px"><button class="linkbtn" id="dlgCopy" type="button">نسخ</button><button class="linkbtn" id="dlgClose" type="button">إغلاق</button></div></dialog>
+
+<script>
+const SB_URL='https://urfqalbzphmhkofcgbuo.supabase.co', BUCKET='hse-evidence';
+const DUE=new Date('2026-10-31T23:59:59+03:00');
+const P=new URLSearchParams(location.hash.slice(1));
+try{ if(P.get('k')) localStorage.setItem('hse-p',location.hash.slice(1)); else { const s=localStorage.getItem('hse-p'); if(s) new URLSearchParams(s).forEach((v,k)=>P.set(k,v)); } }catch(e){}
+const MODE=P.get('a')?'admin':(P.get('c')?'contractor':null);
+const sb = P.get('k') && window.supabase ? window.supabase.createClient(SB_URL,P.get('k'),{auth:{persistSession:false}}) : null;
+
+const ST={done:{l:'مُغلق',c:'--st-done',t:'--tint-done'},part:{l:'جزئي',c:'--st-part',t:'--tint-part'},rej:{l:'مرفوض',c:'--st-rej',t:'--tint-rej'},claim:{l:'بانتظار التحقق',c:'--st-claim',t:'--tint-claim'},open:{l:'مفتوح',c:'--st-open',t:'--tint-open'}};
+const ORDER=['open','rej','part','claim','done'];
+const CS=MODE==='contractor'?[['none','لم يُنفَّذ'],['ready','منفَّذ'],['partial','منفَّذ جزئيًا']]:[['none','لم يُفِد'],['ready','جاهز'],['partial','جزئي']];
+const VS=[['none','لم أتحقق'],['done','مُغلق'],['partial','جزئي'],['rejected','مرفوض']];
+const CSL=Object.fromEntries(CS), VSL=Object.fromEntries(VS);
+const CSC={none:'--neutral-strong',ready:'--st-claim',partial:'--st-part'}, VSC={none:'--neutral-strong',done:'--st-done',partial:'--st-part',rejected:'--st-rej'};
+const GRP={'مهن':'تصحيح المهن','اعتماد':'الاعتماد المهني','مشرف':'المشرف السعودي'};
+const S={contracts:[],sections:new Map(),items:new Map(),cur:null,sec:null,st:null,crit:false,doc:false,mine:true,q:'',open:null,draft:{},busy:false};
+try{const p=JSON.parse(localStorage.getItem('hse-ui')||'{}');S.cur=p.cur||null;S.crit=!!p.crit;S.doc=!!p.doc;}catch(e){}
+const persist=()=>{try{localStorage.setItem('hse-ui',JSON.stringify({cur:S.cur,crit:S.crit,doc:S.doc}))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cv=n=>`var(${n})`;
+const fmt=ts=>{ if(!ts)return''; const d=new Date(ts); return d.toLocaleDateString('ar-SA-u-nu-latn-ca-gregory',{day:'numeric',month:'numeric'})+' '+d.toLocaleTimeString('ar-SA-u-nu-latn',{hour:'2-digit',minute:'2-digit'}); };
+function eff(x){ if(x.vs==='done')return'done'; if(x.vs==='partial')return'part'; if(x.vs==='rejected')return'rej'; if(x.cs==='ready'||x.cs==='partial')return'claim'; return'open'; }
+const srt=(a,b)=>a.contract_id.localeCompare(b.contract_id)||(S.sections.get(a.section_id)?.sord??0)-(S.sections.get(b.section_id)?.sord??0)||a.ord-b.ord;
+function toast(m){ const t=document.createElement('div'); t.className='toast'; t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2800); }
+function errText(e){ const m=(e&&e.message)||''; if(/invalid_link/.test(m))return'الرابط غير صحيح أو انتهت صلاحيته. تواصل مع الاستشاري.'; if(/not_admin/.test(m))return'مفتاح الإدارة غير صحيح.'; if(/already_closed/.test(m))return'هذا البند مُغلق من الاستشاري ولا يمكن تعديله.'; return 'تعذّر الاتصال. تحقق من الإنترنت وحاول مرة ثانية.'; }
+
+function dueText(){ const d=Math.ceil((DUE-Date.now())/864e5); $('due').innerHTML = d>=0?`الموعد 31/10/2026 · <b>باقي ${d} ${d===1?'يوم':d===2?'يومين':(d>=3&&d<=10?'أيام':'يوم')}</b>`:`الموعد 31/10/2026 · <b>متأخر ${-d} يوم</b>`; }
+const curItems=()=>[...S.items.values()].filter(x=>!S.cur||S.cur==='all'||x.contract_id===S.cur);
+function counts(a){ const c={done:0,part:0,rej:0,claim:0,open:0}; a.forEach(x=>c[eff(x)]++); return c; }
+const barHTML=(c,t)=>ORDER.slice().reverse().map(k=>c[k]?`<span style="width:${c[k]/t*100}%;background:${cv(ST[k].c)}" title="${ST[k].l}: ${c[k]}"></span>`:'').join('');
+function secName(x){ const s=S.sections.get(x.section_id); return s?s.name:''; }
+function contract(id){ return S.contracts.find(c=>c.id===id)||{}; }
+
+/* ---------- layout ---------- */
+function shell(){
+  $('app').innerHTML=`
+  ${MODE==='admin'?`<section class="block"><p class="eyebrow"><span>روابط المقاولين</span><button class="linkbtn" type="button" data-act="links">عرض الروابط</button></p></section>`:''}
+  <section class="block"><p class="eyebrow"><span>${MODE==='admin'?'الحالة العامة':'حالة البنود'}</span><button class="linkbtn" type="button" data-act="refresh">تحديث</button></p>
+    <div class="card"><div class="headline"><span class="big num" id="pct">—</span><span class="of num" id="pctOf"></span></div><div class="bar" id="mainBar"></div><div class="legend" id="legend"></div></div></section>
+  <section class="block"><p class="eyebrow"><span>الأقسام</span></p><div class="ledger" id="ledger"></div></section>
+  <div class="filters" id="filters"><div class="search"><input id="q" type="search" placeholder="ابحث برقم البند أو كلمة من المهمة" autocomplete="off"><button id="reset" type="button">مسح الفلاتر</button></div>
+    <div class="chips" id="chips"></div><div class="count num" id="count"></div></div>
+  <div id="list"></div>`;
+  $('dock').hidden=false;
+  $('dockIn').innerHTML = MODE==='admin'
+    ? `<button class="p" type="button" data-act="exLeft">نسخ المتبقي للمقاول</button><button class="s" type="button" data-act="exSum">نسخ ملخص للإدارة</button>`
+    : `<button class="p" type="button" data-act="refresh">تحديث البيانات</button>`;
+}
+function renderTabs(){
+  if(MODE!=='admin'){ $('tabs').innerHTML=''; return; }
+  const b=(id,t,s)=>`<button type="button" data-tab="${id}" aria-pressed="${S.cur===id}">${esc(t)}<small>${esc(s||'')}</small></button>`;
+  $('tabs').innerHTML=S.contracts.map(c=>b(c.id,c.title,c.contractor)).join('')+b('all','الكل','');
+}
+function renderSummary(){
+  const a=curItems(), c=counts(a), t=a.length||1;
+  $('pct').textContent=a.length?Math.round(c.done/t*100)+'٪':'—';
+  $('pctOf').textContent=a.length?`مُغلق بعد التحقق: ${c.done} من ${a.length} بند`:'';
+  $('mainBar').innerHTML=barHTML(c,t);
+  const lab=MODE==='contractor'?{open:'مطلوب تنفيذه',rej:'مرفوض — أعد التنفيذ',part:'جزئي — أكمل الباقي',claim:'أُرسل للتحقق',done:'مُغلق'}:{open:'مفتوح',rej:'مرفوض',part:'جزئي',claim:'بانتظار تحققي',done:'مُغلق'};
+  $('legend').innerHTML=ORDER.map(k=>`<button type="button" data-st="${k}" aria-pressed="${S.st===k}"><i style="background:${cv(ST[k].c)}"></i><span class="l">${lab[k]}</span><span class="n num">${c[k]}</span></button>`).join('');
+}
+function renderLedger(){
+  const g=new Map(); curItems().sort(srt).forEach(x=>{ if(!g.has(x.section_id))g.set(x.section_id,[]); g.get(x.section_id).push(x); });
+  $('ledger').innerHTML=[...g.entries()].map(([sid,xs])=>{ const c=counts(xs), s=S.sections.get(sid)||{};
+    return `<button type="button" data-sec="${esc(sid)}" aria-pressed="${S.sec===sid}"><span class="nm">${S.cur==='all'?esc(s.contract_id)+' · ':''}${esc(s.name)}</span><span class="ct num">${c.done} / ${xs.length} مُغلق${c.claim?` · ${c.claim} ${MODE==='admin'?'بانتظارك':'قيد التحقق'}`:''}</span><div class="bar">${barHTML(c,xs.length)}</div></button>`; }).join('')||'<div class="empty">لا توجد أقسام.</div>';
+}
+function renderChips(){
+  const ch = MODE==='contractor'
+    ? [['mine','المطلوب مني فقط',S.mine],['crit','الحرجة للسلامة',S.crit],['doc','تحتاج مستند',S.doc]]
+    : [['crit','الحرجة للسلامة',S.crit],['doc','تحتاج مستند',S.doc],['grp','بنود مشتركة',S.grp]];
+  $('chips').innerHTML=ch.map(([k,l,v])=>`<button type="button" class="chip" data-flag="${k}" aria-pressed="${!!v}">${l}</button>`).join('');
+}
+function filtered(){
+  const q=S.q.trim();
+  return curItems().filter(x=>(!S.sec||x.section_id===S.sec)&&(!S.st||eff(x)===S.st)&&(!S.crit||x.prio==='high')&&(!S.doc||x.needs_doc)&&(!S.grp||x.grp)
+    &&(MODE!=='contractor'||!S.mine||S.st||['open','rej','part'].includes(eff(x)))
+    &&(!q||x.code.includes(q)||x.task.includes(q)||(x.c_left||'').includes(q)||(x.v_left||'').includes(q))).sort(srt);
+}
+function photosHTML(x,editable){
+  const ph=(S.draft[x.id]?.photos)||x.photos||[];
+  if(!ph.length) return '';
+  return `<div class="photos">${ph.map((p,i)=>{ const url=`${SB_URL}/storage/v1/object/public/${BUCKET}/${p.path}`;
+    return `<a href="${esc(url)}" target="_blank" rel="noopener">${/pdf$/i.test(p.path)?'<span class="pdf">PDF</span>':`<img src="${esc(url)}" alt="صورة إثبات" loading="lazy">`}${editable?`<button type="button" class="x" data-rmph="${i}" aria-label="حذف">×</button>`:''}</a>`; }).join('')}</div>`;
+}
+function itemHTML(x){
+  const e=eff(x), st=ST[e], open=S.open===x.id, adm=MODE==='admin';
+  const tags=[x.prio==='high'?'<span class="tag crit">حرج</span>':'', x.needs_doc?'<span class="tag">مستند</span>':'', adm&&x.grp?`<span class="tag">مشترك: ${GRP[x.grp]||x.grp}</span>`:''].join('');
+  const pillL = MODE==='contractor'&&e==='claim'?'أُرسل للتحقق':(e==='claim'&&adm?'بانتظار تحققي':st.l);
+  const sub=[];
+  if(adm&&(x.cs!=='none'||x.vs!=='none')) sub.push(`<span>المقاول: <b>${CSL[x.cs]}</b>${x.c_at?` (${fmt(x.c_at)})`:''} · تحققي: <b>${VSL[x.vs]}</b></span>`);
+  if(adm&&x.photos?.length&&!open) sub.push(`<span>مرفقات المقاول: <b>${x.photos.length}</b></span>`);
+  if(adm&&x.v_left) sub.push(`<span>المتبقي: <b>${esc(x.v_left)}</b></span>`);
+  if(adm&&x.src_note&&!open) sub.push(`<span>ملاحظة على القائمة: ${esc(x.src_note)}</span>`);
+  if(!adm&&x.cs!=='none'&&e==='claim') sub.push(`<span>أُرسل ${x.c_at?fmt(x.c_at):''}${x.photos?.length?` · ${x.photos.length} مرفق`:''}</span>`);
+  const fb = !adm&&(e==='rej'||e==='part')&&x.v_left ? `<div class="fb ${e==='part'?'part':''}"><b>ملاحظة الاستشاري:</b> ${esc(x.v_left)}</div>`:'';
+  return `<article class="item" data-id="${esc(x.id)}" style="--c:${cv(st.c)};--t:${cv(st.t)}">
+    <button type="button" class="head" aria-expanded="${open}"><div class="meta"><span class="code">${esc(x.code)}</span>${tags}<span class="pill">${pillL}</span></div>
+    <p class="task">${esc(x.task)}</p>${sub.length?`<div class="sub">${sub.join('')}</div>`:''}${fb}</button>
+    ${open?(adm?adminEditor(x):contractorEditor(x)):''}</article>`;
+}
+function contractorEditor(x){
+  if(x.vs==='done') return `<div class="editor"><div class="foot">هذا البند مُغلق بعد تحقق الاستشاري.</div>${photosHTML(x,false)}</div>`;
+  const d=S.draft[x.id]||(S.draft[x.id]={cs:x.cs==='none'?'ready':x.cs,left:x.c_left||'',note:x.c_note||'',photos:[...(x.photos||[])]});
+  return `<div class="editor">
+    <div class="field"><span class="lab">حالة التنفيذ</span><div class="seg">${CS.map(([v,l])=>`<button type="button" data-dset="${v}" aria-pressed="${d.cs===v}" style="--c:${cv(CSC[v])}">${l}</button>`).join('')}</div></div>
+    ${d.cs==='partial'?`<div class="field"><label for="dl-${x.id}">ما الذي تبقّى؟</label><textarea id="dl-${x.id}" data-dtxt="left" placeholder="مثال: ركّبنا 3 سخانات من 5، والباقي يوم الأربعاء">${esc(d.left)}</textarea></div>`:''}
+    <div class="field"><label for="dn-${x.id}">ملاحظة (اختياري)</label><textarea id="dn-${x.id}" data-dtxt="note" placeholder="أي توضيح للاستشاري">${esc(d.note)}</textarea></div>
+    <div class="field"><span class="lab">صور أو مستندات الإثبات ${d.cs!=='none'?'(مطلوبة)':''}</span>${photosHTML(x,true)}
+      <label class="up" style="margin-top:6px">إرفاق صورة أو PDF<input type="file" accept="image/*,application/pdf" multiple data-upload="1"></label></div>
+    <div class="foot"><span>${x.c_at?'آخر إرسال '+fmt(x.c_at):'لم يُرسل بعد'}</span><button class="btn" type="button" data-send="1" ${S.busy?'disabled':''}>إرسال للتحقق</button></div>
+  </div>`;
+}
+function adminEditor(x){
+  const sib=x.grp?[...S.items.values()].filter(y=>y.contract_id===x.contract_id&&y.grp===x.grp&&y.id!==x.id):[];
+  return `<div class="editor">
+    <div class="report"><b>إفادة المقاول: ${CSL[x.cs]}</b>${x.c_at?`<span class="num">${fmt(x.c_at)}</span>`:''}${x.c_left?`<span>المتبقي حسب المقاول: ${esc(x.c_left)}</span>`:''}${x.c_note?`<span>ملاحظته: ${esc(x.c_note)}</span>`:''}${photosHTML(x,false)||'<span class="foot">لا توجد مرفقات</span>'}</div>
+    <div class="field"><span class="lab">نتيجة تحققي</span><div class="seg">${VS.map(([v,l])=>`<button type="button" data-set="vs" data-v="${v}" aria-pressed="${x.vs===v}" style="--c:${cv(VSC[v])}">${l}</button>`).join('')}</div></div>
+    <div class="field"><label for="vl-${x.id}">المتبقي أو سبب الرفض (يظهر للمقاول)</label><textarea id="vl-${x.id}" data-txt="v_left" placeholder="مثال: الطفاية بدون بطاقة فحص سارية">${esc(x.v_left)}</textarea></div>
+    <div class="field"><label for="vn-${x.id}">ملاحظة داخلية (لا تظهر للمقاول)</label><textarea id="vn-${x.id}" data-txt="v_note" placeholder="تاريخ الزيارة، رقم الخطاب…">${esc(x.v_note)}</textarea></div>
+    <div class="field"><span class="lab">تعديل إفادة المقاول نيابةً عنه (لو أبلغك بالواتساب)</span><div class="seg">${CS.map(([v,l])=>`<button type="button" data-set="cs" data-v="${v}" aria-pressed="${x.cs===v}" style="--c:${cv(CSC[v])}">${l}</button>`).join('')}</div></div>
+    <div class="foot"><span class="num">${x.v_at?'آخر تحقق '+fmt(x.v_at):'لم يُتحقق بعد'}</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="linkbtn" data-hist="1">السجل</button>${sib.length?`<button type="button" class="linkbtn" data-sib="1">طبّق على ${sib.length} بنود مشتركة</button>`:''}</span></div>
+  </div>`;
+}
+function renderList(){
+  const a=filtered(); $('count').textContent=`${a.length} بند معروض`;
+  if(!a.length){ $('list').innerHTML=`<div class="empty">${MODE==='contractor'&&S.mine&&!S.st?'لا توجد بنود مطلوبة منك حاليًا ضمن الفلاتر.':'لا توجد بنود تطابق الفلاتر.'}</div>`; return; }
+  const g=new Map(); a.forEach(x=>{ if(!g.has(x.section_id))g.set(x.section_id,[]); g.get(x.section_id).push(x); });
+  $('list').innerHTML=[...g.entries()].map(([sid,xs])=>{ const s=S.sections.get(sid)||{}, c=counts(xs);
+    return `<div class="group"><h3><span>${S.cur==='all'?esc(s.contract_id)+' · ':''}${esc(s.name)}</span><small class="num">${c.done}/${xs.length} مُغلق</small></h3><div class="items">${xs.map(itemHTML).join('')}</div></div>`; }).join('');
+}
+function renderAll(){ dueText(); renderTabs(); renderSummary(); renderLedger(); renderChips(); renderList(); measure(); }
+function measure(){ document.documentElement.style.setProperty('--hh',$('top').offsetHeight+'px'); }
+
+/* ---------- data ---------- */
+function ingest(d){
+  S.contracts=d.contracts||(d.contract?[d.contract]:[]);
+  S.sections=new Map((d.sections||[]).map(s=>[s.id,s]));
+  const keepOpen=S.open; S.items=new Map((d.items||[]).map(x=>[x.id,x])); S.open=keepOpen;
+  if(MODE==='admin'){ if(!S.cur||(S.cur!=='all'&&!S.contracts.find(c=>c.id===S.cur))) S.cur=S.contracts[0]?.id||'all'; }
+  else S.cur=null;
+}
+async function load(){
+  if(!sb){ $('boot').textContent='الرابط ناقص. افتح الرابط كاملًا كما وصلك.'; return; }
+  const {data,error}= MODE==='admin' ? await sb.rpc('hse_admin_get',{p_key:P.get('a')}) : await sb.rpc('hse_contractor_get',{p_token:P.get('c')});
+  if(error){ $('boot').textContent=errText(error); return false; }
+  ingest(data);
+  if(MODE==='contractor'){ const c=data.contract; $('h1').textContent=`مهام السلامة — ${c.title}`; $('who').textContent=`${c.contractor} · من الاجتماع الشهري ${c.meeting?new Date(c.meeting).toLocaleDateString('ar-SA-u-nu-latn-ca-gregory'):''}`; }
+  else $('who').textContent='وضع الاستشاري';
+  return true;
+}
+async function refresh(silent){
+  const active=document.activeElement&&document.activeElement.matches('textarea');
+  const ok=await load(); if(!ok) return;
+  if(!$('list')) shell();
+  if(active) { renderSummary(); renderLedger(); return; }
+  renderAll(); if(!silent) toast('تم التحديث');
+}
+
+/* admin writes */
+const chain=new Map();
+function adminWrite(id,patch){
+  const x=S.items.get(id); if(!x) return;
+  Object.assign(x,patch); if('vs' in patch||'v_left' in patch) x.v_at=new Date().toISOString(); if('cs' in patch) x.c_at=new Date().toISOString();
+  const p=(chain.get(id)||Promise.resolve()).then(async()=>{ const {error}=await sb.rpc('hse_admin_update',{p_key:P.get('a'),p_item:id,p_patch:patch}); if(error) toast(errText(error)); });
+  chain.set(id,p);
+}
+/* contractor send */
+async function compress(file){
+  if(!/^image\//.test(file.type)) return {blob:file,type:file.type,ext:'pdf'};
+  const img=await createImageBitmap(file).catch(()=>null); if(!img) return {blob:file,type:file.type,ext:(file.type.split('/')[1]||'jpg')};
+  const k=Math.min(1,1600/Math.max(img.width,img.height)); const cn=document.createElement('canvas'); cn.width=Math.round(img.width*k); cn.height=Math.round(img.height*k);
+  cn.getContext('2d').drawImage(img,0,0,cn.width,cn.height);
+  const blob=await new Promise(r=>cn.toBlob(r,'image/jpeg',0.8)); return {blob,type:'image/jpeg',ext:'jpg'};
+}
+async function upload(x,files){
+  const d=S.draft[x.id]; S.busy=true; renderList(); toast('جارٍ رفع المرفقات…');
+  for(const f of files){
+    if(f.size>25*1024*1024){ toast('الملف أكبر من المسموح'); continue; }
+    try{ const c=await compress(f); if(c.blob.size>8*1024*1024){ toast('الملف أكبر من 8 ميجا'); continue; }
+      const path=`${x.contract_id}/${x.id}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${c.ext}`;
+      const {error}=await sb.storage.from(BUCKET).upload(path,c.blob,{contentType:c.type,upsert:false});
+      if(error) throw error; d.photos.push({path,at:new Date().toISOString()});
+    }catch(e){ toast('تعذّر رفع أحد الملفات'); }
+  }
+  S.busy=false; renderList();
+}
+async function send(x){
+  const d=S.draft[x.id];
+  if(d.cs!=='none'&&!d.photos.length){ toast('أرفق صورة أو مستند إثبات قبل الإرسال'); return; }
+  if(d.cs==='partial'&&!d.left.trim()){ toast('اكتب ما الذي تبقّى من البند'); return; }
+  S.busy=true; renderList();
+  const {data,error}=await sb.rpc('hse_contractor_update',{p_token:P.get('c'),p_item:x.id,p_cs:d.cs,p_left:d.left,p_note:d.note,p_photos:d.photos});
+  S.busy=false;
+  if(error){ toast(errText(error)); renderList(); return; }
+  S.items.set(x.id,data); delete S.draft[x.id]; S.open=null; toast('تم الإرسال للاستشاري'); renderSummary(); renderLedger(); renderList();
+}
+
+/* exports */
+function exLeft(){
+  const ids=S.cur==='all'?S.contracts.map(c=>c.id):[S.cur]; const today=new Date().toLocaleDateString('ar-SA-u-nu-latn-ca-gregory');
+  return ids.map(cid=>{ const c=contract(cid); const its=[...S.items.values()].filter(x=>x.contract_id===cid&&eff(x)!=='done').sort(srt);
+    const by=new Map(); its.forEach(x=>{const n=secName(x); if(!by.has(n))by.set(n,[]); by.get(n).push(x);});
+    let t=`البنود غير المغلقة — ${c.title} (${c.contractor})\nحتى ${today} · الموعد 31/10/2026 · المتبقي ${its.length} بند\n`;
+    for(const [s,xs] of by){ t+=`\n■ ${s}\n`; xs.forEach(x=>{ const e=eff(x); t+=`- ${x.code}: ${x.task}${x.v_left?`\n   المتبقي: ${x.v_left}`:''}${e==='rej'?'\n   (أُفيد بالتنفيذ ولم يطابق عند التحقق)':''}${e==='claim'?'\n   (بانتظار التحقق)':''}\n`; }); }
+    return t; }).join('\n────────\n');
+}
+function exSum(){
+  const ids=S.cur==='all'?S.contracts.map(c=>c.id):[S.cur]; const today=new Date().toLocaleDateString('ar-SA-u-nu-latn-ca-gregory');
+  return `ملخص متابعة مهام السلامة والصحة المهنية — حتى ${today}\n`+ids.map(cid=>{ const c=contract(cid); const its=[...S.items.values()].filter(x=>x.contract_id===cid); const k=counts(its); const t=its.length||1;
+    let s=`\n${c.title} (${c.contractor}): مُغلق ${k.done} من ${its.length} (${Math.round(k.done/t*100)}٪) · جزئي ${k.part} · مرفوض ${k.rej} · بانتظار التحقق ${k.claim} · مفتوح ${k.open}\nبنود حرجة غير مغلقة: ${its.filter(x=>x.prio==='high'&&eff(x)!=='done').length}\n`;
+    const by=new Map(); its.sort(srt).forEach(x=>{const n=secName(x); if(!by.has(n))by.set(n,[]); by.get(n).push(x);}); for(const [n,xs] of by){const q=counts(xs); s+=`  - ${n}: ${q.done}/${xs.length}\n`;} return s; }).join('');
+}
+function showText(title,text){ $('dlgT').textContent=title; $('dlgB').innerHTML=`<textarea id="dlgX" readonly>${esc(text)}</textarea>`; openDlg(); }
+function openDlg(){ try{$('dlg').showModal()}catch(e){$('dlg').setAttribute('open','')} }
+async function copyText(t){ try{ await navigator.clipboard.writeText(t); toast('تم النسخ'); return true; }catch(e){ return false; } }
+async function share(title,text){ if(!(await copyText(text))) showText(title,text); }
+function linksDlg(){
+  const base=location.origin+location.pathname+'#k='+encodeURIComponent(P.get('k'))+'&c=';
+  $('dlgT').textContent='روابط المقاولين — كل رابط يعرض بنود عقده فقط';
+  $('dlgB').innerHTML=`<div class="links">${S.contracts.map(c=>`<div><b>${esc(c.title)} — ${esc(c.contractor)}</b><div class="row"><code>${esc(base+c.token)}</code><button class="linkbtn" type="button" data-copy="${esc(base+c.token)}">نسخ</button></div></div>`).join('')}</div>`;
+  openDlg();
+}
+async function histDlg(id){
+  const {data,error}=await sb.rpc('hse_admin_log',{p_key:P.get('a'),p_item:id}); if(error){toast(errText(error));return;}
+  const x=S.items.get(id); $('dlgT').textContent=`سجل البند ${x.code}`;
+  const lab=r=>{ const d=r.detail||{}; if(r.actor==='contractor') return `المقاول: ${CSL[d.cs]||d.cs}${d.left?` — ${esc(d.left)}`:''}${d.photos?` · ${d.photos} مرفق`:''}`;
+    return 'الاستشاري: '+Object.entries(d).map(([k,v])=>k==='vs'?`التحقق ${VSL[v]||v}`:k==='cs'?`إفادة المقاول ${CSL[v]||v}`:k==='v_left'?`المتبقي: ${esc(v)}`:k==='v_note'?'ملاحظة داخلية':k).join(' · '); };
+  $('dlgB').innerHTML=`<div class="hist">${(data||[]).map(r=>`<div><span class="num" style="color:var(--muted)">${fmt(r.at)}</span><br>${lab(r)}</div>`).join('')||'لا يوجد سجل بعد.'}</div>`;
+  openDlg();
+}
+
+/* events */
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.id==='dlgClose'){ try{$('dlg').close()}catch(_){$('dlg').removeAttribute('open')} return; }
+  if(b.id==='dlgCopy'){ const t=$('dlgX')?$('dlgX').value:$('dlgB').innerText; if(!(await copyText(t))){ $('dlgX')&&$('dlgX').select(); toast('حدّد النص وانسخه يدويًا'); } return; }
+  if(b.dataset.copy){ if(!(await copyText(b.dataset.copy))) toast('حدّد الرابط وانسخه يدويًا'); return; }
+  if(b.id==='reset'){ Object.assign(S,{sec:null,st:null,crit:false,doc:false,grp:false,q:''}); $('q').value=''; persist(); renderAll(); return; }
+  const act=b.dataset.act;
+  if(act==='refresh'){ refresh(false); return; } if(act==='links'){ linksDlg(); return; }
+  if(act==='exLeft'){ share('المتبقي للمقاول',exLeft()); return; } if(act==='exSum'){ share('ملخص للإدارة',exSum()); return; }
+  if(b.dataset.tab){ S.cur=b.dataset.tab; S.sec=null; S.open=null; persist(); renderAll(); return; }
+  if(b.dataset.st){ S.st=S.st===b.dataset.st?null:b.dataset.st; renderSummary(); renderList(); return; }
+  if(b.dataset.sec){ S.sec=S.sec===b.dataset.sec?null:b.dataset.sec; renderLedger(); renderList(); $('filters').scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  if(b.dataset.flag){ S[b.dataset.flag]=!S[b.dataset.flag]; persist(); renderChips(); renderList(); return; }
+  const art=b.closest('.item'); if(!art) return; const id=art.dataset.id, x=S.items.get(id);
+  if(b.classList.contains('head')){ S.open=S.open===id?null:id; renderList(); return; }
+  if(b.dataset.set){ adminWrite(id,{[b.dataset.set]:b.dataset.v}); renderSummary(); renderLedger(); renderList(); return; }
+  if(b.dataset.sib){ [...S.items.values()].filter(y=>y.contract_id===x.contract_id&&y.grp===x.grp&&y.id!==x.id).forEach(y=>adminWrite(y.id,{vs:x.vs,v_left:x.v_left||''})); toast('طُبّقت الحالة على البنود المشتركة'); renderAll(); return; }
+  if(b.dataset.hist){ histDlg(id); return; }
+  if(b.dataset.dset){ S.draft[id].cs=b.dataset.dset; renderList(); return; }
+  if(b.dataset.rmph!==undefined){ e.preventDefault(); S.draft[id].photos.splice(+b.dataset.rmph,1); renderList(); return; }
+  if(b.dataset.send){ send(x); return; }
+});
+document.addEventListener('change',e=>{ const inp=e.target.closest('input[data-upload]'); if(!inp) return; const id=inp.closest('.item').dataset.id; upload(S.items.get(id),[...inp.files]); });
+let tT=null;
+document.addEventListener('input',e=>{
+  if(e.target.id==='q'){ S.q=e.target.value; renderList(); return; }
+  const dt=e.target.closest('textarea[data-dtxt]'); if(dt){ S.draft[dt.closest('.item').dataset.id][dt.dataset.dtxt]=dt.value; return; }
+  const ta=e.target.closest('textarea[data-txt]'); if(!ta) return; const id=ta.closest('.item').dataset.id, f=ta.dataset.txt, v=ta.value;
+  clearTimeout(tT); tT=setTimeout(()=>adminWrite(id,{[f]:v}),800);
+});
+document.addEventListener('focusout',e=>{ const ta=e.target.closest&&e.target.closest('textarea[data-txt]'); if(!ta) return; const id=ta.closest('.item').dataset.id, f=ta.dataset.txt; clearTimeout(tT); if(S.items.get(id)[f]!==ta.value) adminWrite(id,{[f]:ta.value}); });
+window.addEventListener('resize',measure);
+setInterval(()=>{ if(document.visibilityState==='visible'&&!S.open) refresh(true); },90000);
+
+(async()=>{ dueText(); if(!MODE){ $('boot').textContent='افتح الرابط الذي وصلك كاملًا.'; return; } if(await load()){ shell(); renderAll(); } })();
+</script>
+</body>
+</html>
