@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>جمعية</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Tajawal:wght@700;800&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+html,body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+.gate{max-width:480px;margin:60px auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;text-align:center}
+.gate h2{margin-bottom:8px}
+
+/* GitHub Pages version. Layout: one column of month cards (the ledger), summary strip on top, people table below. RTL throughout. */
+:root{
+  --bg:#f6f3ec; --card:#ffffff; --fg:#1d2a24; --muted:#6b776f; --line:#e3ded2;
+  --accent:#2f6b55; --accent-soft:#e2efe8; --gold:#b08a2e; --gold-soft:#f5ecd6;
+  --warn:#b4452c; --warn-soft:#f8e4de; --ok:#2f6b55;
+  --display:"Tajawal",system-ui,sans-serif; --body:"IBM Plex Sans Arabic",system-ui,sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141a17; --card:#1d2622; --fg:#ebe9e2; --muted:#9aa69f; --line:#2c3831;
+  --accent:#7fc3a6; --accent-soft:#24382f; --gold:#d8b45a; --gold-soft:#3a3222;
+  --warn:#e8876f; --warn-soft:#40261f; --ok:#7fc3a6; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#141a17; --card:#1d2622; --fg:#ebe9e2; --muted:#9aa69f; --line:#2c3831;
+  --accent:#7fc3a6; --accent-soft:#24382f; --gold:#d8b45a; --gold-soft:#3a3222;
+  --warn:#e8876f; --warn-soft:#40261f; --ok:#7fc3a6; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);direction:rtl;
+  padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));
+  padding-block:20px 48px;font-size:15px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+.wrap>*{min-width:0}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.2}
+h1{font-size:30px;font-weight:800}
+h2{font-size:18px;font-weight:700}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+header .sub{color:var(--muted);font-size:14px;margin-top:4px}
+.status{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.status .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
+.status.on .dot{background:var(--ok)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;min-width:0}
+.kpi .l{font-size:12px;color:var(--muted);letter-spacing:.02em}
+.kpi .v{font-family:var(--display);font-size:26px;font-weight:800;margin-top:2px}
+.kpi .v small{font-size:13px;font-weight:600;color:var(--muted);margin-inline-start:4px;font-family:var(--body)}
+.kpi.gold .v{color:var(--gold)}
+.kpi.warn .v{color:var(--warn)}
+.alert{background:var(--warn-soft);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);color:var(--fg);border-radius:var(--r);padding:12px 16px;font-size:14px}
+.alert b{color:var(--warn)}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.month{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px;min-width:0;position:relative}
+.month.now{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.month.past:not(.full){border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+.month .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.month .idx{font-family:var(--display);font-weight:800;font-size:22px;color:var(--accent)}
+.month .idx small{font-size:12px;color:var(--muted);font-weight:600;font-family:var(--body);margin-inline-start:6px}
+.month .due{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.pill.now{background:var(--accent);color:#fff}
+.pill.gold{background:var(--gold-soft);color:var(--gold)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.recv{background:var(--gold-soft);border-radius:10px;padding:10px 12px;font-size:14px}
+.recv .l{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.03em}
+.recv .who{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:4px}
+.recv .who span{font-weight:600}
+.recv .who span b{font-weight:700;color:var(--gold)}
+.bar{height:6px;background:var(--line);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.month.full .bar i{background:var(--gold)}
+.sum{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.sum b{color:var(--fg)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{appearance:none;border:1px solid var(--line);background:transparent;color:var(--fg);font:inherit;font-size:13px;
+  padding:6px 10px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:34px;transition:background .15s}
+.chip:hover{background:var(--accent-soft)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chip .amt{color:var(--muted);font-size:12px}
+.chip .box{width:16px;height:16px;border-radius:5px;border:1.5px solid var(--muted);display:inline-grid;place-items:center;font-size:11px;color:#fff;flex:none}
+.chip.paid{background:var(--accent-soft);border-color:var(--accent)}
+.chip.paid .box{background:var(--accent);border-color:var(--accent)}
+.chip.paid .amt{color:var(--accent)}
+.chip.mine{border-style:dashed}
+.chip.mine.paid{border-style:solid}
+.chip:disabled{cursor:default;opacity:.7}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--fg);font:inherit;font-size:13px;padding:6px 12px;border-radius:10px;cursor:pointer}
+.btn.on{background:var(--gold);border-color:var(--gold);color:#fff}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tablewrap{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:14px}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12px;color:var(--muted);font-weight:600;background:color-mix(in srgb,var(--bg) 60%,var(--card))}
+tr:last-child td{border-bottom:0}
+td .side{font-size:11px;color:var(--muted)}
+.cells{display:inline-flex;gap:3px;direction:rtl}
+.cells i{width:11px;height:11px;border-radius:3px;background:var(--line);display:inline-block}
+.cells i.p{background:var(--accent)}
+.cells i.r{outline:2px solid var(--gold);outline-offset:-2px}
+.cells i.d{background:var(--warn)}
+tr.me td{background:var(--accent-soft)}
+.note{font-size:13px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block;vertical-align:middle;margin-inline-start:4px;background:var(--line)}
+.legend i.p{background:var(--accent)} .legend i.d{background:var(--warn)} .legend i.r{outline:2px solid var(--gold);outline-offset:-2px}
+.toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));inset-inline:0;margin:0 auto;width:max-content;max-width:90vw;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app" hidden>
+  <header>
+    <div>
+      <h1 id="title">جمعية</h1>
+      <div class="sub" id="subtitle"></div>
+    </div>
+    <div class="status" id="status"><span class="dot"></span><span id="statusText">جارٍ التحميل…</span></div>
+  </header>
+  <div class="kpis" id="kpis"></div>
+  <div id="alerts"></div>
+  <section>
+    <h2 style="margin-bottom:10px">سجل الأشهر <span class="note">— اضغط على الاسم لتسجيل الدفع، وزر «تم القبض» بعد تسليم المبلغ لصاحب الدور</span></h2>
+    <div class="months" id="months"></div>
+  </section>
+  <section>
+    <h2 style="margin-bottom:10px">المشتركون</h2>
+    <div class="tablewrap"><table id="people"></table></div>
+    <div class="legend" style="margin-top:8px">
+      <span><i class="p"></i> مدفوع</span><span><i class="d"></i> متأخر</span><span><i></i> لم يحن</span><span><i class="r"></i> شهر قبضه</span>
+    </div>
+  </section>
+  <p class="note" id="footnote"></p>
+</div>
+<div class="gate" id="gate"><h2>جمعية</h2><p class="muted" id="gateText">جارٍ التحميل…</p></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = 'https://urfqalbzphmhkofcgbuo.supabase.co';
+let SB_KEY = '';   // المفتاح العام يأتي في الرابط (#k=…) ويُحفظ في المتصفح، لا في هذا الملف
+const AR_MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = n => Number(n).toLocaleString('en-US');
+const today = new Date(); today.setHours(0,0,0,0);
+
+// token from #t=…, remembered in this browser so the plain link keeps working
+const P = new URLSearchParams(location.hash.slice(1));
+let TOKEN = P.get('t') || '';
+SB_KEY = P.get('k') || '';
+try {
+  if (TOKEN) localStorage.setItem('jamiya-t', TOKEN); else TOKEN = localStorage.getItem('jamiya-t') || '';
+  if (SB_KEY) localStorage.setItem('jamiya-k', SB_KEY); else SB_KEY = localStorage.getItem('jamiya-k') || '';
+} catch(e){}
+const sb = window.supabase && SB_KEY.length > 20 ? window.supabase.createClient(SB_URL, SB_KEY, {auth:{persistSession:false}}) : null;
+
+let D = null;            // config + state from the server
+let SLOTS = [], PEOPLE_LIST = [], MONTHS = 10, SHARE = 3000, START = {y:2026,m:11}, MONTH_TOTAL = 0, ME = '';
+let ready = false, writing = Promise.resolve();
+
+function setStatus(on, text){ $('#status').classList.toggle('on', on); $('#statusText').textContent = text; }
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(()=>el.classList.remove('show'), 1800); }
+function dueOf(n){ return new Date(START.y, START.m-1+(n-1), 1); }
+function fmtDue(d){ return `1 ${AR_MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
+function phase(n){ const d = dueOf(n), next = dueOf(n+1); if (today < d) return 'future'; if (today < next) return 'now'; return 'past'; }
+function paidSum(n){ return PEOPLE_LIST.reduce((a,p)=> a + (D.paid[`${n}|${p.id}`] ? p.monthly : 0), 0); }
+
+function applyConfig(d){
+  D = d; D.paid = D.paid || {}; D.received = D.received || {};
+  SLOTS = D.slots; MONTHS = D.months; SHARE = D.share; START = D.start; ME = D.me || '';
+  const people = {};
+  SLOTS.forEach(s => s.members.forEach(m => {
+    const p = people[m.id] ||= {id:m.id, name:m.name, side:m.side||'', monthly:0, receives:[]};
+    p.monthly += m.amt; p.receives.push({n:s.n, amt:m.amt*MONTHS, ok:s.ok});
+  }));
+  PEOPLE_LIST = Object.values(people);
+  MONTH_TOTAL = PEOPLE_LIST.reduce((a,p)=>a+p.monthly,0);
+  $('#title').textContent = D.title || 'جمعية'; document.title = D.title || 'جمعية';
+  $('#subtitle').innerHTML = `${MONTHS} أشهر · السهم <span class="num">${fmt(SHARE)}</span> ر.س · الاستحقاق يوم 1 من كل شهر ميلادي · القَبض الشهري <span class="num">${fmt(MONTH_TOTAL)}</span> ر.س`;
+  $('#footnote').textContent = `السهم قابل للقسمة بين شخص إلى ثلاثة؛ المشترك ذو الحصة ${fmt(2000)} يدفع ${fmt(2000)} شهرياً ويقبض ${fmt(2000*MONTHS)} في دوره.` + (SLOTS.some(s=>!s.ok) ? ' الأدوار الموسومة «غير مؤكد» لم تُؤكَّد بعد.' : '');
+  $('#gate').hidden = true; $('#app').hidden = false;
+}
+
+function render(){
+  const all = Array.from({length:MONTHS},(_,i)=>i+1);
+  const nowN = (() => { for (const n of all) if (phase(n)==='now') return n; return today < dueOf(1) ? 0 : MONTHS+1; })();
+  const totalPaid = all.reduce((a,n)=>a+paidSum(n),0);
+  const monthsDone = all.filter(n=>paidSum(n)===MONTH_TOTAL).length;
+  const late = [];
+  for (const n of all){ if (phase(n)==='future') continue; PEOPLE_LIST.forEach(p=>{ if(!D.paid[`${n}|${p.id}`]) late.push(`${p.name} (دور ${n})`); }); }
+  const me = PEOPLE_LIST.find(p=>p.id===ME);
+  const myPaid = me ? all.filter(n=>D.paid[`${n}|${me.id}`]).length : 0;
+  const nowLabel = nowN===0 ? `تبدأ ${fmtDue(dueOf(1))}` : nowN>MONTHS ? 'انتهت' : `الدور ${nowN} — ${fmtDue(dueOf(nowN))}`;
+  $('#kpis').innerHTML = `
+    <div class="kpi"><div class="l">الشهر الحالي</div><div class="v" style="font-size:18px">${nowLabel}</div></div>
+    <div class="kpi"><div class="l">المحصّل حتى الآن</div><div class="v num">${fmt(totalPaid)}<small>من ${fmt(MONTH_TOTAL*MONTHS)}</small></div></div>
+    <div class="kpi gold"><div class="l">أشهر مكتملة التحصيل</div><div class="v num">${monthsDone}<small>من ${MONTHS}</small></div></div>
+    <div class="kpi ${late.length?'warn':''}"><div class="l">دفعات متأخرة</div><div class="v num">${late.length}</div></div>
+    ${me ? `<div class="kpi"><div class="l">دفعات ${esc(me.name)}</div><div class="v num">${myPaid}<small>من ${MONTHS} · يقبض ${me.receives.map(r=>fmtDue(dueOf(r.n))).join(' و')}</small></div></div>` : ''}`;
+  $('#alerts').innerHTML = late.length ? `<div class="alert"><b>${late.length} دفعة لم تُسجَّل</b> لأشهر حان استحقاقها: ${late.slice(0,8).map(esc).join('، ')}${late.length>8?' …':''}</div>` : '';
+
+  $('#months').innerHTML = SLOTS.map(s => {
+    const n = s.n, ph = phase(n), got = paidSum(n), full = got===MONTH_TOTAL, rec = !!D.received[String(n)];
+    return `<article class="month ${ph} ${full?'full':''}">
+      <div class="top">
+        <div class="idx">الدور ${n}<small class="num">· ${fmtDue(dueOf(n))}</small></div>
+        <div>${ph==='now'?'<span class="pill now">الشهر الحالي</span>':ph==='past'&&!full?'<span class="pill warn">ناقص</span>':full?'<span class="pill gold">مكتمل</span>':''}
+        ${s.ok?'':'<span class="pill warn">غير مؤكد</span>'}</div>
+      </div>
+      <div class="recv"><div class="l">يقبض هذا الشهر</div>
+        <div class="who">${s.members.map(m=>`<span>${esc(m.name)} <b class="num">${fmt(m.amt*MONTHS)}</b></span>`).join('')}</div></div>
+      <div class="bar"><i style="width:${(got/MONTH_TOTAL*100).toFixed(1)}%"></i></div>
+      <div class="sum"><span>المحصّل <b class="num">${fmt(got)}</b> / ${fmt(MONTH_TOTAL)}</span><span class="num">${PEOPLE_LIST.filter(p=>D.paid[`${n}|${p.id}`]).length}/${PEOPLE_LIST.length} دفعوا</span></div>
+      <div class="chips">${PEOPLE_LIST.map(p=>{
+        const k=`${n}|${p.id}`, paid=!!D.paid[k];
+        return `<button type="button" class="chip ${paid?'paid':''} ${p.id===ME?'mine':''}" data-k="${k}" ${ready?'':'disabled'} aria-pressed="${paid}" title="${esc(p.side)}">
+          <span class="box">${paid?'✓':''}</span>${esc(p.name)}<span class="amt num">${fmt(p.monthly)}</span></button>`;}).join('')}</div>
+      <div class="foot"><span class="note">${rec?'سُلِّم المبلغ لصاحب الدور':'لم يُسلَّم بعد'}</span>
+        <button type="button" class="btn ${rec?'on':''}" data-recv="${n}" ${ready?'':'disabled'}>${rec?'✓ تم القبض':'تم القبض'}</button></div>
+    </article>`;
+  }).join('');
+
+  $('#people').innerHTML = `<thead><tr><th>المشترك</th><th>الطرف</th><th>شهرياً</th><th>يقبض</th><th>الأشهر (١ → ${MONTHS})</th><th>مدفوع</th><th>متبقٍ</th></tr></thead><tbody>${
+    PEOPLE_LIST.map(p=>{
+      const cells = all.map(n=>{ const paid=!!D.paid[`${n}|${p.id}`], ph=phase(n);
+        const cls=(paid?'p':(ph==='future'?'':'d'))+(p.receives.some(r=>r.n===n)?' r':''); return `<i class="${cls}" title="دور ${n}"></i>`; }).join('');
+      const paidN = all.filter(n=>D.paid[`${n}|${p.id}`]).length;
+      return `<tr class="${p.id===ME?'me':''}"><td><b>${esc(p.name)}</b></td><td class="side">${esc(p.side)}</td>
+        <td class="num">${fmt(p.monthly)}</td><td class="num">${p.receives.map(r=>`الدور ${r.n}: ${fmt(r.amt)}${r.ok?'':' <span class="pill warn">غير مؤكد</span>'}`).join('<br>')}</td>
+        <td><span class="cells">${cells}</span></td><td class="num">${fmt(paidN*p.monthly)}</td><td class="num">${fmt((MONTHS-paidN)*p.monthly)}</td></tr>`;
+    }).join('')}</tbody>`;
+}
+
+function cache(d){ try { localStorage.setItem('jamiya-d', JSON.stringify(d)); } catch(e){} }
+function save(){
+  if (!sb || !TOKEN) return;
+  const paid = JSON.parse(JSON.stringify(D.paid)), received = JSON.parse(JSON.stringify(D.received));
+  writing = writing.then(async () => {
+    const {data, error} = await sb.rpc('jamiya_set', {p_token: TOKEN, p_paid: paid, p_received: received});
+    if (error || !data) { setStatus(false, 'تعذّر الحفظ'); toast('تعذّر الحفظ — تحقق من الاتصال'); return; }
+    cache(data); setStatus(true, 'محفوظ');
+  });
+}
+document.addEventListener('click', e => {
+  const chip = e.target.closest('.chip[data-k]');
+  if (chip && !chip.disabled){ const k = chip.dataset.k; if (D.paid[k]) delete D.paid[k]; else D.paid[k] = true; render(); save(); return; }
+  const rb = e.target.closest('.btn[data-recv]');
+  if (rb && !rb.disabled){ const n = rb.dataset.recv; if (D.received[n]) delete D.received[n]; else D.received[n] = true; render(); save(); }
+});
+
+async function load(){
+  if (!TOKEN || !SB_KEY){ $('#gateText').textContent = 'هذه الصفحة تُفتح من الرابط الخاص فقط.'; return; }
+  let cached = null; try { cached = JSON.parse(localStorage.getItem('jamiya-d')||'null'); } catch(e){}
+  if (cached){ applyConfig(cached); render(); setStatus(false, 'نسخة محفوظة — جارٍ التحديث…'); }
+  if (!sb){ if (!cached) $('#gateText').textContent = 'تعذّر تحميل مكتبة الاتصال.'; return; }
+  const {data, error} = await sb.rpc('jamiya_get', {p_token: TOKEN});
+  if (error || !data){
+    if (cached) { setStatus(false, 'بلا اتصال — تعرض آخر نسخة محفوظة'); return; }
+    $('#gateText').textContent = error ? 'تعذّر الاتصال بالخادم. أعد المحاولة لاحقاً.' : 'الرابط غير صحيح.';
+    try { localStorage.removeItem('jamiya-t'); } catch(e){}
+    return;
+  }
+  cache(data); applyConfig(data); ready = true; setStatus(true, 'محفوظ'); render();
+  // refresh when the tab comes back (the other person may have ticked something)
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState !== 'visible') return;
+    const r = await sb.rpc('jamiya_get', {p_token: TOKEN});
+    if (r.data){ cache(r.data); applyConfig(r.data); render(); }
+  });
+}
+load();
+</script>
+</body>
+</html>
