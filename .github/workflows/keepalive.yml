@@ -1,0 +1,17 @@
+name: keepalive
+# نبضة كل ٣ أيام تمنع إيقاف مشروع Supabase المجاني (hse-tracker) بسبب الخمول.
+# المفتاح في Settings → Secrets and variables → Actions → SUPABASE_KEY
+on:
+  schedule:
+    - cron: "17 3 */3 * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    env:
+      KEY: ${{ secrets.SUPABASE_KEY }}
+    steps:
+      - name: ping supabase
+        run: |
+          curl -sS -X POST "https://urfqalbzphmhkofcgbuo.supabase.co/rest/v1/rpc/jamiya_ping" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" -d '{}'
