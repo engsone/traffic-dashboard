@@ -120,6 +120,30 @@ dialog::backdrop{background:#0008}
 dialog textarea{min-height:50vh;font-size:.85rem}
 .hist{font-size:.8rem;display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto}
 .hist div{border-bottom:1px solid var(--line);padding-bottom:6px}
+.exbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.exbar .hint{font-size:.78rem;color:var(--muted)}
+/* ---- تصدير PDF عبر طباعة المتصفح: القسم #prt يظهر في الطباعة فقط ---- */
+#prt{display:none}
+@media print{
+  body>*:not(#prt){display:none!important}
+  body{background:#fff;color:#000;padding:0}
+  #prt{display:block;color:#000;background:#fff;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;font-size:10.5pt;line-height:1.5}
+  @page{size:A4;margin:14mm 12mm 16mm}
+  .pc{page-break-after:always} .pc:last-of-type{page-break-after:auto}
+  .pc h2{font-size:15pt;margin:0 0 3px;color:#1F2E36}
+  .pm{font-size:9.5pt;color:#555;margin-bottom:10px}
+  .pc h3{font-size:11.5pt;margin:12px 0 4px;color:#3E7761;page-break-after:avoid}
+  .pc h3 small{font-weight:400;color:#777;font-size:9pt}
+  .pt{width:100%;border-collapse:collapse;font-size:9.5pt}
+  .pt th,.pt td{border:1px solid #bbb;padding:4px 6px;vertical-align:top;text-align:right}
+  .pt th{background:#eef2f0;font-weight:600}
+  .pt tr{page-break-inside:avoid}
+  .pt .c{font-family:Tahoma,"Segoe UI",sans-serif;direction:ltr;text-align:left;white-space:nowrap;font-size:9pt}
+  .pst{font-weight:600} .pst.rej{color:#A8483D} .pst.part{color:#8A6D12} .pst.claim{color:#407189} .pst.open{color:#555} .pst.done{color:#3E7761}
+  .pk{font-size:8pt;border:1px solid #A8483D;color:#A8483D;border-radius:3px;padding:0 4px;margin-inline-start:4px;white-space:nowrap}
+  .pk.doc{border-color:#999;color:#555}
+  .pft{margin-top:14px;font-size:8pt;color:#777;text-align:center;border-top:1px solid #ddd;padding-top:4px}
+}
 @media (prefers-reduced-motion:no-preference){.bar span{transition:width .3s}}
 </style>
 </head>
@@ -132,6 +156,7 @@ dialog textarea{min-height:50vh;font-size:.85rem}
   </header>
   <div id="app"><section class="block"><div class="empty" id="boot">جارٍ التحميل…</div></section></div>
 </main>
+<div id="prt" aria-hidden="true"></div>
 <div class="dock" id="dock" hidden><div class="in" id="dockIn"></div></div>
 <dialog id="dlg"><p style="margin:0 0 8px;font-weight:600" id="dlgT"></p><div id="dlgB"></div>
   <div style="display:flex;gap:8px;margin-top:10px"><button class="linkbtn" id="dlgCopy" type="button">نسخ</button><button class="linkbtn" id="dlgClose" type="button">إغلاق</button></div></dialog>
@@ -182,7 +207,7 @@ function shell(){
   <div id="list"></div>`;
   $('dock').hidden=false;
   $('dockIn').innerHTML = MODE==='admin'
-    ? `<button class="p" type="button" data-act="exLeft">نسخ المتبقي للمقاول</button><button class="s" type="button" data-act="exSum">نسخ ملخص للإدارة</button>`
+    ? `<button class="p" type="button" data-act="exLeft">المتبقي للمقاول</button><button class="s" type="button" data-act="exSum">ملخص للإدارة</button>`
     : `<button class="p" type="button" data-act="refresh">تحديث البيانات</button>`;
 }
 function renderTabs(){
@@ -334,7 +359,7 @@ async function send(x){
   S.items.set(x.id,data); delete S.draft[x.id]; S.open=null; toast('تم الإرسال للاستشاري'); renderSummary(); renderLedger(); renderList();
 }
 
-/* exports */
+/* exports — نص للنسخ */
 function exLeft(){
   const ids=S.cur==='all'?S.contracts.map(c=>c.id):[S.cur]; const today=new Date().toLocaleDateString('ar-SA-u-nu-latn-ca-gregory');
   return ids.map(cid=>{ const c=contract(cid); const its=[...S.items.values()].filter(x=>x.contract_id===cid&&eff(x)!=='done').sort(srt);
@@ -348,6 +373,47 @@ function exSum(){
   return `ملخص متابعة مهام السلامة والصحة المهنية — حتى ${today}\n`+ids.map(cid=>{ const c=contract(cid); const its=[...S.items.values()].filter(x=>x.contract_id===cid); const k=counts(its); const t=its.length||1;
     let s=`\n${c.title} (${c.contractor}): مُغلق ${k.done} من ${its.length} (${Math.round(k.done/t*100)}٪) · جزئي ${k.part} · مرفوض ${k.rej} · بانتظار التحقق ${k.claim} · مفتوح ${k.open}\nبنود حرجة غير مغلقة: ${its.filter(x=>x.prio==='high'&&eff(x)!=='done').length}\n`;
     const by=new Map(); its.sort(srt).forEach(x=>{const n=secName(x); if(!by.has(n))by.set(n,[]); by.get(n).push(x);}); for(const [n,xs] of by){const q=counts(xs); s+=`  - ${n}: ${q.done}/${xs.length}\n`;} return s; }).join('');
+}
+/* exports — جداول للطباعة/PDF */
+function exLeftHTML(){
+  const ids=S.cur==='all'?S.contracts.map(c=>c.id):[S.cur]; const today=new Date().toLocaleDateString('ar-SA-u-nu-latn-ca-gregory');
+  return ids.map(cid=>{ const c=contract(cid); const its=[...S.items.values()].filter(x=>x.contract_id===cid&&eff(x)!=='done').sort(srt);
+    const by=new Map(); its.forEach(x=>{const n=secName(x); if(!by.has(n))by.set(n,[]); by.get(n).push(x);});
+    let h=`<section class="pc"><h2>البنود غير المغلقة — ${esc(c.title)}</h2><div class="pm">${esc(c.contractor)} · حتى ${today} · الموعد 31/10/2026 · المتبقي ${its.length} بند · حرجة ${its.filter(x=>x.prio==='high').length}</div>`;
+    if(!its.length) h+=`<p>لا توجد بنود غير مغلقة.</p>`;
+    for(const [s,xs] of by){
+      h+=`<h3>${esc(s)} <small>(${xs.length})</small></h3><table class="pt"><thead><tr><th style="width:16%">البند</th><th>المهمة</th><th style="width:13%">الحالة</th><th style="width:28%">المتبقي / الملاحظة</th></tr></thead><tbody>`;
+      xs.forEach(x=>{ const e=eff(x); const note=[x.v_left?esc(x.v_left):'', e==='rej'?'أُفيد بالتنفيذ ولم يطابق عند التحقق':'', e==='claim'?'بانتظار التحقق':''].filter(Boolean).join(' — ');
+        h+=`<tr><td class="c">${esc(x.code)}</td><td>${esc(x.task)}${x.prio==='high'?'<span class="pk">حرج</span>':''}${x.needs_doc?'<span class="pk doc">مستند</span>':''}</td><td class="pst ${e}">${ST[e].l}</td><td>${note}</td></tr>`; });
+      h+=`</tbody></table>`; }
+    return h+`</section>`; }).join('');
+}
+function exSumHTML(){
+  const ids=S.cur==='all'?S.contracts.map(c=>c.id):[S.cur]; const today=new Date().toLocaleDateString('ar-SA-u-nu-latn-ca-gregory');
+  let h=`<section class="pc"><h2>ملخص متابعة مهام السلامة والصحة المهنية</h2><div class="pm">حتى ${today} · الموعد 31/10/2026 · العقود ${ids.length}</div>`;
+  h+=`<table class="pt"><thead><tr><th>العقد</th><th>المقاول</th><th>الإجمالي</th><th>مُغلق</th><th>٪</th><th>جزئي</th><th>مرفوض</th><th>بانتظار التحقق</th><th>مفتوح</th><th>حرجة غير مغلقة</th></tr></thead><tbody>`;
+  ids.forEach(cid=>{ const c=contract(cid); const its=[...S.items.values()].filter(x=>x.contract_id===cid); const k=counts(its); const t=its.length||1;
+    h+=`<tr><td>${esc(c.title)}</td><td>${esc(c.contractor)}</td><td>${its.length}</td><td class="pst done">${k.done}</td><td>${Math.round(k.done/t*100)}٪</td><td class="pst part">${k.part}</td><td class="pst rej">${k.rej}</td><td class="pst claim">${k.claim}</td><td class="pst open">${k.open}</td><td class="pst rej">${its.filter(x=>x.prio==='high'&&eff(x)!=='done').length}</td></tr>`; });
+  h+=`</tbody></table>`;
+  ids.forEach(cid=>{ const c=contract(cid); const its=[...S.items.values()].filter(x=>x.contract_id===cid).sort(srt);
+    const by=new Map(); its.forEach(x=>{const n=secName(x); if(!by.has(n))by.set(n,[]); by.get(n).push(x);});
+    h+=`<h3>${esc(c.title)} — ${esc(c.contractor)}</h3><table class="pt"><thead><tr><th>القسم</th><th>الإجمالي</th><th>مُغلق</th><th>جزئي</th><th>مرفوض</th><th>بانتظار التحقق</th><th>مفتوح</th></tr></thead><tbody>`;
+    for(const [n,xs] of by){ const q=counts(xs); h+=`<tr><td>${esc(n)}</td><td>${xs.length}</td><td class="pst done">${q.done}</td><td class="pst part">${q.part}</td><td class="pst rej">${q.rej}</td><td class="pst claim">${q.claim}</td><td class="pst open">${q.open}</td></tr>`; }
+    h+=`</tbody></table>`; });
+  return h+`</section>`;
+}
+function exportDlg(kind){
+  const text=kind==='left'?exLeft():exSum();
+  $('dlgT').textContent=kind==='left'?'المتبقي للمقاول':'ملخص للإدارة';
+  $('dlgB').innerHTML=`<div class="exbar"><button class="btn" type="button" data-pdf="${kind}">تصدير PDF</button><span class="hint">يفتح نافذة الطباعة — اختر «حفظ كـ PDF» (على الجوال: مشاركة ← حفظ كـ PDF)</span></div><textarea id="dlgX" readonly>${esc(text)}</textarea>`;
+  openDlg();
+}
+function printHTML(html){
+  const p=$('prt'); p.innerHTML=html+`<div class="pft">متابعة مهام السلامة والصحة المهنية — أُنتج ${new Date().toLocaleString('ar-SA-u-nu-latn-ca-gregory')}</div>`;
+  const done=()=>{ p.innerHTML=''; window.removeEventListener('afterprint',done); };
+  window.addEventListener('afterprint',done);
+  try{$('dlg').close()}catch(_){ $('dlg').removeAttribute('open') }
+  setTimeout(()=>window.print(),150);
 }
 function showText(title,text){ $('dlgT').textContent=title; $('dlgB').innerHTML=`<textarea id="dlgX" readonly>${esc(text)}</textarea>`; openDlg(); }
 function openDlg(){ try{$('dlg').showModal()}catch(e){$('dlg').setAttribute('open','')} }
@@ -373,11 +439,12 @@ document.addEventListener('click',async e=>{
   const b=e.target.closest('button'); if(!b) return;
   if(b.id==='dlgClose'){ try{$('dlg').close()}catch(_){$('dlg').removeAttribute('open')} return; }
   if(b.id==='dlgCopy'){ const t=$('dlgX')?$('dlgX').value:$('dlgB').innerText; if(!(await copyText(t))){ $('dlgX')&&$('dlgX').select(); toast('حدّد النص وانسخه يدويًا'); } return; }
+  if(b.dataset.pdf){ printHTML(b.dataset.pdf==='left'?exLeftHTML():exSumHTML()); return; }
   if(b.dataset.copy){ if(!(await copyText(b.dataset.copy))) toast('حدّد الرابط وانسخه يدويًا'); return; }
   if(b.id==='reset'){ Object.assign(S,{sec:null,st:null,crit:false,doc:false,grp:false,q:''}); $('q').value=''; persist(); renderAll(); return; }
   const act=b.dataset.act;
   if(act==='refresh'){ refresh(false); return; } if(act==='links'){ linksDlg(); return; }
-  if(act==='exLeft'){ share('المتبقي للمقاول',exLeft()); return; } if(act==='exSum'){ share('ملخص للإدارة',exSum()); return; }
+  if(act==='exLeft'){ exportDlg('left'); return; } if(act==='exSum'){ exportDlg('sum'); return; }
   if(b.dataset.tab){ S.cur=b.dataset.tab; S.sec=null; S.open=null; persist(); renderAll(); return; }
   if(b.dataset.st){ S.st=S.st===b.dataset.st?null:b.dataset.st; renderSummary(); renderList(); return; }
   if(b.dataset.sec){ S.sec=S.sec===b.dataset.sec?null:b.dataset.sec; renderLedger(); renderList(); $('filters').scrollIntoView({behavior:'smooth',block:'start'}); return; }
