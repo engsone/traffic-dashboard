@@ -122,27 +122,34 @@ dialog textarea{min-height:50vh;font-size:.85rem}
 .hist div{border-bottom:1px solid var(--line);padding-bottom:6px}
 .exbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
 .exbar .hint{font-size:.78rem;color:var(--muted)}
-/* ---- تصدير PDF عبر طباعة المتصفح: القسم #prt يظهر في الطباعة فقط ---- */
-#prt{display:none}
+/* ---- وضع التقرير (#prt): يظهر على الشاشة عند الضغط على «تصدير PDF» ويُطبع وحده ---- */
+#prt{display:none;color:#000;background:#fff;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;font-size:10.5pt;line-height:1.5}
+body.rmode{background:#fff;padding:0}
+body.rmode main,body.rmode .dock,body.rmode dialog,body.rmode .toast{display:none!important}
+body.rmode #prt{display:block;max-width:900px;margin:0 auto;padding:10px 14px 30px}
+.rbar{position:sticky;top:0;z-index:3;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;padding:10px 0;border-bottom:1px solid #ddd;margin-bottom:12px}
+.rbar .hint{font-size:.78rem;color:#666;flex:1 1 100%}
+.pc{margin-bottom:22px} .pc h2{font-size:15pt;margin:0 0 3px;color:#1F2E36}
+.pm{font-size:9.5pt;color:#555;margin-bottom:10px}
+.pc h3{font-size:11.5pt;margin:12px 0 4px;color:#3E7761}
+.pc h3 small{font-weight:400;color:#777;font-size:9pt}
+.pt{width:100%;border-collapse:collapse;font-size:9.5pt}
+.pt th,.pt td{border:1px solid #bbb;padding:4px 6px;vertical-align:top;text-align:right}
+.pt th{background:#eef2f0;font-weight:600}
+.pt .c{font-family:Tahoma,"Segoe UI",sans-serif;direction:ltr;text-align:left;white-space:nowrap;font-size:9pt}
+.pst{font-weight:600} .pst.rej{color:#A8483D} .pst.part{color:#8A6D12} .pst.claim{color:#407189} .pst.open{color:#555} .pst.done{color:#3E7761}
+.pk{font-size:8pt;border:1px solid #A8483D;color:#A8483D;border-radius:3px;padding:0 4px;margin-inline-start:4px;white-space:nowrap}
+.pk.doc{border-color:#999;color:#555}
+.pft{margin-top:14px;font-size:8pt;color:#777;text-align:center;border-top:1px solid #ddd;padding-top:4px}
 @media print{
   body>*:not(#prt){display:none!important}
   body{background:#fff;color:#000;padding:0}
-  #prt{display:block;color:#000;background:#fff;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;font-size:10.5pt;line-height:1.5}
+  #prt{display:block;max-width:none;padding:0}
+  .rbar{display:none!important}
   @page{size:A4;margin:14mm 12mm 16mm}
-  .pc{page-break-after:always} .pc:last-of-type{page-break-after:auto}
-  .pc h2{font-size:15pt;margin:0 0 3px;color:#1F2E36}
-  .pm{font-size:9.5pt;color:#555;margin-bottom:10px}
-  .pc h3{font-size:11.5pt;margin:12px 0 4px;color:#3E7761;page-break-after:avoid}
-  .pc h3 small{font-weight:400;color:#777;font-size:9pt}
-  .pt{width:100%;border-collapse:collapse;font-size:9.5pt}
-  .pt th,.pt td{border:1px solid #bbb;padding:4px 6px;vertical-align:top;text-align:right}
-  .pt th{background:#eef2f0;font-weight:600}
+  .pc{page-break-after:always;margin:0} .pc:last-of-type{page-break-after:auto}
+  .pc h3{page-break-after:avoid}
   .pt tr{page-break-inside:avoid}
-  .pt .c{font-family:Tahoma,"Segoe UI",sans-serif;direction:ltr;text-align:left;white-space:nowrap;font-size:9pt}
-  .pst{font-weight:600} .pst.rej{color:#A8483D} .pst.part{color:#8A6D12} .pst.claim{color:#407189} .pst.open{color:#555} .pst.done{color:#3E7761}
-  .pk{font-size:8pt;border:1px solid #A8483D;color:#A8483D;border-radius:3px;padding:0 4px;margin-inline-start:4px;white-space:nowrap}
-  .pk.doc{border-color:#999;color:#555}
-  .pft{margin-top:14px;font-size:8pt;color:#777;text-align:center;border-top:1px solid #ddd;padding-top:4px}
 }
 @media (prefers-reduced-motion:no-preference){.bar span{transition:width .3s}}
 </style>
@@ -405,16 +412,18 @@ function exSumHTML(){
 function exportDlg(kind){
   const text=kind==='left'?exLeft():exSum();
   $('dlgT').textContent=kind==='left'?'المتبقي للمقاول':'ملخص للإدارة';
-  $('dlgB').innerHTML=`<div class="exbar"><button class="btn" type="button" data-pdf="${kind}">تصدير PDF</button><span class="hint">يفتح نافذة الطباعة — اختر «حفظ كـ PDF» (على الجوال: مشاركة ← حفظ كـ PDF)</span></div><textarea id="dlgX" readonly>${esc(text)}</textarea>`;
+  $('dlgB').innerHTML=`<div class="exbar"><button class="btn" type="button" data-pdf="${kind}">تصدير PDF</button><span class="hint">يعرض التقرير مرتباً ثم «طباعة / حفظ كـ PDF»</span></div><textarea id="dlgX" readonly>${esc(text)}</textarea>`;
   openDlg();
 }
 function printHTML(html){
-  const p=$('prt'); p.innerHTML=html+`<div class="pft">متابعة مهام السلامة والصحة المهنية — أُنتج ${new Date().toLocaleString('ar-SA-u-nu-latn-ca-gregory')}</div>`;
-  const done=()=>{ p.innerHTML=''; window.removeEventListener('afterprint',done); };
-  window.addEventListener('afterprint',done);
+  const p=$('prt');
+  p.innerHTML=`<div class="rbar"><button class="btn" type="button" data-rprint="1">طباعة / حفظ كـ PDF</button><button class="linkbtn" type="button" data-rback="1">رجوع للمتابعة</button><span class="hint">إن لم تفتح نافذة الطباعة: زر المشاركة في المتصفح ← «طباعة» أو «خيارات ← PDF» ← حفظ</span></div>`
+    +html+`<div class="pft">متابعة مهام السلامة والصحة المهنية — أُنتج ${new Date().toLocaleString('ar-SA-u-nu-latn-ca-gregory')}</div>`;
   try{$('dlg').close()}catch(_){ $('dlg').removeAttribute('open') }
-  setTimeout(()=>window.print(),150);
+  document.body.classList.add('rmode'); window.scrollTo(0,0);
+  try{ window.print(); }catch(_){}
 }
+function leaveReport(){ document.body.classList.remove('rmode'); $('prt').innerHTML=''; }
 function showText(title,text){ $('dlgT').textContent=title; $('dlgB').innerHTML=`<textarea id="dlgX" readonly>${esc(text)}</textarea>`; openDlg(); }
 function openDlg(){ try{$('dlg').showModal()}catch(e){$('dlg').setAttribute('open','')} }
 async function copyText(t){ try{ await navigator.clipboard.writeText(t); toast('تم النسخ'); return true; }catch(e){ return false; } }
@@ -440,6 +449,8 @@ document.addEventListener('click',async e=>{
   if(b.id==='dlgClose'){ try{$('dlg').close()}catch(_){$('dlg').removeAttribute('open')} return; }
   if(b.id==='dlgCopy'){ const t=$('dlgX')?$('dlgX').value:$('dlgB').innerText; if(!(await copyText(t))){ $('dlgX')&&$('dlgX').select(); toast('حدّد النص وانسخه يدويًا'); } return; }
   if(b.dataset.pdf){ printHTML(b.dataset.pdf==='left'?exLeftHTML():exSumHTML()); return; }
+  if(b.dataset.rprint){ try{ window.print(); }catch(_){} return; }
+  if(b.dataset.rback){ leaveReport(); return; }
   if(b.dataset.copy){ if(!(await copyText(b.dataset.copy))) toast('حدّد الرابط وانسخه يدويًا'); return; }
   if(b.id==='reset'){ Object.assign(S,{sec:null,st:null,crit:false,doc:false,grp:false,q:''}); $('q').value=''; persist(); renderAll(); return; }
   const act=b.dataset.act;
