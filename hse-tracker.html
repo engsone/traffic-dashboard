@@ -170,7 +170,9 @@ body.rmode #prt{display:block;max-width:900px;margin:0 auto;padding:10px 14px 30
 
 <script>
 const SB_URL='https://urfqalbzphmhkofcgbuo.supabase.co', BUCKET='hse-evidence';
-const DUE=new Date('2026-10-31T23:59:59+03:00');
+let DUE=new Date('2026-10-31T23:59:59+03:00');
+const STANDALONE=(navigator.standalone===true)||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
+const dueStr=()=>{ const d=new Date(DUE.getTime()-3*36e5); return `${d.getUTCDate()}/${d.getUTCMonth()+1}/${d.getUTCFullYear()}`; };
 const P=new URLSearchParams(location.hash.slice(1));
 try{ if(P.get('k')) localStorage.setItem('hse-p',location.hash.slice(1)); else { const s=localStorage.getItem('hse-p'); if(s) new URLSearchParams(s).forEach((v,k)=>P.set(k,v)); } }catch(e){}
 const MODE=P.get('a')?'admin':(P.get('c')?'contractor':null);
@@ -195,7 +197,7 @@ const srt=(a,b)=>a.contract_id.localeCompare(b.contract_id)||(S.sections.get(a.s
 function toast(m){ const t=document.createElement('div'); t.className='toast'; t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2800); }
 function errText(e){ const m=(e&&e.message)||''; if(/invalid_link/.test(m))return'الرابط غير صحيح أو انتهت صلاحيته. تواصل مع الاستشاري.'; if(/not_admin/.test(m))return'مفتاح الإدارة غير صحيح.'; if(/already_closed/.test(m))return'هذا البند مُغلق من الاستشاري ولا يمكن تعديله.'; return 'تعذّر الاتصال. تحقق من الإنترنت وحاول مرة ثانية.'; }
 
-function dueText(){ const d=Math.ceil((DUE-Date.now())/864e5); $('due').innerHTML = d>=0?`الموعد 31/10/2026 · <b>باقي ${d} ${d===1?'يوم':d===2?'يومين':(d>=3&&d<=10?'أيام':'يوم')}</b>`:`الموعد 31/10/2026 · <b>متأخر ${-d} يوم</b>`; }
+function dueText(){ const d=Math.ceil((DUE-Date.now())/864e5); $('due').innerHTML = d>=0?`الموعد ${dueStr()} · <b>باقي ${d} ${d===1?'يوم':d===2?'يومين':(d>=3&&d<=10?'أيام':'يوم')}</b>`:`الموعد ${dueStr()} · <b>متأخر ${-d} يوم</b>`; }
 const curItems=()=>[...S.items.values()].filter(x=>!S.cur||S.cur==='all'||x.contract_id===S.cur);
 function counts(a){ const c={done:0,part:0,rej:0,claim:0,open:0}; a.forEach(x=>c[eff(x)]++); return c; }
 const barHTML=(c,t)=>ORDER.slice().reverse().map(k=>c[k]?`<span style="width:${c[k]/t*100}%;background:${cv(ST[k].c)}" title="${ST[k].l}: ${c[k]}"></span>`:'').join('');
@@ -305,6 +307,7 @@ function measure(){ document.documentElement.style.setProperty('--hh',$('top').o
 /* ---------- data ---------- */
 function ingest(d){
   S.contracts=d.contracts||(d.contract?[d.contract]:[]);
+  const dues=S.contracts.map(c=>c.due).filter(Boolean).sort(); if(dues.length) DUE=new Date(dues[dues.length-1]+'T23:59:59+03:00');
   S.sections=new Map((d.sections||[]).map(s=>[s.id,s]));
   const keepOpen=S.open; S.items=new Map((d.items||[]).map(x=>[x.id,x])); S.open=keepOpen;
   if(MODE==='admin'){ if(!S.cur||(S.cur!=='all'&&!S.contracts.find(c=>c.id===S.cur))) S.cur=S.contracts[0]?.id||'all'; }
@@ -371,7 +374,7 @@ function exLeft(){
   const ids=S.cur==='all'?S.contracts.map(c=>c.id):[S.cur]; const today=new Date().toLocaleDateString('ar-SA-u-nu-latn-ca-gregory');
   return ids.map(cid=>{ const c=contract(cid); const its=[...S.items.values()].filter(x=>x.contract_id===cid&&eff(x)!=='done').sort(srt);
     const by=new Map(); its.forEach(x=>{const n=secName(x); if(!by.has(n))by.set(n,[]); by.get(n).push(x);});
-    let t=`البنود غير المغلقة — ${c.title} (${c.contractor})\nحتى ${today} · الموعد 31/10/2026 · المتبقي ${its.length} بند\n`;
+    let t=`البنود غير المغلقة — ${c.title} (${c.contractor})\nحتى ${today} · الموعد ${dueStr()} · المتبقي ${its.length} بند\n`;
     for(const [s,xs] of by){ t+=`\n■ ${s}\n`; xs.forEach(x=>{ const e=eff(x); t+=`- ${x.code}: ${x.task}${x.v_left?`\n   المتبقي: ${x.v_left}`:''}${e==='rej'?'\n   (أُفيد بالتنفيذ ولم يطابق عند التحقق)':''}${e==='claim'?'\n   (بانتظار التحقق)':''}\n`; }); }
     return t; }).join('\n────────\n');
 }
@@ -386,7 +389,7 @@ function exLeftHTML(){
   const ids=S.cur==='all'?S.contracts.map(c=>c.id):[S.cur]; const today=new Date().toLocaleDateString('ar-SA-u-nu-latn-ca-gregory');
   return ids.map(cid=>{ const c=contract(cid); const its=[...S.items.values()].filter(x=>x.contract_id===cid&&eff(x)!=='done').sort(srt);
     const by=new Map(); its.forEach(x=>{const n=secName(x); if(!by.has(n))by.set(n,[]); by.get(n).push(x);});
-    let h=`<section class="pc"><h2>البنود غير المغلقة — ${esc(c.title)}</h2><div class="pm">${esc(c.contractor)} · حتى ${today} · الموعد 31/10/2026 · المتبقي ${its.length} بند · حرجة ${its.filter(x=>x.prio==='high').length}</div>`;
+    let h=`<section class="pc"><h2>البنود غير المغلقة — ${esc(c.title)}</h2><div class="pm">${esc(c.contractor)} · حتى ${today} · الموعد ${dueStr()} · المتبقي ${its.length} بند · حرجة ${its.filter(x=>x.prio==='high').length}</div>`;
     if(!its.length) h+=`<p>لا توجد بنود غير مغلقة.</p>`;
     for(const [s,xs] of by){
       h+=`<h3>${esc(s)} <small>(${xs.length})</small></h3><table class="pt"><thead><tr><th style="width:16%">البند</th><th>المهمة</th><th style="width:13%">الحالة</th><th style="width:28%">المتبقي / الملاحظة</th></tr></thead><tbody>`;
@@ -397,7 +400,7 @@ function exLeftHTML(){
 }
 function exSumHTML(){
   const ids=S.cur==='all'?S.contracts.map(c=>c.id):[S.cur]; const today=new Date().toLocaleDateString('ar-SA-u-nu-latn-ca-gregory');
-  let h=`<section class="pc"><h2>ملخص متابعة مهام السلامة والصحة المهنية</h2><div class="pm">حتى ${today} · الموعد 31/10/2026 · العقود ${ids.length}</div>`;
+  let h=`<section class="pc"><h2>ملخص متابعة مهام السلامة والصحة المهنية</h2><div class="pm">حتى ${today} · الموعد ${dueStr()} · العقود ${ids.length}</div>`;
   h+=`<table class="pt"><thead><tr><th>العقد</th><th>المقاول</th><th>الإجمالي</th><th>مُغلق</th><th>٪</th><th>جزئي</th><th>مرفوض</th><th>بانتظار التحقق</th><th>مفتوح</th><th>حرجة غير مغلقة</th></tr></thead><tbody>`;
   ids.forEach(cid=>{ const c=contract(cid); const its=[...S.items.values()].filter(x=>x.contract_id===cid); const k=counts(its); const t=its.length||1;
     h+=`<tr><td>${esc(c.title)}</td><td>${esc(c.contractor)}</td><td>${its.length}</td><td class="pst done">${k.done}</td><td>${Math.round(k.done/t*100)}٪</td><td class="pst part">${k.part}</td><td class="pst rej">${k.rej}</td><td class="pst claim">${k.claim}</td><td class="pst open">${k.open}</td><td class="pst rej">${its.filter(x=>x.prio==='high'&&eff(x)!=='done').length}</td></tr>`; });
@@ -417,11 +420,13 @@ function exportDlg(kind){
 }
 function printHTML(html){
   const p=$('prt');
-  p.innerHTML=`<div class="rbar"><button class="btn" type="button" data-rprint="1">طباعة / حفظ كـ PDF</button><button class="linkbtn" type="button" data-rback="1">رجوع للمتابعة</button><span class="hint">إن لم تفتح نافذة الطباعة: زر المشاركة في المتصفح ← «طباعة» أو «خيارات ← PDF» ← حفظ</span></div>`
+  p.innerHTML=(STANDALONE
+      ? `<div class="rbar"><button class="btn" type="button" data-rsafari="1">افتح في سفاري للتصدير</button><button class="linkbtn" type="button" data-rback="1">رجوع للمتابعة</button><span class="hint">الصفحة مفتوحة من اختصار الشاشة الرئيسية، وهذا الوضع لا يدعم الطباعة. افتحها في سفاري ثم «تصدير PDF» من جديد.</span></div>`
+      : `<div class="rbar"><button class="btn" type="button" data-rprint="1">طباعة / حفظ كـ PDF</button><button class="linkbtn" type="button" data-rback="1">رجوع للمتابعة</button><span class="hint">إن لم تفتح نافذة الطباعة: زر المشاركة في المتصفح ← «طباعة» أو «خيارات ← PDF» ← حفظ</span></div>`)
     +html+`<div class="pft">متابعة مهام السلامة والصحة المهنية — أُنتج ${new Date().toLocaleString('ar-SA-u-nu-latn-ca-gregory')}</div>`;
   try{$('dlg').close()}catch(_){ $('dlg').removeAttribute('open') }
   document.body.classList.add('rmode'); window.scrollTo(0,0);
-  try{ window.print(); }catch(_){}
+  if(!STANDALONE){ try{ window.print(); }catch(_){} }
 }
 function leaveReport(){ document.body.classList.remove('rmode'); $('prt').innerHTML=''; }
 function showText(title,text){ $('dlgT').textContent=title; $('dlgB').innerHTML=`<textarea id="dlgX" readonly>${esc(text)}</textarea>`; openDlg(); }
@@ -451,6 +456,7 @@ document.addEventListener('click',async e=>{
   if(b.dataset.pdf){ printHTML(b.dataset.pdf==='left'?exLeftHTML():exSumHTML()); return; }
   if(b.dataset.rprint){ try{ window.print(); }catch(_){} return; }
   if(b.dataset.rback){ leaveReport(); return; }
+  if(b.dataset.rsafari){ const w=window.open(location.href,'_blank'); if(!w){ if(!(await copyText(location.href))) toast('انسخ رابط الصفحة وافتحه في سفاري'); else toast('نُسخ الرابط — الصقه في سفاري'); } return; }
   if(b.dataset.copy){ if(!(await copyText(b.dataset.copy))) toast('حدّد الرابط وانسخه يدويًا'); return; }
   if(b.id==='reset'){ Object.assign(S,{sec:null,st:null,crit:false,doc:false,grp:false,q:''}); $('q').value=''; persist(); renderAll(); return; }
   const act=b.dataset.act;
