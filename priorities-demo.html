@@ -682,7 +682,7 @@ function progChanged(keepCode){
 function signRowsHtml(rows){return `<label>اللوحات المطلوبة (المساحة تُحسب منها)</label><div id="signRows">${rows.map((r,ix)=>`<div class="srow"><select data-f="t">${SIGN_T.map(t=>`<option ${t===r.t?'selected':''}>${t}</option>`).join('')}</select><input data-f="n" type="number" min="0" placeholder="العدد" value="${r.n||''}"><input data-f="a" type="number" min="0" step="any" placeholder="مساحة اللوحة م²" value="${r.a||''}">${ix?'<button class="mini del" data-rm>حذف</button>':''}</div>`).join('')}</div><button class="mini" id="addSign">+ نوع لوحة آخر</button>`}
 function itemChanged(spec){
   const p=$('iProg').value,no=$('iCat').value,c=catItem(p,no),sp=specOf(no);spec=spec||{};
-  $('iPrice').value=num(priceOf(p,no));$('qtyL').textContent='الكمية — بالـ'+c.unit;$('iDet').placeholder=sp.ph;
+  $('iPrice').value=num(priceOf(p,no));$('qtyL').textContent='الكمية ('+c.unit+')';$('iDet').placeholder=sp.ph;
   let h='';
   if(sp.signs)h+=signRowsHtml(spec.signs&&spec.signs.length?spec.signs:[{t:'تحذيرية'}]);
   (sp.fields||[]).forEach(f=>{h+=`<label>${f.l}</label>`+(f.num?`<input data-k="${f.k}" type="number" min="0" value="${spec[f.k]||''}">`:`<select data-k="${f.k}"><option value="">— اختر —</option>${f.o.map(o=>`<option ${o===spec[f.k]?'selected':''}>${o}</option>`).join('')}</select>`)});
@@ -734,7 +734,7 @@ $('iSave').onclick=()=>{
   if(cat){const no=$('iCat').value,c=catItem(p,no),q=+$('iQty').value||0,sp=readSpec(),need=(specOf(no).fields||[]).filter(f=>!f.num&&!sp[f.k]);
     if(specOf(no).signs&&!(sp.signs||[]).length){toast('حدّد نوع اللوحات وعددها ومساحتها');return}
     if(need.length){toast('حدّد: '+need.map(f=>f.l).join('، '));return}
-    if(!q){toast('أدخل الكمية بالـ'+c.unit);return}
+    if(!q){toast('أدخل الكمية ('+c.unit+')');return}
     const left=alloc(p,v.reg,no)-reqQty(p,v.reg,no,editId);if(q>left){toast(alloc(p,v.reg,no)?`الكمية (${num(q)}) تتجاوز المتبقي من المخصص (${num(left)} ${c.unit}).`:'لا يوجد مخصص لهذا البند في منطقتك.');budHint();return}
     Object.assign(v,{type:c.name,code:no,unit:c.unit,qty:q,spec:sp,val:null})}
   else Object.assign(v,{type:$('iType').value,code:null,unit:null,qty:null,spec:{},val:+$('iVal').value||0});
@@ -759,7 +759,7 @@ function shrink(file){return new Promise((res,rej)=>{const fr=new FileReader();f
 ['exB','exA'].forEach(id=>$(id).onchange=async()=>{const f=$(id).files[0];if(!f)return;try{exImg[id]=await shrink(f);$(id+'i').src=exImg[id];$(id+'i').hidden=false}catch(e){toast('تعذّرت قراءة الصورة')}});
 function openExec(id){const i=byId(id);exId=id;exImg={};['exB','exA'].forEach(x=>{$(x).value='';$(x+'i').hidden=true});
   $('exWhat').textContent=`${i.type} — طريق ${i.road} من كم ${i.from}${i.to?' إلى '+i.to:''}. الصورتان إلزاميتان قبل اعتبار البند منفّذاً.`;
-  $('exD').value=today();$('exQbox').hidden=!i.code;if(i.code){$('exQL').textContent='الكمية المنفّذة — بالـ'+i.unit;$('exQ').value=i.qty}$('exAch').checked=true;$('ovExec').classList.add('on')}
+  $('exD').value=today();$('exQbox').hidden=!i.code;if(i.code){$('exQL').textContent='الكمية المنفّذة ('+i.unit+')';$('exQ').value=i.qty}$('exAch').checked=true;$('ovExec').classList.add('on')}
 $('exOk').onclick=()=>{const i=byId(exId);if(!exImg.exB||!exImg.exA){toast('أرفق صورة قبل وصورة بعد');return}
   const q=i.code?(+$('exQ').value||0):null;if(i.code&&!q){toast('أدخل الكمية المنفّذة');return}
   i.status='نُفّذ';i.exec={before:exImg.exB,after:exImg.exA,date:$('exD').value||today(),qty:q,ach:$('exAch').checked,by:R().name};
@@ -795,7 +795,7 @@ function renderBud(){
   $('budPrices').querySelectorAll('[data-price]').forEach(inp=>inp.onchange=()=>{const no=inp.dataset.price,old=priceOf(p,no),nv=+inp.value||0;if(nv===old)return;B.price[no]=nv;S.blog.push({w:R().name,d:today(),t:`غيّر سعر «${catItem(p,no).name}» من ${num(old)} إلى ${num(nv)} ر.س — تحدّثت مبالغ كل المناطق وقيم البنود في القوائم`});save();render();toast('تحدّث السعر ومبالغ كل المناطق')});
   // regions table for selected item
   const c=catItem(p,budItem);
-  $('budItemH').textContent=`«${c.name}» — الكمية بالـ${c.unit}، سعر الوحدة ${num(priceOf(p,c.no))} ر.س`;
+  $('budItemH').textContent=`«${c.name}» — الكمية (${c.unit})، سعر الوحدة ${num(priceOf(p,c.no))} ر.س`;
   $('budRegions').innerHTML=`<table class="bt rt"><thead><tr><th>المنطقة</th><th>المخصص (${c.unit})</th><th>المخصص (ر.س)</th><th>المطلوب في القوائم</th><th>المنفّذ</th><th>المتبقي</th><th>الحالة</th></tr></thead><tbody>${visRegions().map(r=>{const s=budState(p,r,c.no),pr=priceOf(p,c.no);
     return `<tr><td data-l="المنطقة"><b>${r}</b></td><td data-l="المخصص (${c.unit})">${core?`<input class="bin" data-q="${r}" type="number" min="0" step="any" value="${s.a||''}">`:num(s.a)}</td><td data-l="المخصص (ر.س)">${core?`<input class="bin" data-v="${r}" type="number" min="0" step="any" value="${s.a?Math.round(s.a*pr):''}">`:fmt(s.a*pr)}</td><td data-l="المطلوب">${num(s.q)}</td><td data-l="المنفّذ">${num(s.d)}</td><td data-l="المتبقي" style="color:${s.left<0?'var(--brick)':'inherit'}">${num(s.left)}</td><td data-l="الحالة"><span class="bst ${s.k}">${s.t}</span></td></tr>`}).join('')}</tbody></table>`;
   const setQ=(r,q)=>{B.alloc[r]=B.alloc[r]||{};const old=alloc(p,r,c.no);B.alloc[r][c.no]=q;S.blog.push({w:R().name,d:today(),t:`${r}: «${c.name}» من ${num(old)} إلى ${num(q)} ${c.unit} (${fmt(q*priceOf(p,c.no))} ر.س)`});save();render()};
