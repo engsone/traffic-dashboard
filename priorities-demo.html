@@ -98,6 +98,8 @@ ul{list-style:none;margin:0;padding:0}
 .warn{background:var(--brick-t);color:var(--brick);border-radius:8px;padding:8px 10px;font-size:12.5px}
 .okm{background:var(--green-t);color:var(--green);border-radius:8px;padding:8px 10px;font-size:12.5px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:6px}.seg button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px;font:inherit;font-weight:600;color:var(--gray);cursor:pointer}.seg button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.hintbox{background:var(--blue-t);color:var(--blue);border-radius:8px;padding:7px 10px;font-size:12px;margin-top:8px}
 .drop{border:2px dashed var(--line);border-radius:10px;padding:18px;text-align:center;color:var(--gray);cursor:pointer;margin-top:8px}
 .drop.hot{border-color:var(--blue);background:var(--blue-t)}
 .prev{max-height:220px;overflow:auto;margin-top:10px;border:1px solid var(--line);border-radius:8px}
@@ -131,8 +133,8 @@ ul{list-style:none;margin:0;padding:0}
     <button class="rb" data-role="core">الكورتيم</button>
     <span class="sp"></span>
     <label><input type="checkbox" id="simLate"> محاكاة: مرّ أسبوع على كل القوائم</label>
-    <button class="lnk" id="bReqs">طلبات الاجتماع وأين تجدها</button>
-    <button class="lnk" id="bReset">إعادة العينة</button>
+    <button class="lnk" id="bReqs">طلباتك الـ11 ووين تلقاها</button>
+    <button class="lnk" id="bReset">مسح تجاربي والرجوع للبداية</button>
   </div>
   <div class="small" id="who" style="margin-top:6px"></div>
 </div>
@@ -209,32 +211,25 @@ ul{list-style:none;margin:0;padding:0}
 
 <!-- requests map -->
 <div class="ov" id="ovReq"><div class="mod">
-  <h3>طلبات الاجتماع وأين تجدها في العينة</h3>
+  <h3>طلباتك في الاجتماع ووين تلقاها في العينة</h3>
   <ul class="req" id="reqList"></ul>
   <div class="row" style="margin-top:14px"><span class="sp"></span><button class="btn pri" data-close>تم</button></div>
-</div></div>
-
-<!-- field need -->
-<div class="ov" id="ovNeed"><div class="mod">
-  <h3>إضافة احتياج ميداني</h3>
-  <div class="muted">نفس نموذج البوابة الحالي، مع تغيير «نوع المكان» إلى «نوع التدخل». بنود الاحتياجات نفسها تُعاد صياغتها بعد وصول ملف الإدارة.</div>
-  <label>نوع التدخل</label><select id="nType"></select>
-  <div class="g2"><div><label>رقم الطريق</label><input id="nRoad" placeholder="15"></div><div><label>العقد</label><input id="nCon" placeholder="803"></div>
-  <div><label>من كم</label><input id="nFrom" placeholder="120+000"></div><div><label>إلى كم</label><input id="nTo" placeholder="121+000"></div></div>
-  <label>الاحتياج</label><select><option>دهانات وتخطيط</option><option>لوحات إرشادية وتحذيرية</option><option>حواجز</option><option>إنارة</option></select>
-  <label>الكمية</label><input placeholder="مثال: 2 كم">
-  <div class="row" style="margin-top:14px"><span class="sp"></span><button class="btn ghost" data-close>إلغاء</button><button class="btn pri" onclick="this.closest('.ov').classList.remove('on');toast('في العينة لا يُحفظ الاحتياج الميداني — المقصود عرض «نوع التدخل»')">إضافة</button></div>
 </div></div>
 
 <!-- add/edit item -->
 <div class="ov" id="ovAdd"><div class="mod">
   <h3 id="addTitle">إضافة بند للقائمة</h3>
   <div class="muted" id="addSrc"></div>
+  <label>نوع التحسين</label>
+  <div class="seg" id="iKind"><button data-k="partial">تحسين جزئي</button><button data-k="root">تحسين جذري</button></div>
+  <div class="hintbox" id="kindHint"></div>
   <div class="g2">
     <div><label>نوع المشروع</label><select id="iProg"></select></div>
     <div><label>المنطقة</label><select id="iReg"></select></div>
   </div>
-  <label>نوع التدخل</label><select id="iType"></select>
+  <div id="rootBox"><label>نوع التدخل</label><select id="iType"></select></div>
+  <div id="partBox"><label>البند (من بنود السلامة في الـ21 بند)</label><select id="iCat"></select>
+    <div class="g2"><div><label id="qtyL">الكمية</label><input id="iQty" type="number" min="0"></div><div><label>سعر الوحدة (ر.س)</label><input id="iPrice" disabled></div></div></div>
   <div class="g2">
     <div><label>رقم الطريق</label><input id="iRoad"></div>
     <div><label>العقد</label><select id="iCon"></select></div>
@@ -242,7 +237,7 @@ ul{list-style:none;margin:0;padding:0}
     <div><label>إلى كم</label><input id="iTo" placeholder="125+000"></div>
   </div>
   <div class="g2">
-    <div><label>القيمة التقديرية (ر.س)</label><input id="iVal" type="number" min="0"></div>
+    <div><label id="valL">القيمة التقديرية (ر.س)</label><input id="iVal" type="number" min="0"></div>
     <div><label>الحالة</label><select id="iSt"><option>لم يُطلب بعد</option><option>مُرسل ضمن طلب</option><option>نُفّذ</option></select></div>
   </div>
   <label>ملاحظة (اختياري)</label><textarea id="iNote" rows="2"></textarea>
@@ -261,7 +256,7 @@ ul{list-style:none;margin:0;padding:0}
 <!-- import -->
 <div class="ov" id="ovImp"><div class="mod">
   <h3>استيراد قائمة أولويات من ملف</h3>
-  <div class="muted">مثل ملف «مبادرة الحواجز» المرتب لكل منطقة. Excel أو CSV، صف العناوين في الأول. الأعمدة: نوع المشروع، المنطقة، ترتيب الأولوية، نوع التدخل، رقم الطريق، من كم، إلى كم، العقد، القيمة التقديرية، ملاحظة. الإلزامي: نوع المشروع، المنطقة، نوع التدخل، رقم الطريق، من كم.</div>
+  <div class="muted">مثل ملف «مبادرة الحواجز» المرتب لكل منطقة. Excel أو CSV، صف العناوين في الأول. الأعمدة: نوع المشروع، المنطقة، ترتيب الأولوية، نوع التدخل، رقم الطريق، من كم، إلى كم، العقد، القيمة التقديرية، الكمية، ملاحظة. في «21 بند» يكون «نوع التدخل» اسم بند سلامة من الـ21 بند مع «الكمية»، والقيمة تُحسب تلقائياً. الإلزامي: نوع المشروع، المنطقة، نوع التدخل، رقم الطريق، من كم.</div>
   <div class="muted" style="margin-top:6px">الترتيب داخل كل منطقة يؤخذ من عمود «ترتيب الأولوية» (أو ترتيب الصفوف إن لم يوجد). إذا كانت قائمة المنطقة لهذا النوع فارغة، تبدأ مهلة المراجعة 7 أيام من اليوم. وإن كان فيها بنود، تُضاف البنود الجديدة في آخرها.</div>
   <div class="row" style="margin-top:8px"><button class="mini" id="bTpl">⇩ تنزيل نموذج الملف</button></div>
   <div class="drop" id="drop">اسحب الملف هنا أو اضغط للاختيار<br><span class="muted">.xlsx · .xls · .csv</span></div>
@@ -275,11 +270,24 @@ ul{list-style:none;margin:0;padding:0}
 
 <script>
 const TODAY_ISO='2026-11-15';
-const KEY='rsh_priorities_demo_v2';
+const KEY='rsh_priorities_demo_v3';
 const PROGS=['المبادرات','الاتفاقية الإطارية','21 بند'];
 const REGIONS=['الرياض','الشرقية','مكة المكرمة','المدينة المنورة','القصيم','حائل','عسير','جازان','الباحة','نجران','تبوك','الجوف','الحدود الشمالية'];
 const CONTRACTS={'عسير':['801','802','803','804'],'تبوك':['1201','1202','1203']};
-const TYPES=['تنفيذ حواجز','تحسين تقاطع','تحسين فتحة دوران','تحسين امتداد طريق','إنارة','دهانات وتخطيط','لوحات إرشادية وتحذيرية'];
+const TYPES=['تنفيذ حواجز','تحسين تقاطع','تحسين فتحة دوران','تحسين امتداد طريق','إنارة'];
+// safety items only (yellow) from «بنود الصيانة الإضافية — عقد 1202»; prices incl. VAT
+const CAT=[
+ {no:'6010103',name:'الحواجز المعدنية',unit:'متر طولي',price:379.5},
+ {no:'601055201',name:'نهايات الحواجز المعدنية (الأنواع 1، 3، 4)',unit:'وحدة',price:2530},
+ {no:'6110503',name:'سياج سلك عالي الشد النوع 3',unit:'متر طولي',price:207},
+ {no:'6110501',name:'سياج سلك عالي الشد النوع 1',unit:'متر طولي',price:264.5},
+ {no:'90501',name:'ألواح إشارات الطرق',unit:'متر مربع',price:747.5},
+ {no:'9050301',name:'حوامل إشارات (قابلة للانفصال) عمود واحد I.P.E',unit:'كجم',price:29.9},
+ {no:'90504',name:'حوامل إشارات (قابلة للانفصال) أنبوبية',unit:'وحدة',price:517.5},
+ {no:'9030301',name:'خطوط مرور بيضاء عاكسة بلاستيكية حرارية',unit:'متر مربع',price:32.2},
+ {no:'9030302',name:'خطوط مرور صفراء عاكسة بلاستيكية حرارية',unit:'متر مربع',price:32.2}];
+const ROOT_PROGS=['المبادرات','الاتفاقية الإطارية'];
+const kindOf=p=>p==='21 بند'?'partial':'root';
 const STATUSES=['لم يُطلب بعد','مُرسل ضمن طلب','نُفّذ'];
 const TYPECLS={'تنفيذ حواجز':'c-bar','تحسين تقاطع':'c-int','تحسين فتحة دوران':'c-ut','تحسين امتداد طريق':'c-rd'};
 const ROLES={
@@ -323,7 +331,7 @@ function seed(){
   [[1,'تحسين امتداد طريق',5400000,'مُرسل ضمن طلب'],[3,'تحسين فتحة دوران',900000,'نُفّذ'],[7,'تحسين تقاطع',1200000,'لم يُطلب بعد'],[0,'تحسين امتداد طريق',600000,'لم يُطلب بعد'],[11,'دهانات وتخطيط',300000,'لم يُطلب بعد']].forEach(([s,t,v,st])=>mk('الاتفاقية الإطارية',s,t,v,st).added='2026-10-20');
   meta['عسير|الاتفاقية الإطارية']={start:'2026-10-20',src:'إدخال يدوي'};
   // 21 items: window ends 17/11
-  [[0,'تحسين تقاطع',350000,'نُفّذ'],[5,'تحسين فتحة دوران',450000,'لم يُطلب بعد'],[13,'لوحات إرشادية وتحذيرية',150000,'لم يُطلب بعد']].forEach(([s,t,v,st])=>mk('21 بند',s,t,v,st).added='2026-11-10');
+  [[0,0,400,'نُفّذ'],[5,4,24,'لم يُطلب بعد'],[13,7,1500,'لم يُطلب بعد'],[2,1,6,'لم يُطلب بعد']].forEach(([s,ci,q,st])=>{const c=CAT[ci];const it=mk('21 بند',s,c.name,Math.round(q*c.price),st);Object.assign(it,{added:'2026-11-10',code:c.no,unit:c.unit,qty:q,price:c.price})});
   meta['عسير|21 بند']={start:'2026-11-10',src:'ملف 21 بند'};
   // inspection engineer order for his contracts = region order filtered, with one difference in the framework list
   const logs=[
@@ -366,7 +374,6 @@ $('fProj').innerHTML+=PROGS.map(p=>`<option>${p}</option>`).join('');
 $('iProg').innerHTML=PROGS.map(p=>`<option>${p}</option>`).join('');
 $('iReg').innerHTML=REGIONS.map(r=>`<option>${r}</option>`).join('');
 $('iType').innerHTML=TYPES.map(p=>`<option>${p}</option>`).join('');
-$('nType').innerHTML=['تحسين امتداد طريق','تحسين تقاطع','تحسين فتحة دوران'].map(p=>`<option>${p}</option>`).join('');
 function chips(){
   $('cTier').innerHTML=[1,2,3,4].map(t=>`<button class="${tiers.includes(t)?'on':''}" data-t="${t}">TIER ${t}</button>`).join('');
   $('cStar').innerHTML=[1,2,3,4,5].map(s=>`<button class="${stars.includes(s)?'on':''}" data-s="${s}">${'★'.repeat(s)}</button>`).join('');
@@ -390,7 +397,7 @@ $('bClear').onclick=()=>{con='';proj='';fatal='all';tiers=[1,2];stars=[1,2,3];so
 $('sw').querySelectorAll('button').forEach(b=>b.onclick=()=>showView(b.dataset.v));
 function showView(v){if(view==='pl'&&v!=='pl'&&draft&&!confirm('تغييرات غير محفوظة ستُلغى. متابعة؟'))return;if(v!=='pl')draft=null;view=v;if(v==='pl'&&proj)plProg=proj;render()}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.ov').classList.remove('on'));
-$('bNeed').onclick=()=>$('ovNeed').classList.add('on');
+$('bNeed').onclick=()=>openAdd(null,true);
 
 /* ---------- render ---------- */
 function render(){
@@ -474,7 +481,7 @@ function renderPl(){
     <td data-l="${role==='insp'?'ترتيبي':'ترتيب المنطقة'}"><div class="rank">${ro?'':'<span class="handle" title="اسحب">⋮⋮</span>'}<span class="num ${role==='insp'?'eng':''}">${ix+1}</span>
       ${ro?'':`<div class="arr"><button ${ix===0?'disabled':''} data-up="${id}" title="أعلى">▲</button><button ${ix===ids.length-1?'disabled':''} data-dn="${id}" title="أسفل">▼</button></div>`}</div></td>
     <td data-l="${role==='insp'?'ترتيب المنطقة':'ترتيب مهندس الفحص'}">${other?`<span class="num ro ${role==='insp'?'':'eng'}">${other}</span>`:`<span class="muted">${reg===ROLES.insp.reg?'— ليس من عقود مهندس الفحص':'—'}</span>`}</td>
-    <td data-l="نوع التدخل"><span class="chip ${TYPECLS[i.type]||'c-oth'}">${esc(i.type)}</span>${i.note?`<div class="muted" style="margin-top:4px">${esc(i.note)}</div>`:''}</td>
+    <td data-l="نوع التدخل"><span class="chip ${TYPECLS[i.type]||'c-oth'}">${esc(i.type)}</span>${i.code?`<div class="muted" style="margin-top:4px">${i.qty} ${esc(i.unit)} · بند ${esc(i.code)} · تحسين جزئي</div>`:''}${i.note?`<div class="muted" style="margin-top:4px">${esc(i.note)}</div>`:''}</td>
     <td data-l="الموقع"><b>طريق ${esc(i.road)}</b><div class="muted">من كم ${esc(i.from)}${i.to?' إلى كم '+esc(i.to):''}</div></td>
     <td data-l="العقد">${esc(i.con)||'—'}</td>
     <td data-l="بيانات الموقع عند الإضافة" class="snap">${s?`<span class="f">${s.fa} حوادث وفيات</span> · ${s.dead} وفاة<br>TIER ${s.tier} · متوسط النجوم ${(+s.avg).toFixed(1)}<br>`:'<span class="muted">بند من ملف بلا بيانات iRAP</span><br>'}<span class="muted">أُضيف ${fd(i.added)}</span></td>
@@ -530,23 +537,44 @@ $('bLog').onclick=()=>{$('logCard').hidden=!$('logCard').hidden;if(!$('logCard')
 let pre=null,editId=null;
 function fillCons(r,sel){const l=(role==='insp'?myCons():CONTRACTS[r])||[];$('iCon').innerHTML=(l.length?l:['—']).map(c=>`<option ${c===sel?'selected':''}>${c}</option>`).join('')}
 $('iReg').onchange=()=>fillCons($('iReg').value);
-function openAdd(site){
+let kind='root';
+$('iCat').innerHTML=CAT.map((c,ix)=>`<option value="${ix}">${c.name} — ${c.unit} (بند ${c.no})</option>`).join('');
+function setKind(k,keepProg){
+  kind=k;$('iKind').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+  const progs=k==='partial'?['21 بند']:ROOT_PROGS;const cur=$('iProg').value;
+  $('iProg').innerHTML=progs.map(p=>`<option>${p}</option>`).join('');$('iProg').value=progs.includes(keepProg)?keepProg:progs.includes(cur)?cur:progs[0];$('iProg').disabled=k==='partial';
+  $('rootBox').hidden=k==='partial';$('partBox').hidden=k!=='partial';
+  $('iVal').disabled=k==='partial';$('valL').textContent=k==='partial'?'القيمة (الكمية × سعر الوحدة)':'القيمة التقديرية (ر.س)';
+  $('kindHint').textContent=k==='partial'?'تحسين جزئي = من بنود السلامة في الـ21 بند فقط، ونوع المشروع «21 بند». الأسعار من جدول عقد 1202 للتجربة؛ في البوابة لكل عقد جدول أسعاره.':'تحسين جذري = مشروع «المبادرات» أو «الاتفاقية الإطارية»، ولا يُختار من بنود الـ21 بند.';
+  if(k!=='partial')$('iVal').value=$('iVal').value;calcVal();
+}
+function calcVal(){if(kind!=='partial')return;const c=CAT[+$('iCat').value];$('iPrice').value=c.price;$('qtyL').textContent='الكمية ('+c.unit+')';$('iVal').value=Math.round((+$('iQty').value||0)*c.price)||''}
+$('iKind').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(b.dataset.k!==kind){$('iVal').value='';setKind(b.dataset.k)}});
+$('iCat').onchange=calcVal;$('iQty').oninput=calcVal;
+function openAdd(site,asNeed){
   if(draft){toast('احفظ الترتيب أو تراجع عنه أولاً');return}
-  editId=null;pre=site||null;$('addTitle').textContent='إضافة بند للقائمة';$('iDel').hidden=true;$('iSave').textContent='إضافة';
-  $('iProg').value=proj||plProg;$('iReg').value=reg;$('iReg').disabled=!!R().reg;fillCons(reg,pre?pre.con:'');$('iType').value=TYPES[0];$('iSt').value='لم يُطلب بعد';$('iNote').value='';$('iVal').value='';
+  editId=null;pre=site||null;$('addTitle').textContent=asNeed?'إضافة احتياج ميداني':'إضافة بند للقائمة';$('iDel').hidden=true;$('iSave').textContent='إضافة';
+  $('iReg').value=reg;$('iReg').disabled=!!R().reg;fillCons(reg,pre?pre.con:'');$('iType').value=TYPES[0];$('iSt').value='لم يُطلب بعد';$('iNote').value='';$('iVal').value='';$('iQty').value='';$('iCat').value='0';
   $('iRoad').value=pre?pre.road:'';$('iFrom').value=pre?pre.from:'';$('iTo').value=pre?pre.to:'';
-  $('addSrc').textContent=pre?`من التحليل: طريق ${pre.road} كم ${pre.from} – ${pre.to} (العقد ${pre.con}). اختر نوع المشروع ونوع التدخل والقيمة.`:'إضافة يدوية. يمكن أيضاً الإضافة من «التحليل والاحتياجات» بزر «أضف للقائمة» فتُعبّأ البيانات تلقائياً.';
+  const p=(view==='pl'?plProg:proj)||'المبادرات';setKind(kindOf(p),p);
+  $('addSrc').textContent=pre?`من التحليل: طريق ${pre.road} كم ${pre.from} – ${pre.to} (العقد ${pre.con}). اختر نوع التحسين ثم البند أو نوع التدخل.`:asNeed?'«نوع المكان» صار «نوع التحسين» ثم «نوع التدخل» أو البند. الاحتياج يدخل قائمة الأولويات لنوع مشروعه، في آخرها.':'إضافة يدوية. يمكن أيضاً الإضافة من «التحليل والاحتياجات» بزر «أضف للقائمة».';
   $('addHint').hidden=false;$('ovAdd').classList.add('on');
 }
 function openEdit(id){
   if(draft){toast('احفظ الترتيب أو تراجع عنه أولاً');return}
   const i=byId(id);editId=id;pre=null;$('addTitle').textContent='تعديل البند';$('iDel').hidden=false;$('iSave').textContent='حفظ التعديل';
-  $('iProg').value=i.prog;$('iReg').value=i.reg;$('iReg').disabled=true;fillCons(i.reg,i.con);$('iType').value=i.type;$('iRoad').value=i.road;$('iFrom').value=i.from;$('iTo').value=i.to||'';$('iVal').value=i.val||'';$('iSt').value=i.status;$('iNote').value=i.note||'';
+  $('iReg').value=i.reg;$('iReg').disabled=true;fillCons(i.reg,i.con);
+  if(i.code){$('iCat').value=String(Math.max(0,CAT.findIndex(c=>c.no===i.code)));$('iQty').value=i.qty||''}else{$('iType').value=i.type;$('iQty').value='';$('iVal').value=i.val||''}
+  setKind(kindOf(i.prog),i.prog);
+  $('iRoad').value=i.road;$('iFrom').value=i.from;$('iTo').value=i.to||'';$('iSt').value=i.status;$('iNote').value=i.note||'';
   $('addSrc').textContent=`أُضيف ${fd(i.added)}. تغيير نوع المشروع ينقل البند لآخر قائمته الجديدة.`;$('addHint').hidden=true;$('ovAdd').classList.add('on');
 }
 $('bAdd').onclick=()=>openAdd(null);
 $('iSave').onclick=()=>{
-  const v={prog:$('iProg').value,reg:$('iReg').value,type:$('iType').value,road:$('iRoad').value.trim(),from:$('iFrom').value.trim(),to:$('iTo').value.trim(),con:$('iCon').value,val:+$('iVal').value||0,status:$('iSt').value,note:$('iNote').value.trim()};
+  const c=CAT[+$('iCat').value];
+  const v={prog:$('iProg').value,reg:$('iReg').value,road:$('iRoad').value.trim(),from:$('iFrom').value.trim(),to:$('iTo').value.trim(),con:$('iCon').value,status:$('iSt').value,note:$('iNote').value.trim()};
+  if(kind==='partial'){const q=+$('iQty').value||0;if(!q){toast('أدخل الكمية');return}Object.assign(v,{type:c.name,code:c.no,unit:c.unit,qty:q,price:c.price,val:Math.round(q*c.price)})}
+  else Object.assign(v,{type:$('iType').value,code:null,unit:null,qty:null,price:null,val:+$('iVal').value||0});
   if(!v.road||!v.from){toast('رقم الطريق و«من كم» مطلوبان');return}
   if(editId){const i=byId(editId),oldK=i.reg+'|'+i.prog,newK=v.reg+'|'+v.prog;
     const done=r=>{Object.assign(i,v);if(oldK!==newK){const a=ord(oldK);a.splice(a.indexOf(i.id),1);ord(newK).push(i.id);if(!S.meta[newK])S.meta[newK]={start:today(),src:'نقل من نوع آخر'};addLog(oldK,`نقل ${label(i)} إلى «${v.prog}»`,r);addLog(newK,`استلم ${label(i)} من «${oldK.split('|')[1]}» في آخر القائمة`,r)}else addLog(newK,`عدّل بيانات ${label(i)}`,r);$('ovAdd').classList.remove('on');save();render();toast('حُفظ التعديل')};
@@ -563,10 +591,10 @@ $('iDel').onclick=()=>{const i=byId(editId);
 $('bExp').onclick=()=>{
   if(!window.XLSX){toast('تعذّر تحميل مكتبة Excel — تحقق من الاتصال');return}
   const regs=R().reg?[R().reg]:REGIONS;
-  const COLS=['نوع المشروع','المنطقة','ترتيب المنطقة','ترتيب مهندس الفحص','نوع التدخل','رقم الطريق','من كم','إلى كم','العقد','القيمة التقديرية','الحالة','حوادث الوفيات عند الإضافة','الوفيات عند الإضافة','TIER','متوسط النجوم','تاريخ الإضافة','ملاحظة'];
+  const COLS=['نوع المشروع','المنطقة','ترتيب المنطقة','ترتيب مهندس الفحص','نوع التدخل','رقم البند','الكمية','الوحدة','رقم الطريق','من كم','إلى كم','العقد','القيمة التقديرية','الحالة','حوادث الوفيات عند الإضافة','الوفيات عند الإضافة','TIER','متوسط النجوم','تاريخ الإضافة','ملاحظة'];
   const wb=XLSX.utils.book_new();
-  PROGS.forEach(p=>{const rows=[];regs.forEach(r=>{const k=r+'|'+p,em={};engOrd(k).forEach((id,ix)=>em[id]=ix+1);ord(k).forEach((id,ix)=>{const i=byId(id);if(myCons()&&!myCons().includes(i.con))return;const s=i.snap||{};rows.push([p,r,ix+1,em[id]||'',i.type,i.road,i.from,i.to,i.con,+i.val||0,i.status,s.fa??'',s.dead??'',s.tier??'',s.avg??'',fd(i.added),i.note||''])})});
-    const ws=XLSX.utils.aoa_to_sheet([COLS,...rows]);ws['!cols']=COLS.map((c,j)=>({wch:[12,12,8,8,18,10,11,11,8,14,14,10,10,6,8,11,24][j]}));XLSX.utils.book_append_sheet(wb,ws,p)});
+  PROGS.forEach(p=>{const rows=[];regs.forEach(r=>{const k=r+'|'+p,em={};engOrd(k).forEach((id,ix)=>em[id]=ix+1);ord(k).forEach((id,ix)=>{const i=byId(id);if(myCons()&&!myCons().includes(i.con))return;const s=i.snap||{};rows.push([p,r,ix+1,em[id]||'',i.type,i.code||'',i.qty||'',i.unit||'',i.road,i.from,i.to,i.con,+i.val||0,i.status,s.fa??'',s.dead??'',s.tier??'',s.avg??'',fd(i.added),i.note||''])})});
+    const ws=XLSX.utils.aoa_to_sheet([COLS,...rows]);ws['!cols']=COLS.map((c,j)=>({wch:[12,12,8,8,24,11,8,9,10,11,11,8,14,14,10,10,6,8,11,24][j]}));XLSX.utils.book_append_sheet(wb,ws,p)});
   const lg=[['نوع المشروع','المنطقة','التاريخ','المستخدم','التعديل','السبب'],...S.logs.filter(l=>regs.includes(l.k.split('|')[0])).map(l=>[l.k.split('|')[1],l.k.split('|')[0],fd(l.d),l.w,l.t,l.r||''])];
   const wl=XLSX.utils.aoa_to_sheet(lg);wl['!cols']=[{wch:14},{wch:12},{wch:11},{wch:24},{wch:70},{wch:40}];XLSX.utils.book_append_sheet(wb,wl,'سجل التعديلات');
   wb.Workbook={Views:[{RTL:true}]};
@@ -574,9 +602,9 @@ $('bExp').onclick=()=>{
 };
 
 /* ---------- import (core) ---------- */
-const IMP=['نوع المشروع','المنطقة','ترتيب الأولوية','نوع التدخل','رقم الطريق','من كم','إلى كم','العقد','القيمة التقديرية','ملاحظة'];
+const IMP=['نوع المشروع','المنطقة','ترتيب الأولوية','نوع التدخل','رقم الطريق','من كم','إلى كم','العقد','القيمة التقديرية','الكمية','ملاحظة'];
 $('bTpl').onclick=()=>{if(!window.XLSX){toast('تعذّر تحميل مكتبة Excel');return}
-  const ws=XLSX.utils.aoa_to_sheet([IMP,['المبادرات','الباحة',1,'تنفيذ حواجز','246','68+369','75+027','1001',2300000,'مثال'],['المبادرات','الباحة',2,'تنفيذ حواجز','15','2010+000','2016+500','1002',3100000,''],['المبادرات','حائل',1,'تنفيذ حواجز','70','330+000','334+000','603',2700000,'']]);
+  const ws=XLSX.utils.aoa_to_sheet([IMP,['المبادرات','الباحة',1,'تنفيذ حواجز','246','68+369','75+027','1001',2300000,'','مثال'],['المبادرات','الباحة',2,'تنفيذ حواجز','15','2010+000','2016+500','1002',3100000,'',''],['21 بند','تبوك',1,'الحواجز المعدنية','15','2427+000','2430+000','1202','',600,'تحسين جزئي: الكمية × سعر البند']]);
   ws['!cols']=IMP.map(()=>({wch:15}));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'البنود');wb.Workbook={Views:[{RTL:true}]};XLSX.writeFile(wb,'نموذج_استيراد_الأولويات.xlsx')};
 let impRows=[];
 $('bImp').onclick=()=>{impRows=[];$('impMsg').innerHTML='';$('impPrev').hidden=true;$('impOk').disabled=true;$('file').value='';$('ovImp').classList.add('on')};
@@ -597,8 +625,10 @@ function readFile(f){
     if(hi<0){$('impMsg').innerHTML='<div class="warn">لم أجد صف العناوين (عمود «رقم الطريق»). نزّل نموذج الملف واستخدم نفس العناوين.</div>';return}
     const H=aoa[hi].map(norm),col=n=>H.indexOf(norm(n));
     impRows=aoa.slice(hi+1).filter(r=>r.some(c=>String(c).trim())).map((r,ix)=>{const g=n=>{const j=col(n);return j<0?'':String(r[j]).trim()};
-      const o={line:hi+ix+2,prog:pickFrom(PROGS,g('نوع المشروع')||g('البرنامج')),reg:pickFrom(REGIONS,g('المنطقة')),rank:+g('ترتيب الأولوية')||null,type:pickFrom(TYPES,g('نوع التدخل'))||g('نوع التدخل'),road:g('رقم الطريق'),from:g('من كم'),to:g('إلى كم'),con:g('العقد'),val:+String(g('القيمة التقديرية')).replace(/[^\d.]/g,'')||0,note:g('ملاحظة')};
-      o.err=[!o.prog&&'نوع المشروع',!o.reg&&'المنطقة',!o.type&&'نوع التدخل',!o.road&&'رقم الطريق',!o.from&&'من كم'].filter(Boolean);return o});
+      const o={line:hi+ix+2,prog:pickFrom(PROGS,g('نوع المشروع')||g('البرنامج')),reg:pickFrom(REGIONS,g('المنطقة')),rank:+g('ترتيب الأولوية')||null,type:g('نوع التدخل'),road:g('رقم الطريق'),from:g('من كم'),to:g('إلى كم'),con:g('العقد'),val:+String(g('القيمة التقديرية')).replace(/[^\d.]/g,'')||0,note:g('ملاحظة')};
+      o.cat=o.prog==='21 بند'?CAT.find(c=>norm(c.name)===norm(o.type)||c.no===String(o.type).trim()):null;
+      if(o.prog==='21 بند'&&o.cat){o.type=o.cat.name;o.qty=+String(g('الكمية')).replace(/[^\d.]/g,'')||0;o.val=Math.round(o.qty*o.cat.price)}else if(o.prog!=='21 بند')o.type=pickFrom(TYPES,o.type)||o.type;
+      o.err=[!o.prog&&'نوع المشروع',!o.reg&&'المنطقة',!o.type&&'نوع التدخل',o.prog==='21 بند'&&o.type&&!o.cat&&'ليس من بنود السلامة في الـ21 بند',o.prog==='21 بند'&&o.cat&&!o.qty&&'الكمية',!o.road&&'رقم الطريق',!o.from&&'من كم'].filter(Boolean);return o});
     const ok=impRows.filter(x=>!x.err.length),bad=impRows.length-ok.length,regs=[...new Set(ok.map(x=>x.reg))];
     $('impMsg').innerHTML=`<div class="${bad?'warn':'okm'}">${esc(f.name)}: ${plural(impRows.length,'صف واحد','صفان','صفوف','صفاً')} — الجاهز للاستيراد ${ok.length} في ${plural(regs.length,'منطقة واحدة','منطقتين','مناطق','منطقة')}${bad?`، وفيه نقص في ${bad} (بالأحمر) ولن يُستورد`:''}.</div>`;
     $('impPrev').innerHTML=`<table><thead><tr><th>سطر</th><th>النوع</th><th>المنطقة</th><th>الترتيب</th><th>نوع التدخل</th><th>الطريق</th><th>من كم</th><th>العقد</th><th>القيمة</th><th>ملاحظة</th></tr></thead><tbody>${impRows.map(x=>`<tr class="${x.err.length?'bad':''}"><td>${x.line}</td><td>${esc(x.prog||'؟')}</td><td>${esc(x.reg||'؟')}</td><td>${x.rank||''}</td><td>${esc(x.type||'؟')}</td><td>${esc(x.road)}</td><td>${esc(x.from)}</td><td>${esc(x.con)}</td><td>${fmt(x.val)}</td><td>${x.err.length?'ناقص: '+x.err.join('، '):esc(x.note)}</td></tr>`).join('')}</tbody></table>`;
@@ -612,7 +642,7 @@ $('impOk').onclick=()=>{
   Object.entries(groups).forEach(([k,rows])=>{
     rows.sort((a,b)=>(a.rank??1e9)-(b.rank??1e9)||a.line-b.line);
     const isNew=!ord(k).length;
-    rows.forEach(x=>{const it={id:++S.seq,prog:x.prog,reg:x.reg,type:x.type,road:x.road,from:x.from,to:x.to,con:x.con,val:x.val,status:'لم يُطلب بعد',note:x.note,site:null,snap:null,added:today()};S.items.push(it);ord(k).push(it.id)});
+    rows.forEach(x=>{const it={id:++S.seq,prog:x.prog,reg:x.reg,type:x.type,road:x.road,from:x.from,to:x.to,con:x.con,val:x.val,status:'لم يُطلب بعد',note:x.note,site:null,snap:null,added:today()};if(x.cat)Object.assign(it,{code:x.cat.no,unit:x.cat.unit,qty:x.qty,price:x.cat.price});S.items.push(it);ord(k).push(it.id)});
     if(isNew)S.meta[k]={start:today(),src:'ملف مستورد'};
     S.logs.push({k,w:R().name,d:today(),t:`استورد ${plural(rows.length,'بنداً واحداً','بندين','بنود','بنداً')} من ملف${isNew?` بترتيب الملف. بدأت مهلة المراجعة حتى ${fd(addDays(today(),7))}`:'، في آخر القائمة'}`,r:null});
   });
@@ -628,7 +658,7 @@ const REQS=[
  ['فلتر الحوادث: الكل / حادث واحد / أكثر من حادث','«التحليل والاحتياجات» ← حوادث الوفيات'],
  ['«ترتيب الأولوية» بدل «#»','عمود الجدول في الصفحتين'],
  ['الترتيب حسب الحوادث أو التقييم النجمي، وكبير المهندسين أو مهندس الفحص يعيد الترتيب بالسحب والإفلات','«الترتيب حسب» في التحليل، و«قائمة الأولويات المعتمدة»: سحب أو أسهم، و«اقترح ترتيباً»'],
- ['«نوع المكان» يصير «نوع التدخل» في إضافة الاحتياج','زر «+ إضافة احتياج ميداني»'],
+ ['«نوع المكان» يصير «نوع التدخل» في إضافة الاحتياج','زر «+ إضافة احتياج ميداني»: تحسين جزئي = بنود السلامة من الـ21 بند فقط، وتحسين جذري = المبادرات أو الاتفاقية الإطارية'],
  ['فلتر نوع المشروع: مبادرات / الاتفاقية الإطارية / 21 بند','الفلاتر أعلى الصفحة، وتبويبات القائمة المعتمدة'],
  ['كروت للعقود قبل الخريطة: عدد التدخلات المطلوبة وقيمتها','«التدخلات المطلوبة لكل عقد» أعلى الصفحتين'],
  ['استيراد ملف مبادرة الحواجز المرتب، مهلة أسبوع للمراجعة ثم حفظ، وبعد الأسبوع يُطلب سبب ويُسجّل مين عدّل','دور الكورتيم ← «استيراد ملف». جرّب «محاكاة: مرّ أسبوع» ثم غيّر الترتيب واحفظ، وافتح «سجل التعديلات»'],
@@ -636,7 +666,7 @@ const REQS=[
 ];
 $('reqList').innerHTML=REQS.map((r,i)=>`<li class="${r[2]?'wait':''}"><span class="k">${i+1}</span><div>${r[0]}<div class="w">${r[1]}</div></div></li>`).join('');
 $('bReqs').onclick=()=>$('ovReq').classList.add('on');
-$('bReset').onclick=()=>{if(confirm('إعادة العينة لوضعها الأول؟ ستُحذف كل تعديلاتك في هذا المتصفح.')){S=seed();draft=null;save();$('simLate').checked=false;setRole('senior');showView('an');toast('أُعيدت العينة')}};
+$('bReset').onclick=()=>{if(confirm('مسح كل تجاربك والرجوع للبيانات الأولى؟')){S=seed();draft=null;save();$('simLate').checked=false;setRole('senior');showView('an');toast('رجعت العينة للبداية')}};
 
 setRole(role);
 </script>
