@@ -343,7 +343,7 @@ const fmt=v=>!v?'—':v>=1e6?(v/1e6).toFixed(1).replace('.0','')+' مليون':M
 const fd=d=>{const x=new Date(d);return x.getDate()+'/'+(x.getMonth()+1)+'/'+x.getFullYear()};
 const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
 const today=()=>$('simLate').checked?addDays(TODAY_ISO,8):TODAY_ISO;
-const plural=(n,a,b,c)=>n===1?a:n===2?b:n+' '+c;
+const plural=(n,a,b,c,d)=>n===1?a:n===2?b:(n%100>=3&&n%100<=10)?n+' '+c:n+' '+(d||c);
 const byId=id=>S.items.find(i=>i.id===id);
 const label=i=>`«${i.type} — طريق ${i.road}»`;
 function toast(t){$('toast').textContent=t;$('toast').classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('on'),2800)}
@@ -421,8 +421,8 @@ function renderCards(){
   const tot=list.reduce((a,i)=>a+(+i.val||0),0);
   $('cardsH').textContent='التدخلات المطلوبة لكل عقد — '+(p||'كل أنواع المشاريع')+' · '+reg;
   const cons=(myCons()||CONTRACTS[reg]||Object.keys(by)).filter(c=>!con||c===con);
-  $('kpis').innerHTML=`<div class="kpi tot"><div class="t">المجموع${myCons()?' — عقودي':''}</div><div class="v">${fmt(tot)} ر.س</div><div class="s">${plural(list.length,'تدخل واحد','تدخلان','تدخلات')}</div></div>`+
-    cons.map(c=>{const b=by[c]||{n:0,v:0};return `<div class="kpi click ${conCard===c?'on':''}" data-c="${c}"><div class="t">العقد ${c}</div><div class="v">${fmt(b.v)} ر.س</div><div class="s">${b.n?plural(b.n,'تدخل واحد','تدخلان','تدخلات'):'لا تدخلات'}</div></div>`}).join('');
+  $('kpis').innerHTML=`<div class="kpi tot"><div class="t">المجموع${myCons()?' — عقودي':''}</div><div class="v">${tot?fmt(tot)+' ر.س':'0'}</div><div class="s">${plural(list.length,'تدخل واحد','تدخلان','تدخلات','تدخلاً')}</div></div>`+
+    cons.map(c=>{const b=by[c]||{n:0,v:0};return `<div class="kpi click ${conCard===c?'on':''}" data-c="${c}"><div class="t">العقد ${c}</div><div class="v">${b.v?fmt(b.v)+' ر.س':'0'}</div><div class="s">${b.n?plural(b.n,'تدخل واحد','تدخلان','تدخلات','تدخلاً'):'لا تدخلات'}</div></div>`}).join('');
   $('kpis').querySelectorAll('.kpi.click').forEach(k=>k.onclick=()=>{conCard=conCard===k.dataset.c?null:k.dataset.c;con=conCard||'';render()});
 }
 
@@ -432,7 +432,7 @@ function renderAn(){
   let L=SITES.filter(s=>s.reg===reg&&tiers.includes(s.tier)&&Object.keys(s.stars).some(st=>stars.includes(+st))&&(!myCons()||myCons().includes(s.con))&&(!con||s.con===con)
     &&(fatal==='every'||(fatal==='all'?s.fa>=1:fatal==='eq1'?s.fa===1:s.fa>1))&&(!proj||siteProgs(s.i).includes(proj)));
   L.sort(sortBy==='star'?(a,b)=>a.avg-b.avg||b.fa-a.fa:(a,b)=>b.fa-a.fa||b.dead-a.dead);
-  $('anCap').textContent=`${L.length} ${L.length===1?'موقع':'موقعاً'} حسب الفلاتر. الترتيب حسب ${sortBy==='star'?'التقييم النجمي (الأسوأ أولاً): متوسط نجوم الأجزاء الموزون بالطول، وعند التساوي حسب عدد حوادث الوفيات.':'عدد حوادث الوفيات من 2023 حتى اليوم.'}`;
+  $('anCap').textContent=`${L.length===0?'لا مواقع':plural(L.length,'موقع واحد','موقعان','مواقع','موقعاً')} حسب الفلاتر. الترتيب حسب ${sortBy==='star'?'التقييم النجمي (الأسوأ أولاً): متوسط نجوم الأجزاء الموزون بالطول، وعند التساوي حسب عدد حوادث الوفيات.':'عدد حوادث الوفيات من 2023 حتى اليوم.'}`;
   $('anBody').innerHTML=L.length?L.map((s,ix)=>{const pr=siteProgs(s.i);return `<tr>
     <td data-l="ترتيب الأولوية"><span class="num">${ix+1}</span></td>
     <td data-l="الموقع"><b>طريق ${s.road}</b><div class="muted">من كم ${s.from} إلى كم ${s.to}</div></td>
@@ -457,7 +457,7 @@ function renderPl(){
   const w=windowInfo(k);
   $('win').className='win '+(w?(w.open?'open':'closed'):'closed');
   $('win').innerHTML=!w?'لا توجد قائمة لهذا النوع في هذه المنطقة بعد.':w.open
-    ?`<b>مهلة المراجعة مفتوحة:</b> باقي ${plural(w.left,'يوم واحد','يومان','أيام')} (حتى ${fd(w.end)}). عدّل الترتيب ثم اضغط «حفظ الترتيب» — بدون سبب. المصدر: ${esc(w.src)}، ${fd(w.start)}.`
+    ?`<b>مهلة المراجعة مفتوحة:</b> باقي ${plural(w.left,'يوم واحد','يومان','أيام','يوماً')} (حتى ${fd(w.end)}). عدّل الترتيب ثم اضغط «حفظ الترتيب» — بدون سبب. المصدر: ${esc(w.src)}، ${fd(w.start)}.`
     :`<b>انتهت مهلة المراجعة</b> في ${fd(w.end)}. أي تغيير في الترتيب ثم «حفظ» يطلب سبباً، ويُسجّل باسمك في «سجل التعديلات».`;
   const ids=curOrder().filter(id=>{const i=byId(id);return i&&(!con||i.con===con)});
   const engMap={};engOrd(k).forEach((id,ix)=>engMap[id]=ix+1);
@@ -473,7 +473,7 @@ function renderPl(){
     return `<tr draggable="${!ro}" data-id="${id}" class="${moved?'moved':''}">
     <td data-l="${role==='insp'?'ترتيبي':'ترتيب المنطقة'}"><div class="rank">${ro?'':'<span class="handle" title="اسحب">⋮⋮</span>'}<span class="num ${role==='insp'?'eng':''}">${ix+1}</span>
       ${ro?'':`<div class="arr"><button ${ix===0?'disabled':''} data-up="${id}" title="أعلى">▲</button><button ${ix===ids.length-1?'disabled':''} data-dn="${id}" title="أسفل">▼</button></div>`}</div></td>
-    <td data-l="${role==='insp'?'ترتيب المنطقة':'ترتيب مهندس الفحص'}">${other?`<span class="num ro ${role==='insp'?'':'eng'}">${other}</span>`:'<span class="muted">— ليس من عقود مهندس الفحص</span>'}</td>
+    <td data-l="${role==='insp'?'ترتيب المنطقة':'ترتيب مهندس الفحص'}">${other?`<span class="num ro ${role==='insp'?'':'eng'}">${other}</span>`:`<span class="muted">${reg===ROLES.insp.reg?'— ليس من عقود مهندس الفحص':'—'}</span>`}</td>
     <td data-l="نوع التدخل"><span class="chip ${TYPECLS[i.type]||'c-oth'}">${esc(i.type)}</span>${i.note?`<div class="muted" style="margin-top:4px">${esc(i.note)}</div>`:''}</td>
     <td data-l="الموقع"><b>طريق ${esc(i.road)}</b><div class="muted">من كم ${esc(i.from)}${i.to?' إلى كم '+esc(i.to):''}</div></td>
     <td data-l="العقد">${esc(i.con)||'—'}</td>
@@ -600,7 +600,7 @@ function readFile(f){
       const o={line:hi+ix+2,prog:pickFrom(PROGS,g('نوع المشروع')||g('البرنامج')),reg:pickFrom(REGIONS,g('المنطقة')),rank:+g('ترتيب الأولوية')||null,type:pickFrom(TYPES,g('نوع التدخل'))||g('نوع التدخل'),road:g('رقم الطريق'),from:g('من كم'),to:g('إلى كم'),con:g('العقد'),val:+String(g('القيمة التقديرية')).replace(/[^\d.]/g,'')||0,note:g('ملاحظة')};
       o.err=[!o.prog&&'نوع المشروع',!o.reg&&'المنطقة',!o.type&&'نوع التدخل',!o.road&&'رقم الطريق',!o.from&&'من كم'].filter(Boolean);return o});
     const ok=impRows.filter(x=>!x.err.length),bad=impRows.length-ok.length,regs=[...new Set(ok.map(x=>x.reg))];
-    $('impMsg').innerHTML=`<div class="${bad?'warn':'okm'}">${esc(f.name)}: ${impRows.length} صف — ${ok.length} جاهز للاستيراد في ${regs.length} ${regs.length===1?'منطقة':'مناطق'}${bad?`، و${bad} فيه نقص (بالأحمر) ولن يُستورد`:''}.</div>`;
+    $('impMsg').innerHTML=`<div class="${bad?'warn':'okm'}">${esc(f.name)}: ${plural(impRows.length,'صف واحد','صفان','صفوف','صفاً')} — الجاهز للاستيراد ${ok.length} في ${plural(regs.length,'منطقة واحدة','منطقتين','مناطق','منطقة')}${bad?`، وفيه نقص في ${bad} (بالأحمر) ولن يُستورد`:''}.</div>`;
     $('impPrev').innerHTML=`<table><thead><tr><th>سطر</th><th>النوع</th><th>المنطقة</th><th>الترتيب</th><th>نوع التدخل</th><th>الطريق</th><th>من كم</th><th>العقد</th><th>القيمة</th><th>ملاحظة</th></tr></thead><tbody>${impRows.map(x=>`<tr class="${x.err.length?'bad':''}"><td>${x.line}</td><td>${esc(x.prog||'؟')}</td><td>${esc(x.reg||'؟')}</td><td>${x.rank||''}</td><td>${esc(x.type||'؟')}</td><td>${esc(x.road)}</td><td>${esc(x.from)}</td><td>${esc(x.con)}</td><td>${fmt(x.val)}</td><td>${x.err.length?'ناقص: '+x.err.join('، '):esc(x.note)}</td></tr>`).join('')}</tbody></table>`;
     $('impPrev').hidden=false;$('impOk').disabled=!ok.length;
   }catch(err){$('impMsg').innerHTML='<div class="warn">تعذّرت قراءة الملف: '+esc(err.message)+'</div>'}};
@@ -614,10 +614,10 @@ $('impOk').onclick=()=>{
     const isNew=!ord(k).length;
     rows.forEach(x=>{const it={id:++S.seq,prog:x.prog,reg:x.reg,type:x.type,road:x.road,from:x.from,to:x.to,con:x.con,val:x.val,status:'لم يُطلب بعد',note:x.note,site:null,snap:null,added:today()};S.items.push(it);ord(k).push(it.id)});
     if(isNew)S.meta[k]={start:today(),src:'ملف مستورد'};
-    S.logs.push({k,w:R().name,d:today(),t:`استورد ${plural(rows.length,'بنداً واحداً','بندين','بنود')} من ملف${isNew?` بترتيب الملف. بدأت مهلة المراجعة حتى ${fd(addDays(today(),7))}`:'، في آخر القائمة'}`,r:null});
+    S.logs.push({k,w:R().name,d:today(),t:`استورد ${plural(rows.length,'بنداً واحداً','بندين','بنود','بنداً')} من ملف${isNew?` بترتيب الملف. بدأت مهلة المراجعة حتى ${fd(addDays(today(),7))}`:'، في آخر القائمة'}`,r:null});
   });
   save();$('ovImp').classList.remove('on');
-  const f=good[0];if(f){reg=f.reg;plProg=f.prog;proj=f.prog}view='pl';con='';conCard=null;render();toast(`استُورد ${good.length} بند في ${Object.keys(groups).length} قائمة`);
+  const f=good[0];if(f){reg=f.reg;plProg=f.prog;proj=f.prog}view='pl';con='';conCard=null;render();toast(`استُورد ${plural(good.length,'بند واحد','بندان','بنود','بنداً')} في ${plural(Object.keys(groups).length,'قائمة واحدة','قائمتين','قوائم','قائمة')}`);
 };
 
 /* ---------- requests map ---------- */
