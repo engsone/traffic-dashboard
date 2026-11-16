@@ -145,6 +145,16 @@ ul{list-style:none;margin:0;padding:0}
 .bh{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}.bh h3{margin:0}
 .lines-l li{padding:2px 0}
 @media (max-width:760px){.g3{grid-template-columns:1fr}}
+#plBody td{line-height:1.5}
+#plBody td[data-l="البنود وطريقة التنفيذ"]{min-width:340px}
+#plBody td[data-l="الموقع"]{min-width:130px}
+#plBody td.snap{min-width:130px}
+#plBody td.money{min-width:150px;white-space:normal}
+#plBody td[data-l="الحالة"]{min-width:200px}
+#plBody td[data-l="سبب الأولوية"]{min-width:170px}
+#plBody .lines-l li{border-bottom:1px dashed var(--line);padding:5px 0}
+#plBody .lines-l li:last-child{border-bottom:0}
+@media (max-width:760px){#plBody td{min-width:0!important}}
 </style>
 </head>
 <body>
@@ -545,7 +555,8 @@ const item=no=>FW.find(c=>c.no===no)||{no,name:no,unit:''};
 const lname=l=>item(l.code).name;
 const sname=no=>item(no).name.split(/ — | \(/)[0];
 const titleOf=i=>i.lines.map(lname).join(' + ');
-const label=i=>`«${sname(i.lines[0].code)}${i.lines.length>1?' + '+(i.lines.length-1):''} — طريق ${i.road}»`;
+// a need is identified by its site (the priority is for the whole site, not an item)
+const label=i=>`«موقع طريق ${i.road} كم ${i.from}${i.to?' – '+i.to:''}»`;
 const fwPrice=no=>+(S.prices[no]??item(no).price)||0;
 const lPrice=l=>l.ch==='21'?(P21[l.code]||0):fwPrice(l.code);
 const lVal=l=>(+l.qty||0)*lPrice(l);
@@ -685,7 +696,7 @@ function statusCell(i){
 }
 function itemCell(i){
   const ch=chOf(i);
-  let h=`<ul class="lines-l">${i.lines.map(l=>{const c=item(l.code);const st=specText(l.spec);return `<li><span class="chip ${/حاجز|حواجز/.test(c.name)?'c-bar':'c-oth'}">${esc(c.name)}</span> <b>${num(l.qty)} ${esc(c.unit)}</b>
+  let h=`<ul class="lines-l">${i.lines.map(l=>{const c=item(l.code);const st=specText(l.spec);return `<li><b>${esc(c.name)}</b> — <b style="white-space:nowrap">${num(l.qty)} ${esc(c.unit)}</b>
     <div class="muted">${rtag(l)} ${LST[l.ch][l.st]}${l.done&&l.st!=='done'?` (نُفّذ ${num(l.done)})`:''}${st?' · '+esc(st):''}</div></li>`}).join('')}</ul>`;
   if(ch==='mix')h+=`<div><button class="mini" data-pt="${i.id}">المنفّذ والمتبقي</button></div>`;
   if(i.details)h+=`<div class="det">${esc(i.details)}</div>`;
@@ -731,7 +742,7 @@ function renderPl(){
     <td data-l="العقد">${esc(i.con)||'—'}</td>
     <td data-l="بيانات الموقع عند الإضافة" class="snap">${s?`<span class="f">${s.fa} حوادث وفيات</span> · ${s.dead} وفاة<br>TIER ${s.tier} · متوسط النجوم ${(+s.avg).toFixed(1)}<br>`:'<span class="muted">احتياج ميداني أو من ملف — بلا بيانات iRAP</span><br>'}<span class="muted">أُضيف ${fd(i.added)}</span></td>
     <td data-l="سبب الأولوية">${whyCell(i,dr[id],fpos[id])}</td>
-    <td data-l="القيمة" class="money">${fmt(tv)} ر.س${tv?`<div class="muted" style="font-weight:400">${routesOf(i).map(r=>`${routeL(r).replace('مبادرة ','م. ')} ${fmt(rVal(i,r))}`).join(' · ')}</div>`:''}</td>
+    <td data-l="القيمة" class="money">${fmt(tv)} ر.س${tv?`<div class="muted" style="font-weight:400;line-height:1.6">${routesOf(i).map(r=>`${routeL(r).replace('مبادرة ','م. ')}: ${fmt(rVal(i,r))}`).join('<br>')}</div>`:''}</td>
     <td data-l="الحالة">${statusCell(i)}</td></tr>`}).join('')
     :`<tr><td colspan="10" class="empty">لا احتياجات ${filtered?'حسب الفلتر ':''}${myCons()?'لعقودك':'لمنطقة '+reg}.${role==='core'?' استورد ملفاً.':''}</td></tr>`;
   $('plNote').textContent=filtered?'الترتيب مقفل أثناء الفلترة: الرقم الكبير ترتيب المنطقة، والصغير ترتيبه داخل الفلتر (مثلاً ترتيب مبادرة الحواجز اللي ترفعه للوزارة). امسح الفلتر لتغيير الترتيب.':canRank()?'اسحب الصف (على الكمبيوتر) أو استخدم الأسهم، ثم «حفظ الترتيب». الترتيب ينعكس على صفحة التحليل من «الترتيب حسب».':'';
@@ -788,8 +799,8 @@ $('bSave').onclick=()=>{
     (reasons||[]).forEach(x=>{const i=byId(x.id);i.why=i.why||{};i.why[rk()]=x.r;addLog(k,`سبب الأولوية لـ${label(i)} (ترتيب البيانات ${x.dr} ← ${x.to})`,x.r)});
     draft=null;save();render();toast('حُفظ الترتيب'+((reasons||[]).length||r?' مع الأسباب':''))};
   if(!need.length&&!closed){commit(null);return}
-  $('priTxt').textContent=need.length?'قدّمت مواقع على ترتيب البيانات (الحوادث). اكتب لكل موقع ليش هو أولوية.':'';
-  $('priRows').innerHTML=need.map(x=>`<label>${esc(label(byId(x.id)))} — ترتيب البيانات ${x.dr}، وصار ${x.to}</label><textarea rows="2" data-pri="${x.id}" placeholder="مثال: تقاطع قريب من مدرسة، وفيه شكاوى متكررة"></textarea>`).join('');
+  $('priTxt').textContent=need.length?'قدّمت مواقع على ترتيبها حسب البيانات (الحوادث). اكتب لكل موقع ليش هو أولوية — السبب للموقع كله، مو لبند.':'';
+  $('priRows').innerHTML=need.map(x=>{const it=byId(x.id);return `<label><b>${esc(label(it))}</b> (${it.lines.length} ${it.lines.length>2&&it.lines.length<11?'بنود':'بند'}) — ترتيبه حسب البيانات ${x.dr}، وصار ${x.to}</label><textarea rows="2" data-pri="${x.id}" placeholder="مثال: تقاطع قريب من مدرسة، وفيه شكاوى متكررة"></textarea>`}).join('');
   $('priGen').innerHTML=closed?`<div class="warn" style="margin-top:10px">انتهت مهلة المراجعة (${fd(w.end)}). التغييرات: ${esc(desc)}.</div><label>سبب تغيير الترتيب بعد المهلة (مطلوب)</label><textarea rows="2" id="priG"></textarea>`:'';
   $('priOk').onclick=()=>{let bad=false;const reasons=need.map(x=>{const t=$('priRows').querySelector(`[data-pri="${x.id}"]`),v=t.value.trim();t.style.borderColor=v.length<5?'var(--brick)':'';if(v.length<5)bad=true;return{...x,r:v}});
     const g=closed?$('priG').value.trim():null;if(closed&&g.length<5){$('priG').style.borderColor='var(--brick)';bad=true}
