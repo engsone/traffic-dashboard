@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>عينة — أولويات المناطق (v5)</title>
+<title>عينة — أولويات المناطق (v6)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{--blue:#407189;--brick:#A8483D;--taupe:#7B6756;--gray:#636569;--green:#3E7761;--gold:#C6A230;
@@ -166,12 +166,12 @@ ul{list-style:none;margin:0;padding:0}
 </div>
 
 <h1>أولويات المناطق — احتياجات الطرق</h1>
-<p class="sub">«التحليل والاحتياجات» يعرض المواقع حسب iRAP وحوادث الوفيات. «قائمة الأولويات المعتمدة» هي ترتيب الفريق لما يُنفّذ أولاً، لكل نوع مشروع على حدة.</p>
+<p class="sub">«التحليل والاحتياجات» يعرض المواقع حسب iRAP وحوادث الوفيات. «قائمة الأولويات المعتمدة» هي ترتيب الفريق لكل مصدر احتياج (مبادرة أو احتياج ميداني). كل بند في الاحتياج يُنفّذ بطريقة: <b>الـ21 بند</b> (مباشرة على عقد الصيانة) أو <b>الاتفاقية الإطارية</b> (طلب شراء بموافقة الوزارة).</p>
 
 <div class="switch" id="sw">
   <button data-v="an" class="on">التحليل والاحتياجات</button>
   <button data-v="pl">قائمة الأولويات المعتمدة</button>
-  <button data-v="bud">الميزانية والكميات</button>
+  <button data-v="bud">ميزانية المبادرات</button>
   <button data-v="dash" class="core-only">لوحة الكورتيم</button>
 </div>
 
@@ -180,7 +180,7 @@ ul{list-style:none;margin:0;padding:0}
   <div class="filters">
     <div class="f"><label class="h">المنطقة</label><select id="fRegion"></select></div>
     <div class="f"><label class="h">العقد</label><select id="fContract"></select></div>
-    <div class="f"><label class="h">نوع المشروع</label><select id="fProj"><option value="">الكل</option></select></div>
+    <div class="f"><label class="h">مصدر الاحتياج</label><select id="fProj"><option value="">الكل</option></select></div>
     <div class="f an-only"><label class="h">حوادث الوفيات (2023–اليوم)</label><select id="fFatal"><option value="all">الكل</option><option value="eq1">حادث وفيات واحد</option><option value="gt1">أكثر من حادث وفيات</option><option value="every">كل المواقع، ومنها التي بلا حوادث وفيات</option></select></div>
     <div class="f an-only"><label class="h">TIER</label><div class="chips" id="cTier"></div></div>
     <div class="f an-only"><label class="h">التقييم النجمي (iRAP)</label><div class="chips st" id="cStar"></div></div>
@@ -236,22 +236,23 @@ ul{list-style:none;margin:0;padding:0}
   </div>
 </section>
 
-<!-- ============ BUDGET ============ -->
+<!-- ============ BUDGET (initiatives) ============ -->
 <section id="v-bud" hidden>
   <div class="card">
     <div class="tabs" id="budTabs"></div>
-    <div class="muted" id="budCap" style="margin-bottom:10px"></div>
+    <div class="muted" id="budCap" style="margin-bottom:8px"></div>
+    <div class="row" style="margin-bottom:6px"><span class="muted" id="budForm"></span><span class="sp"></span><button class="btn ghost" id="bBudTpl">⇩ نموذج الميزانية (فارغ)</button><button class="btn pri core-only" id="bBudImp">⇧ رفع نموذج الميزانية</button></div>
     <h3>التنبيهات</h3>
     <div id="budAlerts"></div>
   </div>
   <div class="card">
-    <h3>البنود وأسعار الوحدة</h3>
-    <div class="muted" style="margin-bottom:8px">اضغط أي بند لعرض توزيعه على المناطق. أسعار «مبادرة الحواجز» افتراضية للتجربة، وأسعار الـ21 بند من جدول عقد 1202.</div>
-    <div style="overflow:auto" id="budPrices"></div>
+    <h3>المناطق — المخصص والمطلوب</h3>
+    <div class="muted" style="margin-bottom:8px">المطلوب = بنود «الاتفاقية الإطارية» في قائمة أولويات المنطقة (الكمية × سعر الوحدة). بنود الـ21 بند تُحسب على عقد الصيانة ولا تُخصم من المبادرة. اضغط منطقة لعرض بنودها.</div>
+    <div style="overflow:auto" id="budRegs"></div>
   </div>
   <div class="card">
     <h3 id="budItemH"></h3>
-    <div style="overflow:auto" id="budRegions"></div>
+    <div style="overflow:auto" id="budItems"></div>
   </div>
   <div class="card log">
     <h3>سجل تعديلات الميزانية</h3>
@@ -265,17 +266,17 @@ ul{list-style:none;margin:0;padding:0}
     <div class="bh"><h3>لوحة الكورتيم — كل الاحتياجات في كل المناطق</h3><span class="sp"></span><button class="btn ghost" id="dClear">مسح الفلاتر</button><button class="btn pri" id="dExpAll">⇩ تصدير كل النتائج</button></div>
     <div class="dash-f">
       <div class="f"><label class="h">المنطقة</label><select id="dReg"></select></div>
-      <div class="f"><label class="h">نوع المشروع</label><select id="dProg"></select></div>
-      <div class="f"><label class="h">نوع التحسين</label><select id="dKind"><option value="">الكل</option><option value="partial">تحسين جزئي</option><option value="root">تحسين جذري</option></select></div>
-      <div class="f"><label class="h">نوع الاحتياج</label><select id="dNeed"></select></div>
+      <div class="f"><label class="h">مصدر الاحتياج</label><select id="dProg"></select></div>
+      <div class="f"><label class="h">طريقة التنفيذ</label><select id="dKind"><option value="">الكل</option><option value="21">الـ21 بند فقط</option><option value="fw">الاتفاقية الإطارية فقط</option><option value="mix">مقسّم بين الاثنين</option></select></div>
+      <div class="f"><label class="h">البند</label><select id="dNeed"></select></div>
       <div class="f"><label class="h">الحالة</label><select id="dSt"></select></div>
       <div class="f"><label class="h">مصدر الاحتياج</label><select id="dSrc"><option value="">الكل</option><option value="irap">من التحليل (iRAP والحوادث)</option><option value="field">احتياج ميداني أو ملف</option></select></div>
     </div>
   </div>
   <div class="kpis" id="dKpis" style="margin-bottom:12px"></div>
   <div class="card"><div class="bh"><h3>حسب المنطقة</h3><span class="sp"></span><button class="btn ghost" data-dx="reg">⇩ Excel</button></div><div style="overflow:auto" id="dByReg"></div></div>
-  <div class="card"><div class="bh"><h3>حسب نوع المشروع</h3><span class="sp"></span><button class="btn ghost" data-dx="prog">⇩ Excel</button></div><div style="overflow:auto" id="dByProg"></div></div>
-  <div class="card"><div class="bh"><h3>حسب نوع الاحتياج (البند)</h3><span class="sp"></span><button class="btn ghost" data-dx="need">⇩ Excel</button></div><div style="overflow:auto" id="dByNeed"></div></div>
+  <div class="card"><div class="bh"><h3>حسب مصدر الاحتياج</h3><span class="sp"></span><button class="btn ghost" data-dx="prog">⇩ Excel</button></div><div style="overflow:auto" id="dByProg"></div></div>
+  <div class="card"><div class="bh"><h3>حسب البند وطريقة التنفيذ</h3><span class="sp"></span><button class="btn ghost" data-dx="need">⇩ Excel</button></div><div style="overflow:auto" id="dByNeed"></div></div>
   <div class="card"><div class="bh"><h3 id="dListH">النتائج</h3><span class="sp"></span><button class="btn ghost" data-dx="list">⇩ Excel</button></div><div style="overflow:auto;max-height:520px" id="dList"></div></div>
 </section>
 
@@ -307,23 +308,18 @@ ul{list-style:none;margin:0;padding:0}
   </div>
   <button class="mini" id="bGeo">📍 استخدم موقعي الحالي</button>
   <div class="sec">الاحتياج</div>
-  <label>نوع التحسين</label>
-  <div class="seg" id="iKind"><button data-k="partial">تحسين جزئي</button><button data-k="root">تحسين جذري</button></div>
+  <label>مصدر الاحتياج</label><select id="iProg"></select>
   <div class="hintbox" id="kindHint"></div>
-  <div class="g2">
-    <div><label>نوع المشروع</label><select id="iProg"></select></div>
-    <div><label>الحالة</label><select id="iSt"><option value="new">لم يتم رفع الاحتياج ضمن أي مشروع</option><option value="sent">تم رفع الاحتياج ضمن المشروع</option></select></div>
-  </div>
-  <div id="freeBox"><div class="g2"><div><label>نوع التدخل</label><select id="iType"></select></div><div><label>القيمة التقديرية (ر.س)</label><input id="iVal" type="number" min="0"></div></div></div>
   <div id="catBox">
-    <label id="catL">البنود — اختر بنداً أو أكثر، ولكل بند كميته</label>
-    <div id="lines"></div>
+    <label>البنود — اختر بنداً أو أكثر، ولكل بند كميته وطريقة تنفيذه</label>
+    <input id="iSearch" placeholder="ابحث عن بند: حاجز، دهان، عيون قطط، لوحات…" style="width:100%;margin-bottom:4px">
+    <div id="lines" style="max-height:420px;overflow:auto"></div>
     <div class="okm" id="iTot" style="margin-top:8px"></div>
   </div>
   <label>تفاصيل الاحتياج (مطلوب)</label>
   <textarea id="iDet" rows="3"></textarea>
-  <div class="muted" style="margin-top:8px" id="addHint">الاحتياج الجديد يُضاف في آخر قائمة أولويات مشروعه. «تم التنفيذ» لا يُختار هنا: يُسجَّل من زر «تسجيل التنفيذ» مع صور قبل وبعد.</div>
-  <div class="row" style="margin-top:14px"><button class="mini del" id="iDel" hidden>حذف الاحتياج</button><button class="btn ghost" id="iSub" hidden>+ تنفيذ جزئي مؤقت ضمن الـ21 بند</button><span class="sp"></span><button class="btn ghost" data-close>إلغاء</button><button class="btn pri" id="iSave">حفظ</button></div>
+  <div class="muted" style="margin-top:8px" id="addHint">الاحتياج الجديد يُضاف في آخر قائمة أولويات مشروعه. حالة كل بند (رُفع / وُجّه) تُحدَّد مع البند. «نُفّذ» يُسجَّل من زر «تسجيل التنفيذ» مع صور قبل وبعد.</div>
+  <div class="row" style="margin-top:14px"><button class="mini del" id="iDel" hidden>حذف الاحتياج</button><span class="sp"></span><button class="btn ghost" data-close>إلغاء</button><button class="btn pri" id="iSave">حفظ</button></div>
 </div></div>
 
 <!-- execution (before / after) -->
@@ -358,7 +354,7 @@ ul{list-style:none;margin:0;padding:0}
 
 <!-- partial within root: executed / remaining -->
 <div class="ov" id="ovPart"><div class="mod" style="max-width:700px">
-  <h3 id="ptH">التنفيذ الجزئي ضمن الـ21 بند</h3>
+  <h3 id="ptH">المنفّذ والمتبقي</h3>
   <div id="ptBody"></div>
   <div class="row" style="margin-top:14px"><span class="sp"></span><button class="btn ghost" data-close>إغلاق</button></div>
 </div></div>
@@ -383,7 +379,7 @@ ul{list-style:none;margin:0;padding:0}
 <!-- import -->
 <div class="ov" id="ovImp"><div class="mod">
   <h3>استيراد قائمة أولويات من ملف</h3>
-  <div class="muted">مثل ملف «مبادرة الحواجز» المرتب لكل منطقة. Excel أو CSV، صف العناوين في الأول. الأعمدة: نوع المشروع، المنطقة، ترتيب الأولوية، البند أو نوع التدخل، الكمية، رقم الطريق، من كم، إلى كم، خط العرض، خط الطول، العقد، القيمة التقديرية، تفاصيل الاحتياج.</div>
+  <div class="muted">مثل ملف «مبادرة الحواجز» المرتب لكل منطقة. Excel أو CSV، صف العناوين في الأول. الأعمدة: مصدر الاحتياج، المنطقة، ترتيب الأولوية، رقم البند أو اسمه، الكمية، طريقة التنفيذ (21 بند / إطارية — اختياري)، رقم الطريق، من كم، إلى كم، خط العرض، خط الطول، العقد، تفاصيل الاحتياج. الصفوف بنفس الموقع والطريق تُجمع في احتياج واحد.</div>
   <div class="muted" style="margin-top:6px">الترتيب داخل كل منطقة من عمود «ترتيب الأولوية» (أو ترتيب الصفوف). إذا كانت قائمة المنطقة لهذا النوع فارغة، تبدأ مهلة المراجعة 7 أيام من اليوم. وإن كان فيها بنود، تُضاف الجديدة في آخرها. الصف بلا إحداثيات يُستورد ويظهر عليه «بلا إحداثيات» حتى تُستكمل.</div>
   <div class="row" style="margin-top:8px"><button class="mini" id="bTpl">⇩ تنزيل نموذج الملف</button></div>
   <div class="drop" id="drop">اسحب الملف هنا أو اضغط للاختيار<br><span class="muted">.xlsx · .xls · .csv</span></div>
@@ -393,61 +389,68 @@ ul{list-style:none;margin:0;padding:0}
   <div class="row" style="margin-top:14px"><span class="sp"></span><button class="btn ghost" data-close>إلغاء</button><button class="btn pri" id="impOk" disabled>استيراد</button></div>
 </div></div>
 
+<!-- budget form import -->
+<div class="ov" id="ovBud"><div class="mod">
+  <h3>رفع نموذج ميزانية المبادرة</h3>
+  <div class="muted">نموذج Excel يعبّيه الكورتيم لكل المناطق ثم يُرفع هنا، وتتحدث صفحة الميزانية منه. الأعمدة: المبادرة، المنطقة، رقم البند، البند، الكمية، سعر الوحدة، المبلغ (ر.س). صف بلا رقم بند = المبلغ المخصص للمنطقة كاملاً. صف ببند = كمية ذلك البند ومبلغه.</div>
+  <div class="drop" id="bdrop">اسحب ملف النموذج هنا أو اضغط للاختيار<br><span class="muted">.xlsx · .xls · .csv</span></div>
+  <input type="file" id="bfile" accept=".xlsx,.xls,.csv" hidden>
+  <div id="bMsg" style="margin-top:10px"></div>
+  <div class="prev" id="bPrev" hidden></div>
+  <div class="row" style="margin-top:14px"><span class="sp"></span><button class="btn ghost" data-close>إلغاء</button><button class="btn pri" id="bOk" disabled>تحديث الميزانية</button></div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 <script>
 const TODAY_ISO='2026-11-16';
-const KEY='rsh_priorities_demo_v5';
-const PROGS=['المبادرات','الاتفاقية الإطارية','21 بند'];
+const KEY='rsh_priorities_demo_v6';
+// sources of needs: ministerial initiatives (budget envelope) or a plain field need
+const SRCS=['مبادرة الحواجز','مبادرة السياج','مبادرة التقاطعات','احتياج ميداني'];
+const INITS=SRCS.slice(0,3);
+const isInit=s=>INITS.includes(s);
 const REGIONS=['الرياض','الشرقية','مكة المكرمة','المدينة المنورة','القصيم','حائل','عسير','جازان','الباحة','نجران','تبوك','الجوف','الحدود الشمالية'];
 const CONTRACTS={'عسير':['801','802','803','804'],'تبوك':['1201','1202','1203']};
-const TYPES=['تحسين تقاطع','تحسين فتحة دوران','تحسين امتداد طريق','إنارة','تنفيذ حواجز'];
-const CAT21=[
- {no:'6010103',name:'الحواجز المعدنية',unit:'متر طولي',price:379.5},
- {no:'601055201',name:'نهايات الحواجز المعدنية (الأنواع 1، 3، 4)',unit:'وحدة',price:2530},
- {no:'6110503',name:'سياج سلك عالي الشد النوع 3',unit:'متر طولي',price:207},
- {no:'6110501',name:'سياج سلك عالي الشد النوع 1',unit:'متر طولي',price:264.5},
- {no:'90501',name:'ألواح إشارات الطرق',unit:'متر مربع',price:747.5},
- {no:'9050301',name:'حوامل إشارات (قابلة للانفصال) عمود واحد I.P.E',unit:'كجم',price:29.9},
- {no:'90504',name:'حوامل إشارات (قابلة للانفصال) أنبوبية',unit:'وحدة',price:517.5},
- {no:'9030301',name:'خطوط مرور بيضاء عاكسة بلاستيكية حرارية',unit:'متر مربع',price:32.2},
- {no:'9030302',name:'خطوط مرور صفراء عاكسة بلاستيكية حرارية',unit:'متر مربع',price:32.2}];
-const CATB=[
- {no:'B-01',name:'حواجز خرسانية (نيوجيرسي) — وجه واحد',unit:'متر طولي',price:450},
- {no:'B-02',name:'حواجز خرسانية (نيوجيرسي) — وجهان',unit:'متر طولي',price:520},
- {no:'B-03',name:'حواجز معدنية',unit:'متر طولي',price:379.5},
- {no:'B-04',name:'نهايات حواجز معدنية',unit:'وحدة',price:2530},
- {no:'B-05',name:'وسائد امتصاص الصدمات',unit:'وحدة',price:35000}];
-const CATS={'21 بند':CAT21,'المبادرات':CATB};
-const CATNAME={'21 بند':'بنود السلامة في الـ21 بند','المبادرات':'مبادرة الحواجز'};
-const ROOT_PROGS=['المبادرات','الاتفاقية الإطارية'];
-const kindOf=p=>p==='21 بند'?'partial':'root';
-const progName=p=>p==='21 بند'?'الـ21 بند':p;
-// side, as in iRAP
+// safety items from «جدول كميات الاتفاقية الإطارية لأعمال الصيانة الوقائية — منطقة تبوك» (unit price, SAR)
+const FW=[
+ ['4050100','الترقيعات الأسفلتية','متر مربع',42],['41102','كشط طبقة الرصف الأسفلتية','متر مكعب',120],['405010201','طبقة أساس أسفلتية ساخنة (64H-10)','متر مكعب',685],['4050601','طبقة مايكروسيرفسنج','متر مربع',22],
+ ['90402','مطبات تنبيه على الأكتاف (كشط)','متر طولي',7],['90401','مطبات صناعية أسفلتية مع الدهان','متر مربع',172],['9040201','مطبات صناعية مشطية نوع (أ)','متر مربع',132],
+ ['60101','حواجز معدنية واقية','متر طولي',320],['6010103','حواجز معدنية واقية (ميجاريل)','متر طولي',458],['60103','حاجز كيبلي','متر طولي',242],
+ ['6010551','نهايات الحواجز المعدنية — الأنواع 2، 5','وحدة',3560],['6010552','نهايات الحواجز المعدنية — الأنواع 1، 3، 4','وحدة',4040],['6030406','تعديل نهايات الحواجز المعدنية','متر طولي',868],
+ ['6011401','حاجز خرساني نيوجيرسي — وجه واحد','متر طولي',500],['6011402','حاجز خرساني نيوجيرسي — وجه مزدوج','متر طولي',520],['60115','حاجز خرساني نيوجيرسي — مقطع نهائي','وحدة',3820],
+ ['6011801','جهاز تخفيف صدمات','وحدة',83470],['6011802','حاويات بلاستيكية معبأة بالرمل لتخفيف الصدمات','وحدة',265],['6012001','مانع الإبهار','متر طولي',190],['60155','درابزين معدني للمشاة','متر طولي',405],
+ ['61102','سياج شبكي','متر طولي',172],['61105','سياج سلك عالي الشد','متر طولي',112],['6110501','سياج سلك عالي الشد النوع 1','متر طولي',80],['6110503','سياج سلك عالي الشد النوع 3','متر طولي',103],['69396939','الساتر المعدني لمعابر الجمال','متر طولي',172],
+ ['9030301','خطوط مرور بيضاء عاكسة بلاستيكية حرارية','متر مربع',30],['9030302','خطوط مرور صفراء عاكسة بلاستيكية حرارية','متر مربع',30],['9030303','أمشاط تحذيرية بلاستيكية حرارية عاكسة','متر مربع',128],['90304','علامات تحكم بالمرور عاكسة (أسهم وكتابات)','متر مربع',102],
+ ['9030701','عيون قطط ألومنيوم نوع (أ)','وحدة',30],['9030711','عيون قطط تعمل بالطاقة الشمسية','وحدة',112],
+ ['90501','ألواح إشارات الطرق','متر مربع',780],['90502','إشارات تحذيرية تعمل بالطاقة الشمسية','متر مربع',1255],['90507','إشارات طرق علوية','متر مربع',833],['90504','حوامل إشارات (قابلة للانفصال) أنبوبية','وحدة',528],['9050301','حوامل إشارات (قابلة للانفصال) عمود واحد I.P.E','كجم',18],
+ ['90508','عواكس للحواجز والجدران','وحدة',18],['90558','الأعمدة المرنة العاكسة','وحدة',138],['90702','علامات عاكسة للسياج','وحدة',38]
+].map(([no,name,unit,price])=>({no,name,unit,price}));
+// the 21 items (safety ones, yellow) — direct execution on the maintenance contract; prices of contract 1202
+const P21={'6010103':379.5,'6010552':2530,'6110503':207,'6110501':264.5,'90501':747.5,'9050301':29.9,'90504':517.5,'9030301':32.2,'9030302':32.2};
+const CODE21={'6010552':'601055201'};
+const in21=no=>no in P21;
 const SIDE3=['اتجاه الراكب','اتجاه السائق','كلا الاتجاهين'];
 const SPEC=[
- {codes:['90501'],signs:true,ph:'مثال: لوحات تحذير منحنى خطر قبل كم 120+300 بالاتجاهين، ولوحة تحديد سرعة 80.'},
+ {codes:['90501','90502','90507'],signs:true,ph:'مثال: لوحات تحذير منحنى خطر قبل كم 120+300 بالاتجاهين، ولوحة تحديد سرعة 80.'},
  {codes:['9030301','9030302'],ph:'مثال: إعادة دهان خط الحافة كامل القطاع، ومنطقة منع تجاوز عند المنحنى كم 121+200.',fields:[
-   {k:'line',l:'نوع الخط',o:['خط حافة','خط فاصل متقطع','خط متصل (منع تجاوز)','منطقة منع تجاوز مخططة','أسهم وكتابات']},
+   {k:'line',l:'نوع الخط',o:['خط حافة','خط فاصل متقطع','خط متصل (منع تجاوز)','منطقة منع تجاوز مخططة']},
    {k:'width',l:'عرض الخط',o:['10 سم','15 سم','20 سم','30 سم']},
    {k:'scope',l:'النطاق',o:['كامل القطاع','أجزاء محددة (اذكرها في التفاصيل)']}]},
- {codes:['6010103','B-01','B-02','B-03'],ph:'مثال: حماية منحدر جانبي ارتفاعه 4 م من كم 120+100 إلى 120+500 اتجاه الراكب.',fields:[
+ {codes:['60101','6010103','60103','6011401','6011402'],ph:'مثال: حماية منحدر جانبي ارتفاعه 4 م من كم 120+100 إلى 120+500 اتجاه الراكب.',fields:[
    {k:'side',l:'الجهة (حسب iRAP)',o:[...SIDE3,'الجزيرة الوسطية']},
    {k:'why',l:'الغرض',o:['حماية منحدر جانبي','حماية عائق ثابت (عمود، جدار، شجرة)','حماية حافة عبّارة أو جسر','فصل الاتجاهين']}]},
- {codes:['601055201','B-04'],ph:'مثال: استبدال نهايتين مصدومتين عند كم 120+100 و120+500.',fields:[{k:'endType',l:'نوع النهاية',o:['النوع 1','النوع 3','النوع 4']}]},
- {codes:['6110503','6110501'],ph:'مثال: سياج مقطوع بطول 300 م يسمح بدخول الإبل.',fields:[{k:'side',l:'الجهة (حسب iRAP)',o:SIDE3}]},
+ {codes:['61102','61105','6110501','6110503','69396939'],ph:'مثال: سياج مقطوع بطول 300 م يسمح بدخول الإبل.',fields:[{k:'side',l:'الجهة (حسب iRAP)',o:SIDE3}]},
+ {codes:['6011801','6011802'],ph:'مثال: جهاز عند بداية الحاجز الخرساني أمام عمود البوابة.',fields:[{k:'loc',l:'الموقع',o:['بداية حاجز خرساني','رأس جزيرة أو مفترق','عمود بوابة لوحات']}]},
  {codes:['9050301'],ph:'مثال: أعمدة لوحات إرشادية كبيرة عند تقاطع كم 121.',fields:[{k:'posts',l:'عدد الأعمدة',num:true}]},
- {codes:['90504'],ph:'مثال: حوامل للوحات التحذيرية المطلوبة في نفس القطاع.'},
- {codes:['B-05'],ph:'مثال: وسادة عند بداية الحاجز الخرساني أمام عمود البوابة.',fields:[{k:'loc',l:'الموقع',o:['بداية حاجز خرساني','رأس جزيرة أو مفترق','عمود بوابة لوحات']}]}
 ];
 const specOf=no=>SPEC.find(s=>s.codes.includes(no))||{ph:'اكتب وش المطلوب بالضبط ووين.'};
 const SIGN_T=['تحذيرية','تنظيمية','إرشادية'];
-const TYPECLS={'تحسين تقاطع':'c-int','تحسين فتحة دوران':'c-ut','تحسين امتداد طريق':'c-rd'};
-// iRAP recommended countermeasures (illustrative) and how each maps to a project's items
-const REC={bar:{l:'حواجز جانبية',ini:'B-03',p21:'6010103'},med:{l:'فصل الاتجاهين (حاجز وسطي)',ini:'B-01'},line:{l:'تحسين الخطوط الأرضية',p21:'9030301'},sign:{l:'لوحات تحذيرية',p21:'90501'},int:{l:'تحسين تقاطع',fw:'تحسين تقاطع'},ut:{l:'تحسين فتحة دوران',fw:'تحسين فتحة دوران'}};
+// iRAP recommended countermeasures (illustrative): source + items
+const REC={bar:{l:'حواجز جانبية',src:'مبادرة الحواجز',codes:['6010103']},med:{l:'فصل الاتجاهين (حاجز وسطي)',src:'مبادرة الحواجز',codes:['6011401']},line:{l:'تحسين الخطوط الأرضية',codes:['9030301']},sign:{l:'لوحات تحذيرية',codes:['90501']},
+  int:{l:'تحسين تقاطع',src:'مبادرة التقاطعات',codes:['90501','9030301','90304']},ut:{l:'تحسين فتحة دوران',src:'مبادرة التقاطعات',codes:['9030303','90501','6011401']}};
 const ROLES={
-  insp:{name:'م. مهندس فحص (تجربة)',desc:'مهندس فحص — منطقة عسير، مسؤول عن العقدين 803 و804. يرى عقوده فقط، ويرتب أولويات عقوده ويكتب سبب الأولوية، ويعدّل احتياجات عقوده، ويسجّل التنفيذ بصور قبل وبعد.',reg:'عسير',cons:['803','804']},
-  senior:{name:'م. كبير مهندسي عسير (تجربة)',desc:'كبير مهندسين — منطقة عسير. يرتب أولويات المنطقة ككل ويكتب سبب الأولوية، ويرى ترتيب مهندس الفحص وسببه كمرجع، ويعدّل احتياجات المنطقة، ويرى ميزانية منطقته.',reg:'عسير',cons:null},
-  core:{name:'الكورتيم (تجربة)',desc:'الكورتيم — كل المناطق. «لوحة الكورتيم» بفلاتر وتصدير لكل نتيجة، ويحدد الكميات والأسعار في «الميزانية والكميات»، ويستورد القوائم. لا يغيّر الترتيب.',reg:null,cons:null}
+  insp:{name:'م. مهندس فحص (تجربة)',desc:'مهندس فحص — منطقة عسير، العقدان 803 و804. يرى عقوده فقط، ويرتب أولويات عقوده ويكتب سبب الأولوية، ويعدّل احتياجات عقوده، ويسجّل التنفيذ بصور قبل وبعد.',reg:'عسير',cons:['803','804']},
+  senior:{name:'م. كبير مهندسي عسير (تجربة)',desc:'كبير مهندسين — منطقة عسير. يرتب أولويات المنطقة ويكتب سبب الأولوية، ويرى ترتيب مهندس الفحص وسببه، ويعدّل احتياجات المنطقة، ويرى ميزانية منطقته.',reg:'عسير',cons:null},
+  core:{name:'الكورتيم (تجربة)',desc:'الكورتيم — كل المناطق. «لوحة الكورتيم» بفلاتر وتصدير، ويرفع «نموذج الميزانية» للمبادرات ويعدّل الأسعار، ويستورد القوائم. لا يغيّر الترتيب.',reg:null,cons:null}
 };
 const STAR_N=['نجمة','نجمتان','ثلاث نجوم','أربع نجوم','خمس نجوم'];
 const SITES=[
@@ -476,117 +479,110 @@ const PH=(t,c)=>'data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http:
 
 function seed(){
   let id=100;const items=[],order={},eng={},meta={};
-  const mk=(p,si,o)=>{const s=si==null?null:SITES[si];const it=Object.assign({id:++id,prog:p,reg:s?s.reg:o.reg,road:s?s.road:o.road,from:s?s.from:o.from,to:s?s.to:o.to,con:s?s.con:o.con,lat:s?s.lat:o.lat,lng:s?s.lng:o.lng,site:si,
-      snap:s?{fa:s.fa,dead:s.dead,avg:+s.avg.toFixed(1),tier:s.tier}:null,status:'new',details:'',lines:null,type:null,val:null,why:{},added:'2026-11-15'},o);
-    if(it.lines)it.lines=it.lines.map(([code,qty,spec,done])=>({code,qty,spec:spec||{},done:done||0}));
-    items.push(it);const k=it.reg+'|'+p;(order[k]=order[k]||[]).push(it.id);return it};
-  const B=(si,lines,det,o)=>mk('المبادرات',si,Object.assign({lines,details:det,added:'2026-11-15'},o||{}));
-  B(2,[['B-03',3000,{side:'كلا الاتجاهين',why:'حماية منحدر جانبي'}]],'حماية منحدرات جانبية على طول القطاع، كلا الاتجاهين.');
-  B(4,[['B-03',2200,{side:'اتجاه السائق',why:'حماية منحدر جانبي'}]],'حماية منحدر من كم 128 إلى 130.');
-  B(5,[['B-01',2500,{side:'الجزيرة الوسطية',why:'فصل الاتجاهين'}]],'فصل الاتجاهين في القطاع الجبلي.');
-  B(1,[['B-03',1800,{side:'اتجاه الراكب',why:'حماية عائق ثابت (عمود، جدار، شجرة)'}],['B-04',4,{endType:'النوع 1'}]],'حماية أعمدة إنارة وحافة عبّارة، مع نهايات الحاجز.');
-  B(3,[['B-02',1200,{side:'الجزيرة الوسطية',why:'فصل الاتجاهين'}]],'جزيرة وسطية ضيقة، حاجز بوجهين.');
-  B(6,[['B-01',1800,{side:'اتجاه الراكب',why:'حماية حافة عبّارة أو جسر'}]],'حماية جسر وحافة وادي.');
-  B(9,[['B-04',12,{endType:'النوع 1'}]],'نهايات للحواجز القائمة المكشوفة.');
-  B(16,[['B-03',1500,{side:'اتجاه الراكب',why:'حماية منحدر جانبي'}]],'حماية منحدر عند الدورانات.');
-  B(17,[['B-01',2000,{side:'الجزيرة الوسطية',why:'فصل الاتجاهين'}]],'فصل الاتجاهين.');
-  B(19,[['B-03',900,{side:'كلا الاتجاهين',why:'حماية حافة عبّارة أو جسر'}]],'حماية حافة عبّارة.');
-  B(null,[['B-03',800,{side:'اتجاه الراكب',why:'حماية منحدر جانبي'}],['B-04',4,{endType:'النوع 1'}]],'حماية منحدر حاد بعد المنحنى (من ملف مبادرة الحواجز).',{reg:'الباحة',road:'246',from:'68+369',to:'75+027',con:'1001',lat:20.0110,lng:41.4650});
-  B(null,[['B-01',900,{side:'الجزيرة الوسطية',why:'فصل الاتجاهين'}]],'فصل الاتجاهين قبل التقاطع (من ملف مبادرة الحواجز).',{reg:'حائل',road:'70',from:'320+000',to:'322+000',con:'603',lat:27.5210,lng:41.6900,status:'sent'});
-  meta['عسير|المبادرات']={start:'2026-11-15',src:'ملف مبادرة الحواجز'};meta['تبوك|المبادرات']={start:'2026-11-15',src:'ملف مبادرة الحواجز'};
-  meta['الباحة|المبادرات']={start:'2026-11-15',src:'ملف مبادرة الحواجز'};meta['حائل|المبادرات']={start:'2026-11-15',src:'ملف مبادرة الحواجز'};
-  const F=(si,type,val,st,det,o)=>mk('الاتفاقية الإطارية',si,Object.assign({type,val,status:st,details:det,added:'2026-10-20'},o||{}));
-  F(1,'تحسين امتداد طريق',5400000,'sent','توسعة الأكتاف وتحسين المنحنيات.');
-  const ut=F(3,'تحسين فتحة دوران',900000,'sent','إغلاق فتحة غير نظامية وتنفيذ فتحة بحارة تخزين.');
-  const tj=F(7,'تحسين تقاطع',1200000,'new','تقاطع على شكل T بحاجة لحارة تباطؤ.');
-  F(0,'تحسين امتداد طريق',600000,'new','تحسين التخطيط والإنارة.');
-  F(null,'تحسين تقاطع',2700000,'new','حارة تباطؤ وإنارة عند التقاطع.',{reg:'حائل',road:'70',from:'330+000',to:'',con:'603',lat:27.4800,lng:41.7300,added:'2026-11-05'});
-  meta['عسير|الاتفاقية الإطارية']={start:'2026-10-20',src:'إدخال يدوي'};meta['حائل|الاتفاقية الإطارية']={start:'2026-11-05',src:'إدخال يدوي'};
-  const P=(si,lines,st,det,o)=>mk('21 بند',si,Object.assign({lines,status:st,details:det,added:'2026-11-10'},o||{}));
-  const d0=P(0,[['6010103',400,{side:'اتجاه الراكب',why:'حماية منحدر جانبي'},400]],'done','حماية منحدر جانبي اتجاه الراكب.');
+  // L(code,qty,ch,st,done,spec)
+  const L=(code,qty,ch,st,done,spec)=>({code,qty,ch:ch||(in21(code)?'21':'fw'),st:st||'new',done:done||0,spec:spec||{}});
+  const mk=(src,si,lines,det,o)=>{const s=si==null?null:SITES[si];const it=Object.assign({id:++id,src,reg:s?s.reg:o.reg,road:s?s.road:o.road,from:s?s.from:o.from,to:s?s.to:o.to,con:s?s.con:o.con,lat:s?s.lat:o.lat,lng:s?s.lng:o.lng,site:si,
+      snap:s?{fa:s.fa,dead:s.dead,avg:+s.avg.toFixed(1),tier:s.tier}:null,lines,details:det,why:{},added:'2026-11-15'},o||{});items.push(it);(order[it.reg]=order[it.reg]||[]).push(it.id);return it};
+  const sd={side:'كلا الاتجاهين',why:'حماية منحدر جانبي'};
+  const B='مبادرة الحواجز',I='مبادرة التقاطعات',F='مبادرة السياج',N='احتياج ميداني';
+  mk(B,2,[L('6010103',3000,'fw','new',0,sd)],'حماية منحدرات جانبية على طول القطاع، كلا الاتجاهين.');
+  mk(B,4,[L('6010103',2200,'fw','new',0,{side:'اتجاه السائق',why:'حماية منحدر جانبي'})],'حماية منحدر من كم 128 إلى 130.');
+  mk(B,5,[L('6011401',2500,'fw','new',0,{side:'الجزيرة الوسطية',why:'فصل الاتجاهين'})],'فصل الاتجاهين في القطاع الجبلي.');
+  mk(B,1,[L('6010103',1800,'fw','sent',0,{side:'اتجاه الراكب',why:'حماية عائق ثابت (عمود، جدار، شجرة)'}),L('6010552',4,'fw','sent'),L('9030301',600,'21','sent',0,{line:'خط حافة',width:'15 سم',scope:'كامل القطاع'})],'حماية أعمدة إنارة وحافة عبّارة مع النهايات، وإعادة دهان خط الحافة.');
+  mk(B,3,[L('6011402',1200,'fw','new',0,{side:'الجزيرة الوسطية',why:'فصل الاتجاهين'})],'جزيرة وسطية ضيقة، حاجز بوجهين.');
+  mk(B,6,[L('6011401',1800,'fw','new',0,{side:'اتجاه الراكب',why:'حماية حافة عبّارة أو جسر'})],'حماية جسر وحافة وادي.');
+  mk(B,9,[L('6010552',12,'21','sent')],'نهايات للحواجز القائمة المكشوفة — كمية صغيرة، تُنفّذ بالـ21 بند.');
+  mk(B,16,[L('6010103',1500,'fw','new',0,{side:'اتجاه الراكب',why:'حماية منحدر جانبي'})],'حماية منحدر عند الدورانات.');
+  mk(B,17,[L('6011401',2000,'fw','new',0,{side:'الجزيرة الوسطية',why:'فصل الاتجاهين'})],'فصل الاتجاهين.');
+  mk(B,19,[L('6010103',900,'fw','new',0,{side:'كلا الاتجاهين',why:'حماية حافة عبّارة أو جسر'})],'حماية حافة عبّارة.');
+  mk(B,null,[L('6010103',800,'fw','new',0,{side:'اتجاه الراكب',why:'حماية منحدر جانبي'}),L('6010552',4,'fw')],'حماية منحدر حاد بعد المنحنى (من ملف مبادرة الحواجز).',{reg:'الباحة',road:'246',from:'68+369',to:'75+027',con:'1001',lat:20.0110,lng:41.4650});
+  mk(B,null,[L('6011401',900,'fw','sent',0,{side:'الجزيرة الوسطية',why:'فصل الاتجاهين'})],'فصل الاتجاهين قبل التقاطع (من ملف مبادرة الحواجز).',{reg:'حائل',road:'70',from:'320+000',to:'322+000',con:'603',lat:27.5210,lng:41.6900});
+  const tj=mk(I,7,[L('90501',12,'21','new',0,{signs:[{t:'تحذيرية',n:4,a:2},{t:'إرشادية',n:2,a:2}]}),L('9030301',400,'21','new',0,{line:'خط متصل (منع تجاوز)',width:'15 سم',scope:'أجزاء محددة (اذكرها في التفاصيل)'}),L('90304',40,'fw')],'تقاطع على شكل T: لوحات تحذير وخطوط منع تجاوز وأسهم.',{added:'2026-10-20'});
+  // Talal's example: part done by the 21 items, the rest raised in the framework agreement
+  const ut=mk(I,3,[L('9030301',300,'21','done',300,{line:'خط متصل (منع تجاوز)',width:'15 سم',scope:'أجزاء محددة (اذكرها في التفاصيل)'}),L('90501',9,'21','sent',0,{signs:[{t:'تحذيرية',n:6,a:1.5}]}),L('9030303',60,'fw','sent'),L('6011401',200,'fw','sent',0,{side:'الجزيرة الوسطية',why:'فصل الاتجاهين'})],'فتحة دوران غير نظامية: الدهانات نُفّذت بالـ21 بند، والأمشاط والحاجز الخرساني رُفعت بالاتفاقية الإطارية.',{added:'2026-10-20'});
+  ut.exec={before:PH('قبل — صورة توضيحية','#7B6756'),after:PH('بعد — صورة توضيحية','#3E7761'),date:'2026-11-14',ach:true,by:'م. مهندس فحص (تجربة)'};
+  mk(I,null,[L('90501',20,'fw','new',0,{signs:[{t:'إرشادية',n:4,a:5}]}),L('6011802',12,'fw')],'حارة تباطؤ وإنارة ولوحات عند التقاطع.',{reg:'حائل',road:'70',from:'330+000',to:'',con:'603',lat:27.4800,lng:41.7300,added:'2026-11-05'});
+  mk(F,8,[L('61105',2000,'fw','new',0,{side:'كلا الاتجاهين'})],'سياج سلكي مقطوع يسمح بدخول الإبل على طول القطاع.');
+  mk(F,18,[L('61102',800,'fw','new',0,{side:'اتجاه الراكب'})],'سياج شبكي عند التقاطع.');
+  const d0=mk(N,0,[L('6010103',400,'21','done',400,{side:'اتجاه الراكب',why:'حماية منحدر جانبي'})],'حماية منحدر جانبي اتجاه الراكب.',{added:'2026-11-10'});
   d0.exec={before:PH('قبل — صورة توضيحية','#7B6756'),after:PH('بعد — صورة توضيحية','#3E7761'),date:'2026-11-12',ach:true,by:'م. مهندس فحص (تجربة)'};
-  P(5,[['90501',24,{signs:[{t:'تحذيرية',n:6,a:2},{t:'تنظيمية',n:4,a:1.5},{t:'إرشادية',n:2,a:3}]}],['90504',6,{}]],'new','لوحات منحنيات وسرعة قبل المنحدر، مع الحوامل.');
-  P(13,[['9030301',1500,{line:'خط حافة',width:'15 سم',scope:'كامل القطاع'}]],'sent','خط الحافة كامل القطاع.');
-  P(2,[['601055201',6,{endType:'النوع 1'}]],'new','نهايات حواجز مصدومة.');
-  // partial within a framework-agreement project (Talal #5)
-  const ch=P(3,[['90501',9,{signs:[{t:'تحذيرية',n:6,a:1.5}]},0],['9030301',300,{line:'خط متصل (منع تجاوز)',width:'15 سم',scope:'أجزاء محددة (اذكرها في التفاصيل)'},300]],'sent','تنفيذ مؤقت لحين مشروع الاتفاقية الإطارية: خط منع تجاوز عند الفتحة ولوحات تحذير قبلها.',{added:'2026-11-11',parent:ut.id});
-  ch.exec={before:PH('قبل — صورة توضيحية','#7B6756'),after:PH('بعد — صورة توضيحية','#3E7761'),date:'2026-11-14',ach:true,by:'م. مهندس فحص (تجربة)'};ut.child=ch.id;
-  P(16,[['6010103',600,{side:'اتجاه الراكب',why:'حماية منحدر جانبي'}]],'sent','حماية منحدر عند الدوران.',{added:'2026-11-12'});
-  meta['عسير|21 بند']={start:'2026-11-10',src:'ملف 21 بند'};meta['تبوك|21 بند']={start:'2026-11-12',src:'إدخال يدوي'};
-  // priority reasons (Talal #9)
+  mk(N,5,[L('90501',24,'21','new',0,{signs:[{t:'تحذيرية',n:6,a:2},{t:'تنظيمية',n:4,a:1.5},{t:'إرشادية',n:2,a:3}]}),L('90504',6,'21')],'لوحات منحنيات وسرعة قبل المنحدر، مع الحوامل.',{added:'2026-11-10'});
+  mk(N,13,[L('9030301',1500,'21','sent',0,{line:'خط حافة',width:'15 سم',scope:'كامل القطاع'})],'خط الحافة كامل القطاع.',{added:'2026-11-10'});
+  mk(N,16,[L('6010103',600,'21','sent',0,{side:'اتجاه الراكب',why:'حماية منحدر جانبي'})],'حماية منحدر عند الدوران.',{added:'2026-11-12'});
   tj.why={senior:'تقاطع قريب من مدرسة، وفيه شكاوى متكررة من البلدية — يتقدم على مواقع أكثر حوادث.'};
-  const fw=order['عسير|الاتفاقية الإطارية'];fw.splice(fw.indexOf(tj.id),1);fw.unshift(tj.id);
-  const budget={};
-  [['المبادرات',CATB],['21 بند',CAT21]].forEach(([p,c])=>{budget[p]={price:{},alloc:{}};c.forEach(x=>budget[p].price[x.no]=x.price)});
-  budget['المبادرات'].alloc={'عسير':{'B-01':4000,'B-02':1500,'B-03':8000,'B-04':20,'B-05':4},'تبوك':{'B-01':2000,'B-03':2400,'B-04':10},'الباحة':{'B-03':1500,'B-04':8},'حائل':{'B-01':1000,'B-03':1200}};
-  budget['21 بند'].alloc={'عسير':{'6010103':600,'601055201':10,'6110503':500,'6110501':300,'90501':40,'9050301':300,'90504':20,'9030301':2000,'9030302':1500},'تبوك':{'6010103':800,'90501':30,'9030301':3000,'9030302':1000}};
+  // one priority list per region, ranked by the senior engineer (sources mixed)
+  const as=order['عسير'],pick=f=>as.find(id=>f(items.find(x=>x.id===id)));
+  const want=[tj.id,pick(i=>i.site===2),pick(i=>i.site===1&&i.src==='مبادرة الحواجز'),ut.id,pick(i=>i.site===4),d0.id];
+  order['عسير']=[...want,...as.filter(id=>!want.includes(id))];
+  Object.keys(order).forEach(k=>meta[k]={start:'2026-11-15',src:'ملف مبادرة الحواجز + إدخال يدوي'});
+  // initiative budgets (as if uploaded from the budget form): envelope per region + item quantities
+  const env={'الرياض':150e6,'الشرقية':120e6,'مكة المكرمة':130e6,'المدينة المنورة':80e6,'القصيم':70e6,'حائل':60e6,'عسير':110e6,'جازان':75e6,'الباحة':45e6,'نجران':50e6,'تبوك':29e6,'الجوف':40e6,'الحدود الشمالية':41e6};
+  const budget={'مبادرة الحواجز':{env,alloc:{'عسير':{'6011401':4000,'6011402':1500,'6010103':8000,'6010552':20,'6011801':4},'تبوك':{'6011401':2000,'6010103':2400,'6010552':10},'الباحة':{'6010103':1500,'6010552':8},'حائل':{'6011401':1000,'6010103':1200}},form:{d:'2026-11-12',f:'نموذج_ميزانية_مبادرة_الحواجز.xlsx',total:1e9}},
+    'مبادرة السياج':{env:{'عسير':25e6,'تبوك':18e6},alloc:{'عسير':{'61105':5000}},form:null},
+    'مبادرة التقاطعات':{env:{'عسير':60e6,'حائل':35e6,'تبوك':40e6},alloc:{},form:null}};
+  const prices={};FW.forEach(c=>prices[c.no]=c.price);
   const logs=[
-   {k:'عسير|المبادرات',w:'الكورتيم',d:'2026-11-15',t:'استورد ملف مبادرة الحواجز: 7 بنود بترتيب الملف. بدأت مهلة المراجعة حتى 22/11/2026'},
-   {k:'تبوك|المبادرات',w:'الكورتيم',d:'2026-11-15',t:'استورد ملف مبادرة الحواجز: 3 بنود بترتيب الملف. بدأت مهلة المراجعة حتى 22/11/2026'},
-   {k:'عسير|الاتفاقية الإطارية',w:'م. كبير مهندسي عسير',d:'2026-11-03',t:'حفظ ترتيب المنطقة: «تحسين تقاطع — طريق 30» من 3 إلى 1',r:'تقاطع قريب من مدرسة، وفيه شكاوى متكررة من البلدية'},
-   {k:'عسير|21 بند',w:'م. مهندس فحص (تجربة)',d:'2026-11-14',t:'سجّل تنفيذاً جزئياً لـ«ألواح إشارات الطرق + 1 — طريق 255» (تنفيذ مؤقت لمشروع الاتفاقية الإطارية)'}];
-  return {seq:id,items,order,eng,meta,logs,budget,blog:[{w:'الكورتيم',d:'2026-11-12',t:'حدّد كميات مبادرة الحواجز للمناطق الأربع'}]};
+   {k:'عسير',w:'الكورتيم',d:'2026-11-15',t:'استورد ملف مبادرة الحواجز: أُضيفت احتياجاته في قائمة المنطقة بترتيب الملف. بدأت مهلة المراجعة حتى 22/11/2026'},
+   {k:'عسير',w:'م. كبير مهندسي عسير',d:'2026-11-15',t:'حفظ ترتيب المنطقة: «ألواح إشارات الطرق + 2 — طريق 30» من 14 إلى 1',r:'تقاطع قريب من مدرسة، وفيه شكاوى متكررة من البلدية'},
+   {k:'عسير',w:'م. مهندس فحص (تجربة)',d:'2026-11-14',t:'سجّل تنفيذ الدهانات بالـ21 بند لفتحة الدوران — طريق 255، والباقي مرفوع بالاتفاقية الإطارية'}];
+  return {seq:id,items,order,eng,meta,logs,budget,prices,blog:[{w:'الكورتيم',d:'2026-11-12',t:'رفع نموذج ميزانية مبادرة الحواجز: مليار ريال على 13 منطقة، وكميات البنود لأربع مناطق'}]};
 }
 let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!S||!S.items||!S.budget)S=seed();
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('مساحة المتصفح امتلأت — امسح تجاربك أو صوراً أقل حجماً')}};
-let role='senior',view='an',reg='عسير',con='',proj='',fatal='all',tiers=[1,2],stars=[1,2,3],sortBy='fatal',plProg='المبادرات',draft=null,conCard=null,budProg='المبادرات',budItem=null;
+let role='senior',view='an',reg='عسير',con='',proj='',fatal='all',tiers=[1,2],stars=[1,2,3],sortBy='fatal',plProg='',plCh='',draft=null,conCard=null,budProg='مبادرة الحواجز',budReg=null;
 const DF={reg:'',prog:'',kind:'',need:'',st:'',src:''};let df={...DF};
 try{const r=localStorage.getItem(KEY+'_role');if(ROLES[r])role=r}catch(e){}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const fmt=v=>!v?'—':v>=1e6?(v/1e6).toFixed(2).replace(/\.?0+$/,'')+' مليون':Math.round(v/1e3)+' ألف';
+const fmt=v=>!v?'—':Math.abs(v)>=1e9?(v/1e9).toFixed(2).replace(/\.?0+$/,'')+' مليار':Math.abs(v)>=1e6?(v/1e6).toFixed(2).replace(/\.?0+$/,'')+' مليون':Math.round(v/1e3)+' ألف';
 const num=v=>(+v||0).toLocaleString('en-US',{maximumFractionDigits:2});
 const fd=d=>{const x=new Date(d);return x.getDate()+'/'+(x.getMonth()+1)+'/'+x.getFullYear()};
 const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
 const today=()=>$('simLate').checked?addDays(TODAY_ISO,8):TODAY_ISO;
 const plural=(n,a,b,c,d)=>n===1?a:n===2?b:(n%100>=3&&n%100<=10)?n+' '+c:n+' '+(d||c);
 const byId=id=>S.items.find(i=>i.id===id);
-const isCat=i=>!!CATS[i.prog]&&Array.isArray(i.lines);
-const priceOf=(p,no)=>+(S.budget[p]&&S.budget[p].price[no])||0;
-const catItem=(p,no)=>(CATS[p]||[]).find(c=>c.no===no);
-const lname=(p,l)=>(catItem(p,l.code)||{name:l.code}).name;
-const titleOf=i=>isCat(i)?i.lines.map(l=>lname(i.prog,l)).join(' + '):i.type;
-const label=i=>`«${isCat(i)?lname(i.prog,i.lines[0])+(i.lines.length>1?' + '+(i.lines.length-1):''):i.type} — طريق ${i.road}»`;
-const valOf=i=>isCat(i)?Math.round(i.lines.reduce((a,l)=>a+(+l.qty||0)*priceOf(i.prog,l.code),0)):(+i.val||0);
+const item=no=>FW.find(c=>c.no===no)||{no,name:no,unit:''};
+const lname=l=>item(l.code).name;
+const sname=no=>item(no).name.split(/ — | \(/)[0];
+const titleOf=i=>i.lines.map(lname).join(' + ');
+const label=i=>`«${sname(i.lines[0].code)}${i.lines.length>1?' + '+(i.lines.length-1):''} — طريق ${i.road}»`;
+const fwPrice=no=>+(S.prices[no]??item(no).price)||0;
+const lPrice=l=>l.ch==='21'?(P21[l.code]||0):fwPrice(l.code);
+const lVal=l=>(+l.qty||0)*lPrice(l);
+const valOf=i=>Math.round(i.lines.reduce((a,l)=>a+lVal(l),0));
+const fwVal=i=>Math.round(i.lines.filter(l=>l.ch==='fw').reduce((a,l)=>a+lVal(l),0));
+const chOf=i=>{const s=new Set(i.lines.map(l=>l.ch));return s.size>1?'mix':[...s][0]};
+const CH_L={'21':'الـ21 بند','fw':'الاتفاقية الإطارية','mix':'مقسّم'};
+const LST={'21':{new:'لم يُوجّه بعد',sent:'وُجّه للمقاول',done:'نُفّذ'},fw:{new:'لم يُرفع بعد',sent:'رُفع بالاتفاقية الإطارية',done:'نُفّذ'}};
 function toast(t){$('toast').textContent=t;$('toast').classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('on'),3200)}
 const R=()=>ROLES[role];
 const myCons=()=>R().cons;
 const canRank=()=>role!=='core';
 const rk=()=>role==='insp'?'insp':'senior';
-const K=(p)=>reg+'|'+(p||plProg);
+const K=()=>reg;
 const ord=k=>(S.order[k]=S.order[k]||[]);
 const engKey=k=>k+'|insp';
 function engOrd(k){const mine=ord(k).filter(id=>{const i=byId(id);return i&&ROLES.insp.cons.includes(i.con)&&i.reg===ROLES.insp.reg});const saved=(S.eng[engKey(k)]||[]).filter(id=>mine.includes(id));return saved.concat(mine.filter(id=>!saved.includes(id)))}
 function windowInfo(k){const m=S.meta[k];if(!m)return null;const end=addDays(m.start,7);const left=Math.ceil((new Date(end)-new Date(today()))/864e5);return{start:m.start,end,left,open:left>0,src:m.src}}
 function addLog(k,t,r){S.logs.push({k,w:R().name,d:today(),t,r:r||null})}
-// budget helpers (per item line)
-const alloc=(p,r,no)=>+(((S.budget[p]||{}).alloc||{})[r]||{})[no]||0;
-const linesOf=(p,r,exceptId)=>S.items.filter(i=>i.prog===p&&i.reg===r&&i.id!==exceptId&&isCat(i)).flatMap(i=>i.lines);
-const reqQty=(p,r,no,exceptId)=>linesOf(p,r,exceptId).filter(l=>l.code===no).reduce((a,l)=>a+(+l.qty||0),0);
-const doneQty=(p,r,no)=>linesOf(p,r).filter(l=>l.code===no).reduce((a,l)=>a+(+l.done||0),0);
-function budState(p,r,no){const a=alloc(p,r,no),q=reqQty(p,r,no),d=doneQty(p,r,no),w=windowInfo(r+'|'+p);
-  if(q>a)return{k:'over',t:'تجاوز',a,q,d,left:a-q};
-  if(a>0&&q<a&&w&&!w.open)return{k:'save',t:'وفر',a,q,d,left:a-q};
-  if(a>0&&q<a&&!w)return{k:'none',t:'لم تُرفع قائمة',a,q,d,left:a-q};
-  return{k:'ok',t:a?'ضمن الميزانية':'—',a,q,d,left:a-q}}
 function specText(s){s=s||{};const out=[];
   if(s.signs)out.push(s.signs.map(x=>`${x.n} ${x.t} × ${x.a} م²`).join('، '));
-  ['line','width','scope','side','why','endType','loc'].forEach(k=>s[k]&&out.push(s[k]));if(s.posts)out.push(s.posts+' أعمدة');return out.join(' · ')}
-// status (Talal #8)
-const ST_L={new:'لم يتم رفع الاحتياج ضمن أي مشروع',sent:'تم رفع الاحتياج ضمن مشروع',partial:'تم تنفيذ جزئي',p21:'تم تنفيذ جزئي ضمن الـ21 بند',done:'تم التنفيذ'};
-const ST_C={new:'var(--gray)',sent:'var(--blue)',partial:'#8a6f12',p21:'#8a6f12',done:'var(--green)'};
-function stKey(i){
-  if(i.status==='done')return'done';
-  const ch=i.child&&byId(i.child);if(ch&&(ch.status==='done'||(isCat(ch)&&ch.lines.some(l=>l.done>0))))return'p21';
-  if(isCat(i)&&i.lines.some(l=>l.done>0))return'partial';
-  return i.status==='sent'?'sent':'new'}
-const stText=i=>{const k=stKey(i);return k==='sent'?`تم رفع الاحتياج لهذا الموقع ضمن مشروع «${progName(i.prog)}»`:ST_L[k]};
+  ['line','width','scope','side','why','loc'].forEach(k=>s[k]&&out.push(s[k]));if(s.posts)out.push(s.posts+' أعمدة');return out.join(' · ')}
+// need status (Talal #8), derived from the lines
+const ST_L={new:'لم يتم رفع الاحتياج ضمن أي مشروع',sent:'تم رفع الاحتياج',partial:'تم تنفيذ جزئي',done:'تم التنفيذ'};
+const ST_C={new:'var(--gray)',sent:'var(--blue)',partial:'#8a6f12',done:'var(--green)'};
+function stKey(i){const L=i.lines;if(L.every(l=>l.st==='done'))return'done';if(L.some(l=>l.st==='done'||l.done>0))return'partial';if(L.some(l=>l.st==='sent'))return'sent';return'new'}
+function stText(i){const k=stKey(i);const grp=(f)=>{const g={};i.lines.filter(f).forEach(l=>{(g[l.ch]=g[l.ch]||[]).push(sname(l.code))});return Object.entries(g).map(([c,n])=>`${[...new Set(n)].join(' و')} ${c==='21'?'بالـ21 بند':'بالاتفاقية الإطارية'}`).join('، ')};
+  if(k==='done')return'تم التنفيذ';
+  if(k==='partial')return`تم تنفيذ جزئي: ${grp(l=>l.st==='done')}، والباقي ${i.lines.some(l=>l.st!=='done'&&l.st==='sent')?'مرفوع/موجّه: '+grp(l=>l.st==='sent'):'لم يُرفع بعد'}`;
+  if(k==='sent')return`تم رفع الاحتياج لهذا الموقع: ${grp(l=>l.st==='sent')}`;
+  return ST_L.new}
 const coordTxt=i=>(i.lat&&i.lng)?`📍 ${(+i.lat).toFixed(4)}، ${(+i.lng).toFixed(4)}`:'<span style="color:var(--brick)">بلا إحداثيات</span>';
 
 /* ---------- setup controls ---------- */
-$('fProj').innerHTML+=PROGS.map(p=>`<option>${p}</option>`).join('');
+$('fProj').innerHTML+=SRCS.map(p=>`<option>${p}</option>`).join('');
 $('iReg').innerHTML=REGIONS.map(r=>`<option>${r}</option>`).join('');
-$('iType').innerHTML=TYPES.map(p=>`<option>${p}</option>`).join('');
+$('iProg').innerHTML=SRCS.map(p=>`<option>${p}</option>`).join('');
 function chips(){
   $('cTier').innerHTML=[1,2,3,4].map(t=>`<button class="${tiers.includes(t)?'on':''}" data-t="${t}">TIER ${t}</button>`).join('');
   $('cStar').innerHTML=[1,2,3,4,5].map(s=>`<button class="${stars.includes(s)?'on':''}" data-s="${s}">${'★'.repeat(s)}</button>`).join('');
@@ -596,18 +592,18 @@ function chips(){
 function setRole(r){
   if(draft&&!confirm('عندك تغييرات في الترتيب لم تُحفظ. تبديل الدور يلغيها. متابعة؟'))return;
   draft=null;role=r;try{localStorage.setItem(KEY+'_role',r)}catch(e){}
-  reg=R().reg||reg;con='';conCard=null;if(view==='dash'&&r!=='core')view='an';render();
+  reg=R().reg||reg;con='';conCard=null;budReg=null;if(view==='dash'&&r!=='core')view='an';render();
 }
 document.querySelectorAll('.rb').forEach(b=>b.onclick=()=>setRole(b.dataset.role));
 $('simLate').onchange=()=>{render();toast($('simLate').checked?'محاكاة: اليوم '+fd(today())+' — انتهت مهلة كل القوائم':'رجعنا لليوم '+fd(TODAY_ISO))};
 $('fRegion').onchange=()=>{if(draft&&!confirm('تغييرات غير محفوظة ستُلغى. متابعة؟')){$('fRegion').value=reg;return}draft=null;reg=$('fRegion').value;con='';conCard=null;render()};
 $('fContract').onchange=()=>{con=$('fContract').value;conCard=null;render()};
-$('fProj').onchange=()=>{proj=$('fProj').value;if(proj&&view==='pl'){if(draft&&!confirm('تغييرات غير محفوظة ستُلغى. متابعة؟')){$('fProj').value=plProg;return}draft=null;plProg=proj}if(proj&&view==='bud'&&CATS[proj]){budProg=proj;budItem=null}render()};
+$('fProj').onchange=()=>{if(draft&&!confirm('تغييرات غير محفوظة ستُلغى. متابعة؟')){$('fProj').value=proj;return}draft=null;proj=$('fProj').value;if(proj&&view==='bud'&&isInit(proj)){budProg=proj}render()};
 $('fFatal').onchange=()=>{fatal=$('fFatal').value;render()};
 $('fSort').onchange=()=>{sortBy=$('fSort').value;render()};
-$('bClear').onclick=()=>{con='';proj='';fatal='all';tiers=[1,2];stars=[1,2,3];sortBy='fatal';conCard=null;$('fFatal').value='all';$('fSort').value='fatal';render()};
+$('bClear').onclick=()=>{con='';proj='';plCh='';fatal='all';tiers=[1,2];stars=[1,2,3];sortBy='fatal';conCard=null;$('fFatal').value='all';$('fSort').value='fatal';render()};
 $('sw').querySelectorAll('button').forEach(b=>b.onclick=()=>showView(b.dataset.v));
-function showView(v){if(view==='pl'&&v!=='pl'&&draft&&!confirm('تغييرات غير محفوظة ستُلغى. متابعة؟'))return;if(v!=='pl')draft=null;view=v;if(v==='pl'&&proj)plProg=proj;if(v==='bud'&&proj&&CATS[proj])budProg=proj;render();window.scrollTo({top:0,behavior:'smooth'})}
+function showView(v){if(view==='pl'&&v!=='pl'&&draft&&!confirm('تغييرات غير محفوظة ستُلغى. متابعة؟'))return;if(v!=='pl')draft=null;view=v;if(v==='bud'&&proj&&isInit(proj))budProg=proj;render();window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.ov').classList.remove('on'));
 $('bNeed').onclick=()=>openAdd(null,true);
 
@@ -631,24 +627,23 @@ function render(){
   if(view==='an'||view==='pl')renderCards();
   if(view==='an')renderAn();else if(view==='pl')renderPl();else if(view==='bud')renderBud();else renderDash();
 }
-function itemsInScope(p){return S.items.filter(i=>i.reg===reg&&(!p||i.prog===p)&&(!myCons()||myCons().includes(i.con))&&(!con||i.con===con))}
+function itemsInScope(p){return S.items.filter(i=>i.reg===reg&&(!p||i.src===p)&&(!myCons()||myCons().includes(i.con))&&(!con||i.con===con))}
 function renderCards(){
-  const p=view==='pl'?plProg:proj;
+  const p=proj;
   const list=itemsInScope(p),by={};
-  list.forEach(i=>{(by[i.con]=by[i.con]||{n:0,v:0});by[i.con].n++;by[i.con].v+=valOf(i)});
-  const tot=list.reduce((a,i)=>a+valOf(i),0);
-  $('cardsH').textContent='التدخلات المطلوبة لكل عقد — '+(p||'كل أنواع المشاريع')+' · '+reg;
+  list.forEach(i=>{(by[i.con]=by[i.con]||{n:0,v:0,f:0});by[i.con].n++;by[i.con].v+=valOf(i);by[i.con].f+=fwVal(i)});
+  const tot=list.reduce((a,i)=>a+valOf(i),0),tf=list.reduce((a,i)=>a+fwVal(i),0);
+  $('cardsH').textContent='الاحتياجات لكل عقد — '+(p||'كل المصادر')+' · '+reg;
   const cons=(myCons()||CONTRACTS[reg]||Object.keys(by)).filter(c=>!con||c===con);
-  $('kpis').innerHTML=`<div class="kpi tot"><div class="t">المجموع${myCons()?' — عقودي':''}</div><div class="v">${tot?fmt(tot)+' ر.س':'0'}</div><div class="s">${plural(list.length,'تدخل واحد','تدخلان','تدخلات','تدخلاً')}</div></div>`+
-    cons.map(c=>{const b=by[c]||{n:0,v:0};return `<div class="kpi click ${conCard===c?'on':''}" data-c="${c}"><div class="t">العقد ${c}</div><div class="v">${b.v?fmt(b.v)+' ر.س':'0'}</div><div class="s">${b.n?plural(b.n,'تدخل واحد','تدخلان','تدخلات','تدخلاً'):'لا تدخلات'}</div></div>`}).join('');
+  $('kpis').innerHTML=`<div class="kpi tot"><div class="t">المجموع${myCons()?' — عقودي':''}</div><div class="v">${tot?fmt(tot)+' ر.س':'0'}</div><div class="s">${plural(list.length,'احتياج واحد','احتياجان','احتياجات','احتياجاً')} · بالإطارية ${fmt(tf)} · بالـ21 بند ${fmt(tot-tf)}</div></div>`+
+    cons.map(c=>{const b=by[c]||{n:0,v:0,f:0};return `<div class="kpi click ${conCard===c?'on':''}" data-c="${c}"><div class="t">العقد ${c}</div><div class="v">${b.v?fmt(b.v)+' ر.س':'0'}</div><div class="s">${b.n?plural(b.n,'احتياج واحد','احتياجان','احتياجات','احتياجاً'):'لا احتياجات'}</div></div>`}).join('');
   $('kpis').querySelectorAll('.kpi.click').forEach(k=>k.onclick=()=>{conCard=conCard===k.dataset.c?null:k.dataset.c;con=conCard||'';render()});
 }
 
 /* ---------- analysis ---------- */
 const siteItems=si=>S.items.filter(i=>i.site===si);
-function siteProgs(si){return [...new Set(siteItems(si).map(i=>i.prog))]}
-// Talal #1: the order saved in the priority list, reflected here
-function humanRank(which){const p=proj||plProg,k=reg+'|'+p,ids=which==='insp'?engOrd(k):ord(k),m={};
+function siteProgs(si){return [...new Set(siteItems(si).map(i=>i.src))]}
+function humanRank(which){const p=proj,k=reg,ids=which==='insp'?engOrd(k):ord(k),m={};
   ids.forEach((id,ix)=>{const i=byId(id);if(i&&i.site!=null&&!(i.site in m))m[i.site]={n:ix+1,why:(i.why||{})[which]||''}});return{m,p}}
 function renderAn(){
   let L=SITES.filter(s=>s.reg===reg&&tiers.includes(s.tier)&&Object.keys(s.stars).some(st=>stars.includes(+st))&&(!myCons()||myCons().includes(s.con))&&(!con||s.con===con)
@@ -658,7 +653,7 @@ function renderAn(){
   if(sortBy==='insp'||sortBy==='senior'){H=humanRank(sortBy);L.sort((a,b)=>{const x=H.m[a.i],y=H.m[b.i];if(x&&y)return x.n-y.n;if(x)return -1;if(y)return 1;return byFatal(a,b)})}
   else L.sort(sortBy==='star'?(a,b)=>a.avg-b.avg||b.fa-a.fa:byFatal);
   const who=sortBy==='insp'?'مهندس الفحص':'كبير المهندسين';
-  $('anCap').innerHTML=`${L.length===0?'لا مواقع':plural(L.length,'موقع واحد','موقعان','مواقع','موقعاً')} حسب الفلاتر. الترتيب حسب ${H?`<b>ترتيب ${who}</b> في قائمة أولويات «${esc(H.p)}» (${proj?'من فلتر نوع المشروع':'غيّر النوع من فلتر «نوع المشروع»'}). المواقع التي لم يرتبها ${who} تأتي بعدها حسب الحوادث.${sortBy==='insp'?' ترتيب مهندس الفحص يشمل عقوده فقط (803 و804).':''}`:sortBy==='star'?'التقييم النجمي (الأسوأ أولاً): متوسط نجوم الأجزاء الموزون بالطول، وعند التساوي حسب عدد حوادث الوفيات.':'عدد حوادث الوفيات من 2023 حتى اليوم.'}`;
+  $('anCap').innerHTML=`${L.length===0?'لا مواقع':plural(L.length,'موقع واحد','موقعان','مواقع','موقعاً')} حسب الفلاتر. الترتيب حسب ${H?`<b>ترتيب ${who}</b> في قائمة أولويات المنطقة${H.p?` (المواقع اللي مصدرها «${esc(H.p)}»)`:''}. المواقع التي لم يرتبها تأتي بعدها حسب الحوادث.${sortBy==='insp'?' ترتيب مهندس الفحص يشمل عقوده فقط (803 و804).':''}`:sortBy==='star'?'التقييم النجمي (الأسوأ أولاً).':'عدد حوادث الوفيات من 2023 حتى اليوم.'}`;
   $('anBody').innerHTML=L.length?L.map((s,ix)=>{const its=siteItems(s.i).filter(i=>!myCons()||myCons().includes(i.con));const h=H&&H.m[s.i];
     return `<tr>
     <td data-l="ترتيب الأولوية">${H?(h?`<span class="num ${sortBy==='insp'?'eng':''}">${h.n}</span>${h.why?`<div class="muted" title="${esc(h.why)}" style="margin-top:4px">له سبب ✎</div>`:''}`:`<span class="num ro">—</span><div class="muted">لم يُرتب</div>`):`<span class="num">${ix+1}</span>`}</td>
@@ -667,7 +662,7 @@ function renderAn(){
     <td data-l="TIER والنجوم"><b>TIER ${s.tier}</b><div class="muted">${Object.entries(s.stars).map(([k,v])=>STAR_N[k-1]+' '+v.toFixed(1)+' كم').join('<br>')}</div></td>
     <td data-l="حوادث الوفيات"><b style="color:var(--brick)">${s.fa}</b><div class="muted">${s.dead} حالة وفاة</div></td>
     <td data-l="توصية iRAP (2023)">${s.rec.map(r=>`<div>${REC[r].l}</div>`).join('')}</td>
-    <td data-l="في الأولويات والحالة">${its.length?its.map(i=>`<div style="margin-bottom:4px"><span class="chip c-oth">${esc(i.prog)}</span><div style="font-size:11.5px;color:${ST_C[stKey(i)]}">${esc(stText(i))}</div></div>`).join(''):'<span class="muted">ليس في أي قائمة</span>'}</td>
+    <td data-l="في الأولويات والحالة">${its.length?its.map(i=>`<div style="margin-bottom:4px"><span class="chip c-oth">${esc(i.src)}</span><div style="font-size:11.5px;color:${ST_C[stKey(i)]}">${esc(stText(i))}</div></div>`).join(''):'<span class="muted">ليس في أي قائمة</span>'}</td>
     <td>${canRank()?`<button class="add" data-s="${s.i}">أضف للأولويات</button>`:''}</td></tr>`}).join(''):`<tr><td colspan="8" class="empty">لا مواقع حسب الفلاتر.</td></tr>`;
   $('anBody').querySelectorAll('.add').forEach(b=>b.onclick=()=>openAdd(SITES[+b.dataset.s]));
 }
@@ -675,7 +670,6 @@ function renderAn(){
 /* ---------- priority list ---------- */
 function curOrder(){const k=K();if(draft)return draft.slice();return role==='insp'?engOrd(k):ord(k).slice()}
 const mineItem=i=>role==='senior'?i.reg===R().reg:role==='insp'?(myCons().includes(i.con)&&i.reg===R().reg):false;
-// data rank = 1 + number of items with more fatal accidents (ties share a rank)
 function dataRanks(ids){const sc=id=>{const s=byId(id).snap;return s?[s.fa,s.dead]:[-1,0]};const m={};ids.forEach(id=>{const [f,d]=sc(id);m[id]=1+ids.filter(o=>{const [g,e]=sc(o);return g>f||(g===f&&e>d)}).length});return m}
 function statusCell(i){
   const k=stKey(i);let h=`<div style="font-size:12px;font-weight:600;color:${ST_C[k]}">${esc(stText(i))}</div>`;
@@ -685,18 +679,17 @@ function statusCell(i){
   return h;
 }
 function itemCell(i){
-  let h='';
-  if(isCat(i)){h+=`<ul class="lines-l">${i.lines.map(l=>{const c=catItem(i.prog,l.code)||{unit:''};const st=specText(l.spec);return `<li><span class="chip ${/حواجز|الحواجز/.test(c.name||'')?'c-bar':'c-oth'}">${esc(c.name||l.code)}</span> <b>${num(l.qty)} ${esc(c.unit)}</b>${l.done?` <span class="muted">· نُفّذ ${num(l.done)}</span>`:''}${st?`<div class="muted">${esc(st)}</div>`:''}</li>`}).join('')}</ul><div class="muted">${kindOf(i.prog)==='partial'?'تحسين جزئي':'تحسين جذري'}</div>`}
-  else h+=`<span class="chip ${TYPECLS[i.type]||'c-oth'}">${esc(i.type)}</span><div class="muted">تحسين جذري</div>`;
-  if(i.child)h+=`<div><span class="tag">جزء منه ضمن الـ21 بند</span> <button class="mini" data-pt="${i.id}">المنفّذ والمتبقي</button></div>`;
-  if(i.parent){const p=byId(i.parent);h+=`<div><span class="tag">تنفيذ مؤقت لمشروع «${esc(p?p.prog:'')}»</span>${p?` <button class="mini" data-pt="${p.id}">المنفّذ والمتبقي</button>`:''}</div>`}
+  const ch=chOf(i);
+  let h=`<ul class="lines-l">${i.lines.map(l=>{const c=item(l.code);const st=specText(l.spec);return `<li><span class="chip ${/حاجز|حواجز/.test(c.name)?'c-bar':'c-oth'}">${esc(c.name)}</span> <b>${num(l.qty)} ${esc(c.unit)}</b>
+    <div class="muted"><span class="tag" style="margin-top:2px;${l.ch==='21'?'background:var(--green-t);color:var(--green)':''}">${CH_L[l.ch]}</span> ${LST[l.ch][l.st]}${l.done&&l.st!=='done'?` (نُفّذ ${num(l.done)})`:''}${st?' · '+esc(st):''}</div></li>`}).join('')}</ul>`;
+  if(ch==='mix')h+=`<div><button class="mini" data-pt="${i.id}">المنفّذ والمتبقي</button></div>`;
   if(i.details)h+=`<div class="det">${esc(i.details)}</div>`;
   return h;
 }
 function whyCell(i,dr,pos){
   const w=i.why||{},mine=w[rk()],other=role==='insp'?w.senior:w.insp,otherL=role==='insp'?'كبير المهندسين':'مهندس الفحص';
   let h=`<div class="why">`;
-  h+=mine?esc(mine):(pos<dr?'<span style="color:var(--brick)">بلا سبب — متقدم على ترتيب البيانات</span>':'<span class="muted">—</span>');
+  h+=mine?esc(mine):(pos<dr?'<span style="color:var(--brick)">متقدم على ترتيب البيانات — بلا سبب</span>':'<span class="muted">—</span>');
   if(other)h+=`<div class="o">${otherL}: ${esc(other)}</div>`;
   h+=`<div class="o">ترتيب البيانات (الحوادث): ${dr}</div>`;
   if(canRank()&&mineItem(i))h+=`<button class="mini" data-why="${i.id}">${mine?'تعديل السبب':'اكتب السبب'}</button>`;
@@ -704,35 +697,39 @@ function whyCell(i,dr,pos){
 }
 function renderPl(){
   const k=K();
-  $('tabs').innerHTML=PROGS.map(p=>{const n=ord(reg+'|'+p).filter(id=>{const i=byId(id);return i&&(!myCons()||myCons().includes(i.con))}).length;return `<button class="${p===plProg?'on':''}" data-p="${p}">${p}<span class="n">${n}</span></button>`}).join('');
-  $('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(draft&&!confirm('تغييرات غير محفوظة ستُلغى. متابعة؟'))return;draft=null;plProg=b.dataset.p;proj=plProg;render()});
+  const all=curOrder().filter(id=>byId(id)),cnt=f=>all.filter(id=>f(byId(id))).length;
+  $('tabs').innerHTML=`<span class="muted" style="align-self:center">المصدر:</span>`+['',...SRCS].map(p=>`<button class="${p===proj?'on':''}" data-p="${p}">${p||'الكل'}<span class="n">${p?cnt(i=>i.src===p):all.length}</span></button>`).join('')
+    +`<span class="muted" style="align-self:center;margin-right:10px">التنفيذ:</span>`+[['','الكل'],['21','الـ21 بند'],['fw','الإطارية'],['mix','مقسّم']].map(([c,t])=>`<button class="${c===plCh?'on':''}" data-c="${c}">${t}${c?`<span class="n">${cnt(i=>chOf(i)===c)}</span>`:''}</button>`).join('');
+  $('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(draft&&!confirm('تغييرات غير محفوظة ستُلغى. متابعة؟'))return;draft=null;if(b.dataset.p!==undefined)proj=b.dataset.p;else plCh=b.dataset.c;render()});
   const w=windowInfo(k);
   $('win').className='win '+(w?(w.open?'open':'closed'):'closed');
-  $('win').innerHTML=!w?'لا توجد قائمة لهذا النوع في هذه المنطقة بعد.':w.open
-    ?`<b>مهلة المراجعة مفتوحة:</b> باقي ${plural(w.left,'يوم واحد','يومان','أيام','يوماً')} (حتى ${fd(w.end)}). عدّل الترتيب ثم اضغط «حفظ الترتيب». إذا قدّمت موقعاً على ترتيب البيانات يُطلب «سبب الأولوية». المصدر: ${esc(w.src)}، ${fd(w.start)}.`
-    :`<b>انتهت مهلة المراجعة</b> في ${fd(w.end)}. أي تغيير في الترتيب ثم «حفظ» يطلب سبباً عاماً، ويُسجّل باسمك في «سجل التعديلات»، إضافة لسبب الأولوية لكل موقع تقدّمه.`;
-  const ids=curOrder().filter(id=>{const i=byId(id);return i&&(!con||i.con===con)});
+  $('win').innerHTML=!w?'لا توجد قائمة أولويات لهذه المنطقة بعد.':w.open
+    ?`<b>مهلة المراجعة مفتوحة:</b> باقي ${plural(w.left,'يوم واحد','يومان','أيام','يوماً')} (حتى ${fd(w.end)}). عدّل الترتيب ثم «حفظ الترتيب». إذا قدّمت موقعاً على ترتيب البيانات يُطلب «سبب الأولوية». المصدر: ${esc(w.src)}، ${fd(w.start)}.`
+    :`<b>انتهت مهلة المراجعة</b> في ${fd(w.end)}. أي تغيير في الترتيب ثم «حفظ» يطلب سبباً عاماً، إضافة لسبب الأولوية لكل موقع تقدّمه.`;
+  const flt=i=>(!con||i.con===con)&&(!proj||i.src===proj)&&(!plCh||chOf(i)===plCh);
+  const full=curOrder().filter(id=>byId(id)),ids=full.filter(id=>flt(byId(id))),fpos={};full.forEach((id,ix)=>fpos[id]=ix+1);const filtered=!!(con||proj||plCh);
   const engMap={};engOrd(k).forEach((id,ix)=>engMap[id]=ix+1);
   const regMap={};ord(k).forEach((id,ix)=>regMap[id]=ix+1);
   const saved=role==='insp'?engOrd(k):ord(k);const savedPos={};saved.forEach((id,ix)=>savedPos[id]=ix);
-  const dr=dataRanks(ids);
-  $('plHead').innerHTML=`<tr><th style="width:${canRank()?125:95}px">${role==='insp'?'ترتيبي (عقودي)':'ترتيب المنطقة'}</th>${role==='insp'?'<th>ترتيب المنطقة</th>':'<th>ترتيب مهندس الفحص</th>'}<th>البنود / نوع التدخل</th><th>الموقع</th><th>العقد</th><th>بيانات الموقع عند الإضافة</th><th>سبب الأولوية</th><th>القيمة</th><th>الحالة</th></tr>`;
-  $('plCap').textContent=role==='insp'?'ترتيبك لعقودك. كبير المهندسين يرى ترتيبك وسببك ويرتب المنطقة ككل.':role==='senior'?'ترتيب المنطقة ككل. عمود «ترتيب مهندس الفحص» مرجع لك فقط.':'عرض فقط. الكورتيم يستورد ويصدّر ويراجع السجل.';
-  const ro=!canRank()||!!con;
-  $('plBody').innerHTML=ids.length?ids.map((id,ix)=>{const i=byId(id),s=i.snap;const moved=draft&&savedPos[id]!==ix;const other=role==='insp'?regMap[id]:engMap[id];
+  const dr=dataRanks(full);
+  $('plHead').innerHTML=`<tr><th style="width:${canRank()?125:95}px">${role==='insp'?'ترتيبي (عقودي)':'ترتيب المنطقة'}</th>${role==='insp'?'<th>ترتيب المنطقة</th>':'<th>ترتيب مهندس الفحص</th>'}<th>المصدر</th><th>البنود وطريقة التنفيذ</th><th>الموقع</th><th>العقد</th><th>بيانات الموقع عند الإضافة</th><th>سبب الأولوية</th><th>القيمة</th><th>الحالة</th></tr>`;
+  $('plCap').textContent=role==='insp'?'ترتيبك لعقودك. كبير المهندسين يرى ترتيبك وسببك.':role==='senior'?'ترتيب المنطقة ككل. عمود «ترتيب مهندس الفحص» مرجع لك.':'عرض فقط. الكورتيم يستورد ويصدّر ويراجع السجل.';
+  const ro=!canRank()||filtered;
+  $('plBody').innerHTML=ids.length?ids.map((id,ix)=>{const i=byId(id),s=i.snap;const moved=draft&&savedPos[id]!==ix;const other=role==='insp'?regMap[id]:engMap[id];const fv=fwVal(i),tv=valOf(i);
     return `<tr draggable="${!ro}" data-id="${id}" class="${moved?'moved':''}">
-    <td data-l="${role==='insp'?'ترتيبي':'ترتيب المنطقة'}"><div class="rank">${ro?'':'<span class="handle" title="اسحب">⋮⋮</span>'}<span class="num ${role==='insp'?'eng':''}">${ix+1}</span>
+    <td data-l="${role==='insp'?'ترتيبي':'ترتيب المنطقة'}"><div class="rank">${ro?'':'<span class="handle" title="اسحب">⋮⋮</span>'}<span class="num ${role==='insp'?'eng':''}">${fpos[id]}</span>${filtered?`<div class="muted" style="font-size:11px">${ix+1} في ${esc(proj||CH_L[plCh]||'الفلتر')}</div>`:''}
       ${ro?'':`<div class="arr"><button ${ix===0?'disabled':''} data-up="${id}" title="أعلى">▲</button><button ${ix===ids.length-1?'disabled':''} data-dn="${id}" title="أسفل">▼</button></div>`}</div></td>
     <td data-l="${role==='insp'?'ترتيب المنطقة':'ترتيب مهندس الفحص'}">${other?`<span class="num ro ${role==='insp'?'':'eng'}">${other}</span>`:`<span class="muted">${reg===ROLES.insp.reg?'— ليس من عقود مهندس الفحص':'—'}</span>`}</td>
-    <td data-l="البنود / نوع التدخل">${itemCell(i)}</td>
+    <td data-l="المصدر"><span class="chip ${isInit(i.src)?'c-int':'c-oth'}">${esc(i.src)}</span></td>
+    <td data-l="البنود وطريقة التنفيذ">${itemCell(i)}</td>
     <td data-l="الموقع"><b>طريق ${esc(i.road)}</b><div class="muted">من كم ${esc(i.from)}${i.to?' إلى كم '+esc(i.to):''}</div><div class="coord">${coordTxt(i)}</div></td>
     <td data-l="العقد">${esc(i.con)||'—'}</td>
     <td data-l="بيانات الموقع عند الإضافة" class="snap">${s?`<span class="f">${s.fa} حوادث وفيات</span> · ${s.dead} وفاة<br>TIER ${s.tier} · متوسط النجوم ${(+s.avg).toFixed(1)}<br>`:'<span class="muted">احتياج ميداني أو من ملف — بلا بيانات iRAP</span><br>'}<span class="muted">أُضيف ${fd(i.added)}</span></td>
-    <td data-l="سبب الأولوية">${whyCell(i,dr[id],ix+1)}</td>
-    <td data-l="القيمة" class="money">${fmt(valOf(i))} ر.س</td>
+    <td data-l="سبب الأولوية">${whyCell(i,dr[id],fpos[id])}</td>
+    <td data-l="القيمة" class="money">${fmt(tv)} ر.س${tv?`<div class="muted" style="font-weight:400">${fv?'إطارية '+fmt(fv):''}${fv&&tv-fv?' · ':''}${tv-fv?'21 بند '+fmt(tv-fv):''}</div>`:''}</td>
     <td data-l="الحالة">${statusCell(i)}</td></tr>`}).join('')
-    :`<tr><td colspan="9" class="empty">لا احتياجات في «${plProg}» ${myCons()?'لعقودك':'لمنطقة '+reg}.${role==='core'?' استورد ملفاً.':''}</td></tr>`;
-  $('plNote').textContent=con?'الترتيب مقفل أثناء فلترة عقد واحد — امسح فلتر العقد لتغيير الترتيب.':canRank()?'اسحب الصف (على الكمبيوتر) أو استخدم الأسهم، ثم «حفظ الترتيب». الترتيب ينعكس على صفحة التحليل من «الترتيب حسب».':'';
+    :`<tr><td colspan="10" class="empty">لا احتياجات ${filtered?'حسب الفلتر ':''}${myCons()?'لعقودك':'لمنطقة '+reg}.${role==='core'?' استورد ملفاً.':''}</td></tr>`;
+  $('plNote').textContent=filtered?'الترتيب مقفل أثناء الفلترة: الرقم الكبير ترتيب المنطقة، والصغير ترتيبه داخل الفلتر (مثلاً ترتيب المبادرة اللي ترفعه للوزارة). امسح الفلتر لتغيير الترتيب.':canRank()?'اسحب الصف (على الكمبيوتر) أو استخدم الأسهم، ثم «حفظ الترتيب». الترتيب ينعكس على صفحة التحليل من «الترتيب حسب».':'';
   $('plBody').querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>move(+b.dataset.up,-1));
   $('plBody').querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>move(+b.dataset.dn,1));
   $('plBody').querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>openEdit(+b.dataset.ed));
@@ -742,7 +739,7 @@ function renderPl(){
   $('plBody').querySelectorAll('[data-why]').forEach(b=>b.onclick=()=>editWhy(+b.dataset.why));
   dnd();
   $('dirty').classList.toggle('on',!!draft);
-  $('logProg').textContent=reg+' · '+plProg;
+  $('logProg').textContent=reg;
   const LG=S.logs.filter(l=>l.k===k).slice().reverse();
   $('log').innerHTML=LG.map(l=>`<li>${esc(l.t)}${l.r?` <span class="r">— السبب: ${esc(l.r)}</span>`:''}<div class="w">${esc(l.w)} · ${fd(l.d)}</div></li>`).join('')||'<li class="muted">لا تعديلات بعد.</li>';
 }
@@ -763,16 +760,16 @@ function dnd(){let src=null;
   });
 }
 document.querySelectorAll('[data-sug]').forEach(b=>b.onclick=()=>{
+  if(con||proj||plCh){toast('امسح الفلتر أولاً — الترتيب لقائمة المنطقة كاملة');return}
   const arr=curOrder();const sc=id=>byId(id).snap;
   arr.sort(b.dataset.sug==='star'?(x,y)=>(sc(x)?sc(x).avg:9)-(sc(y)?sc(y).avg:9)||(sc(y)?sc(y).fa:0)-(sc(x)?sc(x).fa:0):(x,y)=>(sc(y)?sc(y).fa:0)-(sc(x)?sc(x).fa:0)||(sc(y)?sc(y).dead:0)-(sc(x)?sc(x).dead:0));
-  draft=arr;const saved=role==='insp'?engOrd(K()):ord(K());if(saved.join()===draft.join()){draft=null;toast('القائمة مرتبة بهذا الشكل أصلاً')}else toast('رُتّبت القائمة '+(b.dataset.sug==='star'?'حسب التقييم النجمي':'حسب الحوادث')+' — راجعها ثم «حفظ الترتيب»');render()});
+  draft=arr;const saved=role==='insp'?engOrd(K()):ord(K());if(saved.join()===draft.join()){draft=null;toast('القائمة مرتبة بهذا الشكل أصلاً')}else toast('رُتّبت القائمة — راجعها ثم «حفظ الترتيب»');render()});
 $('bUndo').onclick=()=>{draft=null;render()};
 let pending=null;
 function askReason(title,txt,cb,ph){pending=cb;$('whyH').textContent=title;$('whyTxt').textContent=txt;$('whyIn').value='';$('whyIn').placeholder=ph||'مثال: توجيه من الإدارة بتقديم الموقع بعد حادث وفيات جديد';$('whyIn').style.borderColor='';$('ovWhy').classList.add('on');setTimeout(()=>$('whyIn').focus(),50)}
 $('whyOk').onclick=()=>{const v=$('whyIn').value.trim();if(v.length<5){$('whyIn').style.borderColor='var(--brick)';toast('اكتب السبب');return}$('ovWhy').classList.remove('on');const c=pending;pending=null;c&&c(v)};
-// Talal #9: priority reason per site
 function editWhy(id){const i=byId(id),cur=(i.why||{})[rk()]||'';
-  askReason('سبب الأولوية',`${label(i)} — ليش هذا الموقع في هذا الترتيب؟ يظهر في عمود «سبب الأولوية» ويراه ${role==='insp'?'كبير المهندسين':'مهندس الفحص والكورتيم'}.`,v=>{i.why=i.why||{};i.why[rk()]=v;addLog(i.reg+'|'+i.prog,`كتب سبب الأولوية لـ${label(i)}`,v);save();render();toast('حُفظ سبب الأولوية')},'مثال: تقاطع قريب من مدرسة، وفيه شكاوى متكررة');
+  askReason('سبب الأولوية',`${label(i)} — ليش هذا الموقع في هذا الترتيب؟`,v=>{i.why=i.why||{};i.why[rk()]=v;addLog(i.reg,`كتب سبب الأولوية لـ${label(i)}`,v);save();render();toast('حُفظ سبب الأولوية')},'مثال: تقاطع قريب من مدرسة، وفيه شكاوى متكررة');
   if(cur)$('whyIn').value=cur}
 $('bSave').onclick=()=>{
   const k=K(),saved=role==='insp'?engOrd(k):ord(k);
@@ -786,7 +783,7 @@ $('bSave').onclick=()=>{
     (reasons||[]).forEach(x=>{const i=byId(x.id);i.why=i.why||{};i.why[rk()]=x.r;addLog(k,`سبب الأولوية لـ${label(i)} (ترتيب البيانات ${x.dr} ← ${x.to})`,x.r)});
     draft=null;save();render();toast('حُفظ الترتيب'+((reasons||[]).length||r?' مع الأسباب':''))};
   if(!need.length&&!closed){commit(null);return}
-  $('priTxt').textContent=need.length?'قدّمت مواقع على ترتيب البيانات (الحوادث). اكتب لكل موقع ليش هو أولوية — يظهر في عمود «سبب الأولوية» ويراه كبير المهندسين والكورتيم.':'';
+  $('priTxt').textContent=need.length?'قدّمت مواقع على ترتيب البيانات (الحوادث). اكتب لكل موقع ليش هو أولوية.':'';
   $('priRows').innerHTML=need.map(x=>`<label>${esc(label(byId(x.id)))} — ترتيب البيانات ${x.dr}، وصار ${x.to}</label><textarea rows="2" data-pri="${x.id}" placeholder="مثال: تقاطع قريب من مدرسة، وفيه شكاوى متكررة"></textarea>`).join('');
   $('priGen').innerHTML=closed?`<div class="warn" style="margin-top:10px">انتهت مهلة المراجعة (${fd(w.end)}). التغييرات: ${esc(desc)}.</div><label>سبب تغيير الترتيب بعد المهلة (مطلوب)</label><textarea rows="2" id="priG"></textarea>`:'';
   $('priOk').onclick=()=>{let bad=false;const reasons=need.map(x=>{const t=$('priRows').querySelector(`[data-pri="${x.id}"]`),v=t.value.trim();t.style.borderColor=v.length<5?'var(--brick)':'';if(v.length<5)bad=true;return{...x,r:v}});
@@ -796,156 +793,121 @@ $('bSave').onclick=()=>{
 };
 $('bLog').onclick=()=>{$('logCard').hidden=!$('logCard').hidden;if(!$('logCard').hidden)$('logCard').scrollIntoView({behavior:'smooth'})};
 
-/* ---------- add / edit need: location first, several items, quantity each ---------- */
-let pre=null,editId=null,kind='root',parentId=null;
+/* ---------- add / edit need: location first, items with quantity + execution method each ---------- */
+let pre=null,editId=null;
 function fillCons(r,sel){const l=(role==='insp'?myCons():CONTRACTS[r])||[];$('iCon').innerHTML=(l.length?l:['—']).map(c=>`<option ${c===sel?'selected':''}>${c}</option>`).join('')}
 $('iReg').onchange=()=>{fillCons($('iReg').value);$('lines').querySelectorAll('.ln.on').forEach(calcLine)};
-function setKind(k,keepProg){
-  kind=k;$('iKind').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
-  const progs=k==='partial'?['21 بند']:ROOT_PROGS;const cur=$('iProg').value;
-  $('iProg').innerHTML=progs.map(p=>`<option>${p}</option>`).join('');$('iProg').value=progs.includes(keepProg)?keepProg:progs.includes(cur)?cur:progs[0];$('iProg').disabled=k==='partial';
-  $('kindHint').textContent=k==='partial'?'تحسين جزئي = من بنود السلامة في الـ21 بند فقط. اختر بنداً أو أكثر (مثل دهانات ولوحات) ولكل بند كميته.':'تحسين جذري = «المبادرات» أو «الاتفاقية الإطارية». إذا تأخر المشروع، تقدر بعد الحفظ تضيف له «تنفيذ جزئي مؤقت ضمن الـ21 بند».';
-  progChanged();
-}
-function recLines(p){if(!pre||!pre.rec)return[];return pre.rec.map(r=>p==='المبادرات'?REC[r].ini:p==='21 بند'?REC[r].p21:null).filter(Boolean).map(code=>({code,qty:'',spec:{}}))}
-function recType(){if(!pre||!pre.rec)return null;const r=pre.rec.find(x=>REC[x].fw);return r?REC[r].fw:null}
-function progChanged(lines){
-  const p=$('iProg').value,cat=CATS[p];
-  $('catBox').hidden=!cat;$('freeBox').hidden=!!cat;
-  if(cat){renderLines(p,lines||recLines(p))}else{const t=recType();if(t&&!editId)$('iType').value=t;$('iDet').placeholder='مثال: تقاطع على شكل T بلا حارة تباطؤ، والمطلوب حارة تباطؤ 150 م وإنارة.'}
-  updTot();
-}
+function srcHint(){const s=$('iProg').value;$('kindHint').innerHTML=isInit(s)?`«${esc(s)}»: بنود «الاتفاقية الإطارية» تُخصم من ميزانية المبادرة للمنطقة. البند الموجود في الـ21 بند يُوجّه للمقاول مباشرة ويُحسب على عقد الصيانة، ولا يُخصم من المبادرة.`:'احتياج ميداني بدون مبادرة: البند الموجود في الـ21 بند يُنفّذ مباشرة، والباقي يُرفع بالاتفاقية الإطارية.'}
+$('iProg').onchange=()=>{srcHint();$('lines').querySelectorAll('.ln.on').forEach(calcLine)};
 function signRowsHtml(rows){return `<label>اللوحات المطلوبة (المساحة تُحسب منها)</label><div class="signRows">${rows.map((r,ix)=>`<div class="srow"><select data-f="t">${SIGN_T.map(t=>`<option ${t===r.t?'selected':''}>${t}</option>`).join('')}</select><input data-f="n" type="number" min="0" placeholder="العدد" value="${r.n||''}"><input data-f="a" type="number" min="0" step="any" placeholder="مساحة اللوحة م²" value="${r.a||''}">${ix?'<button class="mini del" data-rm>حذف</button>':''}</div>`).join('')}</div><button class="mini" data-addsign>+ نوع لوحة آخر</button>`}
-function lineBody(p,c,l){const sp=specOf(c.no),spec=l?l.spec||{}:{};let h='';
+function lineBody(c,l){const sp=specOf(c.no),spec=l?l.spec||{}:{},ch=l?l.ch:(in21(c.no)?'21':'fw'),st=l?l.st:'new';let h='';
+  h+=`<div class="g2"><div><label>طريقة التنفيذ</label><select data-ch ${in21(c.no)?'':'disabled'}>${in21(c.no)?`<option value="21" ${ch==='21'?'selected':''}>الـ21 بند — مباشرة على عقد الصيانة</option>`:''}<option value="fw" ${ch==='fw'?'selected':''}>الاتفاقية الإطارية — طلب شراء</option></select></div>
+    <div><label>حالة البند</label><select data-st ${st==='done'?'disabled':''}>${st==='done'?'<option value="done">نُفّذ</option>':''}<option value="new" ${st==='new'?'selected':''}>${ch==='21'?'لم يُوجّه بعد':'لم يُرفع بعد'}</option><option value="sent" ${st==='sent'?'selected':''}>${ch==='21'?'وُجّه للمقاول':'رُفع بالاتفاقية الإطارية'}</option></select></div></div>`;
   if(sp.signs)h+=signRowsHtml(spec.signs&&spec.signs.length?spec.signs:[{t:'تحذيرية'}]);
   (sp.fields||[]).forEach(f=>{h+=`<label>${f.l}</label>`+(f.num?`<input data-k="${f.k}" type="number" min="0" value="${spec[f.k]||''}">`:`<select data-k="${f.k}"><option value="">— اختر —</option>${f.o.map(o=>`<option ${o===spec[f.k]?'selected':''}>${o}</option>`).join('')}</select>`)});
-  h+=`<div class="g2"><div><label>الكمية (${c.unit}) — مطلوبة</label><input data-q type="number" min="0" step="any" value="${l&&l.qty?l.qty:''}" ${sp.signs?'disabled':''}></div><div><label>القيمة (الكمية × ${num(priceOf(p,c.no))})</label><input data-v disabled></div></div><div class="hintbox" data-h></div>`;
+  h+=`<div class="g2"><div><label>الكمية (${c.unit}) — مطلوبة</label><input data-q type="number" min="0" step="any" value="${l&&l.qty?l.qty:''}" ${sp.signs?'disabled':''}></div><div><label data-pl>القيمة</label><input data-v disabled></div></div><div class="hintbox" data-h></div>`;
   return h}
-function renderLines(p,sel){
-  const cat=CATS[p],m={};(sel||[]).forEach(l=>m[l.code]=l);
-  $('lines').innerHTML=cat.map(c=>{const l=m[c.no];return `<div class="ln ${l?'on':''}" data-no="${c.no}"><label class="lh"><input type="checkbox" ${l?'checked':''}> <b>${c.name}</b> <span class="muted">${c.unit} · ${num(priceOf(p,c.no))} ر.س</span></label><div class="lb" ${l?'':'hidden'}>${l?lineBody(p,c,l):''}</div></div>`}).join('');
-  $('lines').querySelectorAll('.ln.on').forEach(calcLine);
+function renderLines(sel){
+  const m={};(sel||[]).forEach(l=>m[l.code]=l);
+  const order=[...FW.filter(c=>in21(c.no)),...FW.filter(c=>!in21(c.no))];
+  $('lines').innerHTML=`<div class="muted" style="margin:6px 0 2px">بنود موجودة في الـ21 بند (تُنفّذ مباشرة)</div>`+order.map((c,ix)=>`${ix===Object.keys(P21).length?'<div class="muted" style="margin:10px 0 2px">بنود الاتفاقية الإطارية</div>':''}<div class="ln ${m[c.no]?'on':''}" data-no="${c.no}" data-nm="${esc(c.name)}"><label class="lh"><input type="checkbox" ${m[c.no]?'checked':''}> <b>${c.name}</b> <span class="muted">${c.unit} · بند ${in21(c.no)?(CODE21[c.no]||c.no):c.no}</span>${in21(c.no)?' <span class="tag" style="margin:0;background:var(--green-t);color:var(--green)">ممكن بالـ21 بند</span>':''}</label><div class="lb" ${m[c.no]?'':'hidden'}>${m[c.no]?lineBody(c,m[c.no]):''}</div></div>`).join('');
+  $('lines').querySelectorAll('.ln.on').forEach(calcLine);$('iSearch').value='';
   const first=(sel||[])[0];$('iDet').placeholder=first?specOf(first.code).ph:'اختر بنداً أو أكثر، ثم اكتب التفاصيل.';
 }
-function calcLine(ln){const p=$('iProg').value,no=ln.dataset.no,c=catItem(p,no);if(!c)return;
+$('iSearch').oninput=()=>{const q=$('iSearch').value.trim();$('lines').querySelectorAll('.ln').forEach(ln=>ln.hidden=!!q&&!ln.classList.contains('on')&&!ln.dataset.nm.includes(q)&&!ln.dataset.no.includes(q))};
+function calcLine(ln){const no=ln.dataset.no,c=item(no);
   const rows=ln.querySelector('.signRows');
   if(rows){const q=+[...rows.children].reduce((x,r)=>x+(+r.querySelector('[data-f=n]').value||0)*(+r.querySelector('[data-f=a]').value||0),0).toFixed(2);ln.querySelector('[data-q]').value=q||''}
-  const q=+ln.querySelector('[data-q]').value||0;ln.querySelector('[data-v]').value=q?num(Math.round(q*priceOf(p,no)))+' ر.س':'';
-  const r=$('iReg').value,a=alloc(p,r,no),left=a-reqQty(p,r,no,editId),hb=ln.querySelector('[data-h]');
-  hb.className='hintbox'+(q>left?' bad':'');
-  hb.innerHTML=a?`المخصص لـ${esc(r)}: <b>${num(a)} ${c.unit}</b> · المتبقي: <b>${num(left)}</b>${q>left?' — الكمية تتجاوز المتبقي، لا يمكن الحفظ':''}`:`لا يوجد مخصص لهذا البند في ${esc(r)}. تواصل مع الكورتيم لتحديد الكمية في «الميزانية والكميات».`;
+  const ch=ln.querySelector('[data-ch]').value,q=+ln.querySelector('[data-q]').value||0,pr=ch==='21'?P21[no]:fwPrice(no);
+  ln.querySelector('[data-pl]').textContent=`القيمة (الكمية × ${num(pr)} ر.س — ${ch==='21'?'سعر الـ21 بند':'سعر الإطارية'})`;
+  ln.querySelector('[data-v]').value=q?num(Math.round(q*pr))+' ر.س':'';
+  const stSel=ln.querySelector('[data-st]');if(stSel&&!stSel.disabled){[...stSel.options].forEach(o=>{if(o.value==='new')o.textContent=ch==='21'?'لم يُوجّه بعد':'لم يُرفع بعد';if(o.value==='sent')o.textContent=ch==='21'?'وُجّه للمقاول':'رُفع بالاتفاقية الإطارية'})}
+  const hb=ln.querySelector('[data-h]'),s=$('iProg').value,r=$('iReg').value;
+  if(ch==='21'){hb.className='hintbox';hb.innerHTML='يُوجّه المقاول ينفذه مباشرة من الـ21 بند — على عقد الصيانة، لا يُخصم من أي مبادرة.'}
+  else if(isInit(s)){const a=budAlloc(s,r,no),req=budReq(s,r,no,editId),left=a-req;hb.className='hintbox'+(a&&q>left?' bad':'');
+    hb.innerHTML=a?`مخصص «${esc(s)}» لـ${esc(r)} من هذا البند: <b>${num(a)} ${c.unit}</b> · المتبقي: <b>${num(left)}</b>${q>left?' — الكمية تتجاوز المتبقي (يظهر تنبيه «تجاوز» في الميزانية)':''}`:`يُرفع بالاتفاقية الإطارية ويُخصم من ميزانية «${esc(s)}» لـ${esc(r)} (المتبقي من المبلغ: ${fmt(budEnv(s,r)-budPlanned(s,r,editId))} ر.س).`}
+  else{hb.className='hintbox';hb.innerHTML='يُرفع بالاتفاقية الإطارية (طلب شراء بموافقة الوزارة).'}
   updTot()}
-function updTot(){const p=$('iProg').value;if(!CATS[p]){$('iTot').hidden=true;return}
-  const on=[...$('lines').querySelectorAll('.ln.on')];const v=on.reduce((a,ln)=>a+(+ln.querySelector('[data-q]').value||0)*priceOf(p,ln.dataset.no),0);
-  $('iTot').hidden=false;$('iTot').innerHTML=on.length?`${plural(on.length,'بند واحد','بندان','بنود','بنداً')} — القيمة الإجمالية <b>${num(Math.round(v))} ر.س</b>`:'لم تختر أي بند بعد.'}
+function updTot(){const on=[...$('lines').querySelectorAll('.ln.on')];let v=0,f=0;on.forEach(ln=>{const no=ln.dataset.no,ch=ln.querySelector('[data-ch]').value,q=+ln.querySelector('[data-q]').value||0,x=q*(ch==='21'?P21[no]:fwPrice(no));v+=x;if(ch==='fw')f+=x});
+  $('iTot').innerHTML=on.length?`${plural(on.length,'بند واحد','بندان','بنود','بنداً')} — القيمة <b>${num(Math.round(v))} ر.س</b> (بالإطارية ${num(Math.round(f))} · بالـ21 بند ${num(Math.round(v-f))})`:'لم تختر أي بند بعد.'}
 $('lines').addEventListener('change',e=>{const ln=e.target.closest('.ln');if(!ln)return;
-  if(e.target.type==='checkbox'&&e.target.closest('.lh')){const p=$('iProg').value,c=catItem(p,ln.dataset.no),lb=ln.querySelector('.lb');
-    if(e.target.checked){ln.classList.add('on');lb.innerHTML=lineBody(p,c,null);lb.hidden=false;calcLine(ln);if(!$('iDet').value)$('iDet').placeholder=specOf(c.no).ph}
+  if(e.target.type==='checkbox'&&e.target.closest('.lh')){const c=item(ln.dataset.no),lb=ln.querySelector('.lb');
+    if(e.target.checked){ln.classList.add('on');lb.innerHTML=lineBody(c,null);lb.hidden=false;calcLine(ln);if(!$('iDet').value)$('iDet').placeholder=specOf(c.no).ph}
     else{ln.classList.remove('on');lb.innerHTML='';lb.hidden=true;updTot()}return}
   calcLine(ln)});
 $('lines').addEventListener('input',e=>{const ln=e.target.closest('.ln');if(ln&&!(e.target.type==='checkbox'))calcLine(ln)});
 $('lines').addEventListener('click',e=>{const ln=e.target.closest('.ln');if(!ln)return;
   if(e.target.dataset.addsign!==undefined){e.preventDefault();ln.querySelector('.signRows').insertAdjacentHTML('beforeend',`<div class="srow"><select data-f="t">${SIGN_T.map(t=>`<option>${t}</option>`).join('')}</select><input data-f="n" type="number" min="0" placeholder="العدد"><input data-f="a" type="number" min="0" step="any" placeholder="مساحة اللوحة م²"><button class="mini del" data-rm>حذف</button></div>`)}
   if(e.target.dataset.rm!==undefined){e.preventDefault();e.target.parentElement.remove();calcLine(ln)}});
-$('iKind').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(parentId)return;if(b.dataset.k!==kind){$('iVal').value='';setKind(b.dataset.k)}});
-$('iProg').onchange=()=>progChanged();
 $('bGeo').onclick=()=>{if(!navigator.geolocation){toast('المتصفح لا يدعم تحديد الموقع');return}navigator.geolocation.getCurrentPosition(p=>{$('iLat').value=p.coords.latitude.toFixed(6);$('iLng').value=p.coords.longitude.toFixed(6);toast('أُخذت إحداثيات موقعك الحالي')},()=>toast('تعذّر تحديد الموقع — اكتب الإحداثيات يدوياً'),{enableHighAccuracy:true,timeout:10000})};
-function resetForm(){['iDet','iVal','iRoad','iFrom','iTo','iLat','iLng'].forEach(x=>$(x).value='');$('iSt').value='new';$('iSt').disabled=false;$('recBox').hidden=true;$('iSub').hidden=true;$('iDel').hidden=true;$('iReg').disabled=false;
-  $('iKind').querySelectorAll('button').forEach(b=>b.disabled=false);['iRoad','iFrom','iTo','iLat','iLng'].forEach(x=>$(x).disabled=false)}
+function resetForm(){['iDet','iRoad','iFrom','iTo','iLat','iLng'].forEach(x=>$(x).value='');$('recBox').hidden=true;$('iDel').hidden=true;$('iReg').disabled=false;$('iProg').disabled=false}
 function openAdd(site,asNeed){
   if(draft){toast('احفظ الترتيب أو تراجع عنه أولاً');return}
-  resetForm();editId=null;parentId=null;pre=site||null;
+  resetForm();editId=null;pre=site||null;
   $('addTitle').textContent=site?'أضف للأولويات':asNeed?'إضافة احتياج ميداني':'إضافة احتياج';$('iSave').textContent=site?'أضف للأولويات':'إضافة';
-  $('iReg').value=pre?pre.reg:reg;$('iReg').disabled=!!R().reg;fillCons($('iReg').value,pre?pre.con:'');$('iType').value=TYPES[0];
+  $('iReg').value=pre?pre.reg:reg;$('iReg').disabled=!!R().reg;fillCons($('iReg').value,pre?pre.con:'');
+  let src=proj||'احتياج ميداني',codes=[];
   if(pre){$('iRoad').value=pre.road;$('iFrom').value=pre.from;$('iTo').value=pre.to;$('iLat').value=pre.lat;$('iLng').value=pre.lng;
-    $('recBox').hidden=false;$('recBox').innerHTML=`<b>توصية iRAP (مسح وتكويد 2023):</b> ${pre.rec.map(r=>REC[r].l).join('، ')}. اختيرت البنود المقابلة لها — عدّلها حسب وضع الموقع اليوم: احذف أو أضف بنوداً (دهانات، لوحات…) واكتب كمية كل بند.`}
-  const recP=pre?(pre.rec.some(r=>REC[r].ini)?'المبادرات':pre.rec.some(r=>REC[r].fw)?'الاتفاقية الإطارية':'21 بند'):null;
-  const p=recP||(view==='pl'?plProg:proj)||'المبادرات';setKind(kindOf(p),p);
-  $('addSrc').textContent=pre?`من التحليل: طريق ${pre.road} كم ${pre.from} – ${pre.to} (العقد ${pre.con}) · ${pre.fa} حوادث وفيات · TIER ${pre.tier}. يُضاف في آخر قائمة أولويات مشروعه، وتقدر تعدّله بعدها.`:asNeed?'احتياج من الميدان: الموقع والإحداثيات أولاً، ثم البنود وكمية كل بند.':'إضافة يدوية. يمكن أيضاً الإضافة من «التحليل والاحتياجات» بزر «أضف للأولويات».';
+    const r=pre.rec.find(x=>REC[x].src);if(r&&!proj)src=REC[r].src;codes=[...new Set(pre.rec.flatMap(x=>REC[x].codes))];
+    $('recBox').hidden=false;$('recBox').innerHTML=`<b>توصية iRAP (مسح وتكويد 2023):</b> ${pre.rec.map(r=>REC[r].l).join('، ')}. اختيرت البنود المقابلة — عدّلها حسب وضع الموقع اليوم، واكتب كمية كل بند وطريقة تنفيذه.`}
+  $('iProg').value=src;srcHint();
+  renderLines(codes.map(code=>({code,qty:'',spec:{},ch:in21(code)?'21':'fw',st:'new'})));
+  $('addSrc').textContent=pre?`من التحليل: طريق ${pre.road} كم ${pre.from} – ${pre.to} (العقد ${pre.con}) · ${pre.fa} حوادث وفيات · TIER ${pre.tier}. يُضاف في آخر قائمة أولويات المنطقة، وتقدر تعدّله وترتبه بعدها.`:asNeed?'احتياج من الميدان: الموقع والإحداثيات أولاً، ثم البنود وكمية كل بند وطريقة تنفيذه.':'إضافة يدوية. يمكن أيضاً الإضافة من «التحليل والاحتياجات» بزر «أضف للأولويات».';
   $('addHint').hidden=false;$('ovAdd').classList.add('on');
 }
-// Talal #2: entries stay editable after adding (inspector for his contracts, senior for the region)
 function openEdit(id){
   if(draft){toast('احفظ الترتيب أو تراجع عنه أولاً');return}
-  const i=byId(id);resetForm();editId=id;parentId=i.parent||null;pre=i.site!=null?SITES[i.site]:null;
+  const i=byId(id);resetForm();editId=id;pre=i.site!=null?SITES[i.site]:null;
   $('addTitle').textContent='تعديل الاحتياج';$('iDel').hidden=false;$('iSave').textContent='حفظ التعديل';
-  $('iReg').value=i.reg;$('iReg').disabled=true;fillCons(i.reg,i.con);
-  kind=kindOf(i.prog);$('iKind').querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.k===kind);b.disabled=!!i.parent});
-  const progs=kind==='partial'?['21 بند']:ROOT_PROGS;$('iProg').innerHTML=progs.map(p=>`<option>${p}</option>`).join('');$('iProg').value=i.prog;$('iProg').disabled=kind==='partial';
-  $('kindHint').textContent=kind==='partial'?'تحسين جزئي = من بنود السلامة في الـ21 بند فقط. تقدر تضيف بنوداً جديدة أو تحذف بنوداً.':'تحسين جذري = «المبادرات» أو «الاتفاقية الإطارية».';
-  if(CATS[i.prog]){$('catBox').hidden=false;$('freeBox').hidden=true;renderLines(i.prog,i.lines);updTot()}
-  else{$('catBox').hidden=true;$('freeBox').hidden=false;$('iType').value=i.type;$('iVal').value=i.val||''}
+  $('iReg').value=i.reg;$('iReg').disabled=true;fillCons(i.reg,i.con);$('iProg').value=i.src;srcHint();
+  renderLines(i.lines);updTot();
   $('iDet').value=i.details||'';$('iRoad').value=i.road;$('iFrom').value=i.from;$('iTo').value=i.to||'';$('iLat').value=i.lat||'';$('iLng').value=i.lng||'';
-  $('iSt').value=i.status==='done'?'sent':i.status;$('iSt').disabled=i.status==='done';
-  if(pre){$('recBox').hidden=false;$('recBox').innerHTML=`<b>توصية iRAP (2023):</b> ${pre.rec.map(r=>REC[r].l).join('، ')}. الموقع تغيّر بعد المسح؟ أضف البنود المطلوبة اليوم أو احذف ما لم يعد لازماً.`}
-  $('iSub').hidden=!(kindOf(i.prog)==='root'&&!i.child&&i.status!=='done');
-  $('addSrc').textContent=`أُضيف ${fd(i.added)}.${i.parent?' هذا تنفيذ مؤقت ضمن الـ21 بند لمشروع جذري.':''}${i.child?' له تنفيذ جزئي مؤقت ضمن الـ21 بند.':''}`;$('addHint').hidden=true;$('ovAdd').classList.add('on');
+  if(pre){$('recBox').hidden=false;$('recBox').innerHTML=`<b>توصية iRAP (2023):</b> ${pre.rec.map(r=>REC[r].l).join('، ')}. الموقع تغيّر بعد المسح؟ أضف البنود المطلوبة اليوم أو احذف ما لم يعد لازماً. وتقدر تحوّل بنداً من الإطارية للـ21 بند لو ينفع ينفذ مباشرة.`}
+  $('addSrc').textContent=`أُضيف ${fd(i.added)}.`;$('addHint').hidden=true;$('ovAdd').classList.add('on');
 }
-// Talal #5: interim partial execution inside a root project
-$('iSub').onclick=()=>{const root=byId(editId);$('ovAdd').classList.remove('on');setTimeout(()=>openSub(root.id),60)};
-function openSub(rootId){const root=byId(rootId);resetForm();editId=null;parentId=rootId;pre=root.site!=null?SITES[root.site]:null;
-  $('addTitle').textContent='تنفيذ جزئي مؤقت ضمن الـ21 بند';$('iSave').textContent='إضافة';
-  $('iReg').value=root.reg;$('iReg').disabled=true;fillCons(root.reg,root.con);
-  $('iRoad').value=root.road;$('iFrom').value=root.from;$('iTo').value=root.to||'';$('iLat').value=root.lat||'';$('iLng').value=root.lng||'';
-  ['iRoad','iFrom','iTo','iLat','iLng'].forEach(x=>$(x).disabled=true);
-  setKind('partial','21 بند');$('iKind').querySelectorAll('button').forEach(b=>b.disabled=true);renderLines('21 بند',[]);updTot();
-  $('addSrc').textContent=`لمشروع «${root.prog}»: ${titleOf(root)} — طريق ${root.road}. المشروع الأصلي يبقى في قائمته ويظهر عليه وسم «جزء منه ضمن الـ21 بند»، ولما تفتحه تلقى المنفّذ والمتبقي.`;
-  $('iDet').value=`تنفيذ مؤقت لحين تنفيذ مشروع «${root.prog}»: `;$('addHint').hidden=true;$('ovAdd').classList.add('on')}
 $('bAdd').onclick=()=>openAdd(null);
-function readLines(p){const out=[],errs=[];
-  $('lines').querySelectorAll('.ln.on').forEach(ln=>{const no=ln.dataset.no,c=catItem(p,no),sp={};
+function readLines(){const out=[],errs=[];const old=editId?byId(editId).lines:[];
+  $('lines').querySelectorAll('.ln.on').forEach(ln=>{const no=ln.dataset.no,c=item(no),sp={};
     ln.querySelectorAll('.lb [data-k]').forEach(e=>{if(e.value)sp[e.dataset.k]=e.dataset.k==='posts'?+e.value:e.value});
     const rows=ln.querySelector('.signRows');if(rows)sp.signs=[...rows.children].map(r=>({t:r.querySelector('[data-f=t]').value,n:+r.querySelector('[data-f=n]').value||0,a:+r.querySelector('[data-f=a]').value||0})).filter(r=>r.n&&r.a);
-    const q=+ln.querySelector('[data-q]').value||0;
+    const q=+ln.querySelector('[data-q]').value||0,ch=ln.querySelector('[data-ch]').value,st=ln.querySelector('[data-st]').value;
     const need=(specOf(no).fields||[]).filter(f=>!f.num&&!sp[f.k]).map(f=>f.l);
     if(specOf(no).signs&&!(sp.signs||[]).length)errs.push(`«${c.name}»: حدّد نوع اللوحات وعددها ومساحتها`);
     if(need.length)errs.push(`«${c.name}»: حدّد ${need.join('، ')}`);
     if(!q)errs.push(`«${c.name}»: أدخل الكمية (${c.unit})`);
-    const old=editId?(byId(editId).lines||[]).find(l=>l.code===no):null;
-    const left=alloc(p,$('iReg').value,no)-reqQty(p,$('iReg').value,no,editId);if(q&&q>left)errs.push(`«${c.name}»: الكمية ${num(q)} تتجاوز المتبقي من المخصص (${num(left)} ${c.unit})`);
-    out.push({code:no,qty:q,spec:sp,done:old?Math.min(old.done||0,q):0})});
+    const o=old.find(l=>l.code===no);
+    out.push({code:no,qty:q,spec:sp,ch,st,done:o?Math.min(o.done||0,q):0})});
   if(!out.length)errs.unshift('اختر بنداً واحداً على الأقل');
   return{out,errs}}
 const inKSA=(la,ln)=>la>=16&&la<=32.5&&ln>=34.5&&ln<=56;
 $('iSave').onclick=()=>{
-  const p=$('iProg').value,cat=CATS[p];
-  const v={prog:p,reg:$('iReg').value,road:$('iRoad').value.trim(),from:$('iFrom').value.trim(),to:$('iTo').value.trim(),con:$('iCon').value,lat:+$('iLat').value||null,lng:+$('iLng').value||null,details:$('iDet').value.trim()};
-  // Talal #6: location and coordinates are mandatory
+  const v={src:$('iProg').value,reg:$('iReg').value,road:$('iRoad').value.trim(),from:$('iFrom').value.trim(),to:$('iTo').value.trim(),con:$('iCon').value,lat:+$('iLat').value||null,lng:+$('iLng').value||null,details:$('iDet').value.trim()};
   if(!v.road||!v.from){toast('رقم الطريق و«من كم» مطلوبان');$('iRoad').focus();return}
   if(!v.lat||!v.lng){toast('الإحداثيات مطلوبة: خط العرض وخط الطول، أو «استخدم موقعي الحالي»');$('iLat').focus();return}
   if(!inKSA(v.lat,v.lng)){toast('الإحداثيات خارج المملكة — تأكد منها (خط العرض أولاً ثم خط الطول)');return}
-  if(cat){const {out,errs}=readLines(p);if(errs.length){toast(errs[0]);return}Object.assign(v,{lines:out,type:null,val:null})}
-  else Object.assign(v,{lines:null,type:$('iType').value,val:+$('iVal').value||0});
-  if(!cat&&!v.val){toast('أدخل القيمة التقديرية');return}
+  const {out,errs}=readLines();if(errs.length){toast(errs[0]);return}v.lines=out;
   if(v.details.length<15){toast('اكتب تفاصيل الاحتياج (15 حرفاً على الأقل) حتى يُفهم المطلوب بدون اتصال');$('iDet').focus();return}
-  if(editId){const i=byId(editId),oldK=i.reg+'|'+i.prog,newK=v.reg+'|'+v.prog;if(i.status!=='done')v.status=$('iSt').value;
-    const before=titleOf(i);
-    const done=r=>{Object.assign(i,v);if(oldK!==newK){const a=ord(oldK);a.splice(a.indexOf(i.id),1);ord(newK).push(i.id);if(!S.meta[newK])S.meta[newK]={start:today(),src:'نقل من نوع آخر'};addLog(oldK,`نقل ${label(i)} إلى «${v.prog}»`,r);addLog(newK,`استلم ${label(i)} من «${oldK.split('|')[1]}» في آخر القائمة`,r)}
-      else addLog(newK,`عدّل ${label(i)}${before!==titleOf(i)?`: البنود صارت «${titleOf(i)}»`:''}`,r);$('ovAdd').classList.remove('on');save();render();toast('حُفظ التعديل')};
-    const w=windowInfo(oldK);if(oldK!==newK&&w&&!w.open)askReason('سبب نقل الاحتياج',`نقل ${label(i)} إلى «${v.prog}» بعد انتهاء المهلة يحتاج سبباً.`,done);else done(null);return}
-  v.status=$('iSt').value;
+  if(editId){const i=byId(editId),before=i.lines.map(l=>l.code+l.ch+l.qty).join(),oldSrc=i.src;
+    const chg=i.lines.filter(l=>{const n=out.find(x=>x.code===l.code);return n&&n.ch!==l.ch}).map(l=>`«${sname(l.code)}» إلى ${CH_L[l.ch==='21'?'fw':'21']}`);
+    Object.assign(i,v);addLog(i.reg,`عدّل ${label(i)}${oldSrc!==v.src?`: المصدر من «${oldSrc}» إلى «${v.src}»`:''}${before!==out.map(l=>l.code+l.ch+l.qty).join()?` — البنود «${titleOf(i)}»`:''}${chg.length?` — حوّل ${chg.join('، ')}`:''}`);
+    $('ovAdd').classList.remove('on');save();render();toast('حُفظ التعديل');return}
   const it={id:++S.seq,...v,site:pre?pre.i:null,snap:pre?{fa:pre.fa,dead:pre.dead,avg:+pre.avg.toFixed(1),tier:pre.tier}:null,why:{},added:today()};
-  if(parentId){it.parent=parentId;byId(parentId).child=it.id}
-  S.items.push(it);const k=it.reg+'|'+it.prog;ord(k).push(it.id);if(!S.meta[k])S.meta[k]={start:today(),src:'إدخال يدوي'};
-  addLog(k,`أضاف ${label(it)}${isCat(it)?` (${it.lines.map(l=>num(l.qty)+' '+(catItem(it.prog,l.code)||{}).unit).join(' + ')})`:''} في آخر القائمة (المرتبة ${ord(k).length})${parentId?' — تنفيذ مؤقت لمشروع جذري':''}`);
-  if(parentId){const pr=byId(parentId);addLog(pr.reg+'|'+pr.prog,`أضاف تنفيذاً جزئياً مؤقتاً ضمن الـ21 بند لـ${label(pr)}`)}
-  $('ovAdd').classList.remove('on');pre=null;parentId=null;plProg=it.prog;proj=it.prog;view='pl';save();render();toast('أُضيف في آخر قائمة «'+it.prog+'»')};
+  S.items.push(it);const k=it.reg;ord(k).push(it.id);if(!S.meta[k])S.meta[k]={start:today(),src:'إدخال يدوي'};
+  addLog(k,`أضاف ${label(it)} (${it.lines.map(l=>num(l.qty)+' '+item(l.code).unit+' '+(l.ch==='21'?'بالـ21 بند':'بالإطارية')).join(' + ')}) في آخر القائمة (المرتبة ${ord(k).length})`);
+  $('ovAdd').classList.remove('on');pre=null;proj='';plCh='';view='pl';save();render();toast('أُضيف في آخر قائمة أولويات '+it.reg+' («'+it.src+'»)')};
 $('iDel').onclick=()=>{const i=byId(editId);
-  askReason('سبب حذف الاحتياج',`حذف ${label(i)} من القائمة. يُحفظ الحذف وسببه في السجل.`,r=>{const k=i.reg+'|'+i.prog,a=ord(k);a.splice(a.indexOf(i.id),1);
-    if(i.child){const c=byId(i.child);if(c)delete c.parent}if(i.parent){const p=byId(i.parent);if(p)delete p.child}
+  askReason('سبب حذف الاحتياج',`حذف ${label(i)} من القائمة. يُحفظ الحذف وسببه في السجل.`,r=>{const k=i.reg,a=ord(k);a.splice(a.indexOf(i.id),1);
     S.items=S.items.filter(x=>x.id!==i.id);addLog(k,`حذف ${label(i)}`,r);$('ovAdd').classList.remove('on');save();render();toast('حُذف الاحتياج')})};
 
-/* ---------- partial within root: executed / remaining ---------- */
-function openPart(rootId){const r=byId(rootId),c=r&&r.child&&byId(r.child);if(!r||!c){toast('لا يوجد تنفيذ جزئي');return}
-  $('ptH').textContent=`التنفيذ الجزئي ضمن الـ21 بند — ${titleOf(r)}، طريق ${r.road}`;
-  const rows=c.lines.map(l=>{const ci=catItem('21 بند',l.code)||{name:l.code,unit:''};const left=Math.max(0,(+l.qty||0)-(+l.done||0));return `<tr><td><b>${esc(ci.name)}</b><div class="muted">${esc(specText(l.spec))}</div></td><td>${num(l.qty)} ${esc(ci.unit)}</td><td style="color:var(--green);font-weight:700">${num(l.done)}</td><td style="color:${left?'var(--brick)':'var(--green)'};font-weight:700">${num(left)}</td></tr>`}).join('');
-  $('ptBody').innerHTML=`<div class="okm" style="margin-bottom:10px"><b>المشروع الأصلي:</b> «${esc(r.prog)}» — ${esc(titleOf(r))}${r.val?` · ${fmt(r.val)} ر.س`:''} · ${esc(stText(r))}. يبقى في قائمة «${esc(r.prog)}» بترتيبه.</div>
-    <div class="muted" style="margin-bottom:6px">تنفيذ مؤقت ضمن الـ21 بند (أُضيف ${fd(c.added)}) — ${esc(stText(c))}</div>
-    <table class="bt"><thead><tr><th>البند</th><th>المطلوب</th><th>المنفّذ</th><th>المتبقي</th></tr></thead><tbody>${rows}</tbody></table>
-    ${c.details?`<div class="det" style="margin-top:8px">${esc(c.details)}</div>`:''}
-    <div class="muted" style="margin-top:8px">نطاق المشروع الأصلي كاملاً يُنفّذ ضمن «${esc(r.prog)}»، وما نُفّذ هنا مؤقت لرفع السلامة لحين ذلك.</div>
-    ${c.exec?`<button class="mini" id="ptBA">صور قبل وبعد</button>`:''}`;
-  if($('ptBA'))$('ptBA').onclick=()=>openBA(c.id);
+/* ---------- executed / remaining per need (Talal #5) ---------- */
+function openPart(id){const i=byId(id);
+  $('ptH').textContent=`المنفّذ والمتبقي — طريق ${i.road} كم ${i.from}`;
+  const rows=i.lines.map(l=>{const c=item(l.code);const left=Math.max(0,(+l.qty||0)-(+l.done||0));return `<tr><td><b>${esc(c.name)}</b><div class="muted">${esc(specText(l.spec))}</div></td><td><span class="tag" style="margin:0;${l.ch==='21'?'background:var(--green-t);color:var(--green)':''}">${CH_L[l.ch]}</span><div class="muted">${LST[l.ch][l.st]}</div></td><td>${num(l.qty)} ${esc(c.unit)}</td><td style="color:var(--green);font-weight:700">${num(l.done)}</td><td style="color:${left?'var(--brick)':'var(--green)'};font-weight:700">${num(left)}</td></tr>`}).join('');
+  $('ptBody').innerHTML=`<div class="okm" style="margin-bottom:10px">«${esc(i.src)}» — ${esc(stText(i))}</div>
+    <table class="bt"><thead><tr><th>البند</th><th>طريقة التنفيذ</th><th>المطلوب</th><th>المنفّذ</th><th>المتبقي</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="muted" style="margin-top:8px">لو المقاول رفع طلب الشراء بالإطارية وفيه بند نُفّذ بالـ21 بند، يظهر هنا أنه نُفّذ بالـ21 بند، والمتبقي فقط يُنفّذ بالإطارية.</div>
+    ${i.exec?`<button class="mini" id="ptBA">صور قبل وبعد</button>`:''}`;
+  if($('ptBA'))$('ptBA').onclick=()=>openBA(i.id);
   $('ovPart').classList.add('on')}
 
 /* ---------- execution: before / after + achievements ---------- */
@@ -953,111 +915,151 @@ let exId=null,exImg={};
 function shrink(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const m=520,sc=Math.min(1,m/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);res(cv.toDataURL('image/jpeg',.72))};im.onerror=rej;im.src=fr.result};fr.onerror=rej;fr.readAsDataURL(file)})}
 ['exB','exA'].forEach(id=>$(id).onchange=async()=>{const f=$(id).files[0];if(!f)return;try{exImg[id]=await shrink(f);$(id+'i').src=exImg[id];$(id+'i').hidden=false}catch(e){toast('تعذّرت قراءة الصورة')}});
 function openExec(id){const i=byId(id);exId=id;exImg={};['exB','exA'].forEach(x=>{$(x).value='';$(x+'i').hidden=true});
-  $('exWhat').textContent=`${titleOf(i)} — طريق ${i.road} من كم ${i.from}${i.to?' إلى '+i.to:''}. الصورتان إلزاميتان. إذا نُفّذ جزء من الكميات، اكتب المنفّذ ويبقى الباقي.`;
+  $('exWhat').textContent=`${titleOf(i)} — طريق ${i.road} من كم ${i.from}${i.to?' إلى '+i.to:''}. الصورتان إلزاميتان. اكتب المنفّذ لكل بند (تراكمي)، والبند اللي ما نُفّذ خلّه صفر.`;
   $('exD').value=today();
-  $('exLines').innerHTML=isCat(i)?`<label>الكمية المنفّذة حتى الآن (تراكمي) لكل بند</label>`+i.lines.map((l,ix)=>{const c=catItem(i.prog,l.code)||{name:l.code,unit:''};return `<div class="g2" style="align-items:end"><div class="muted" style="padding-bottom:8px">${esc(c.name)} — المطلوب ${num(l.qty)} ${esc(c.unit)}</div><input type="number" min="0" step="any" data-xl="${ix}" value="${l.qty}"></div>`}).join(''):'';
+  $('exLines').innerHTML=`<label>الكمية المنفّذة حتى الآن لكل بند</label>`+i.lines.map((l,ix)=>{const c=item(l.code);return `<div class="g2" style="align-items:end"><div class="muted" style="padding-bottom:8px">${esc(c.name)} — ${CH_L[l.ch]} — المطلوب ${num(l.qty)} ${esc(c.unit)}</div><input type="number" min="0" step="any" data-xl="${ix}" value="${l.st==='done'?l.qty:(l.done||0)}"></div>`}).join('');
   $('exAch').checked=true;$('ovExec').classList.add('on')}
 $('exOk').onclick=()=>{const i=byId(exId);if(!exImg.exB||!exImg.exA){toast('أرفق صورة قبل وصورة بعد');return}
-  if(isCat(i)){const ins=[...$('exLines').querySelectorAll('[data-xl]')];if(ins.some(x=>x.value===''||+x.value<0)){toast('أدخل الكمية المنفّذة لكل بند');return}
-    ins.forEach(x=>{const l=i.lines[+x.dataset.xl];l.done=Math.min(+x.value||0,+l.qty||0)});
-    if(!i.lines.some(l=>l.done>0)){toast('الكميات المنفّذة كلها صفر');return}
-    i.status=i.lines.every(l=>l.done>=l.qty)?'done':(i.status==='new'?'sent':i.status)}
-  else i.status='done';
+  const ins=[...$('exLines').querySelectorAll('[data-xl]')];if(ins.some(x=>x.value===''||+x.value<0)){toast('أدخل الكمية المنفّذة لكل بند (صفر إذا لم يُنفّذ)');return}
+  const prev=i.lines.map(l=>l.done||0);
+  ins.forEach(x=>{const l=i.lines[+x.dataset.xl];l.done=Math.min(+x.value||0,+l.qty||0);if(l.done>=l.qty)l.st='done';else if(l.done>0&&l.st==='new')l.st='sent'});
+  if(!i.lines.some((l,ix)=>l.done>prev[ix])){toast('ما فيه كمية منفّذة جديدة');return}
   i.exec={before:exImg.exB,after:exImg.exA,date:$('exD').value||today(),ach:$('exAch').checked,by:R().name};
-  addLog(i.reg+'|'+i.prog,`سجّل ${i.status==='done'?'تنفيذ':'تنفيذاً جزئياً لـ'} ${label(i)}${isCat(i)?` (${i.lines.map(l=>num(l.done)+'/'+num(l.qty)).join('، ')})`:''} مع صور قبل وبعد${i.exec.ach?'، وأُضيف للمنجزات':''}`);
-  if(i.parent){const p=byId(i.parent);if(p)addLog(p.reg+'|'+p.prog,`تنفيذ جزئي ضمن الـ21 بند لـ${label(p)}`)}
-  $('ovExec').classList.remove('on');save();render();toast(i.status==='done'?'سُجّل التنفيذ':'سُجّل التنفيذ الجزئي')};
+  addLog(i.reg,`سجّل تنفيذ ${label(i)}: ${i.lines.map(l=>sname(l.code)+' '+num(l.done)+'/'+num(l.qty)+' '+(l.ch==='21'?'(21 بند)':'(إطارية)')).join('، ')} مع صور قبل وبعد${i.exec.ach?'، وأُضيف للمنجزات':''}`);
+  $('ovExec').classList.remove('on');save();render();toast(stKey(i)==='done'?'سُجّل التنفيذ':'سُجّل التنفيذ الجزئي')};
 function openBA(id){const i=byId(id),e=i.exec;$('baH').textContent=`قبل وبعد — ${titleOf(i)}`;
-  $('baInfo').textContent=`طريق ${i.road} من كم ${i.from}${i.to?' إلى '+i.to:''} · ${fd(e.date)}${isCat(i)?' · '+i.lines.map(l=>num(l.done)+' '+((catItem(i.prog,l.code)||{}).unit||'')).join(' + '):''} · سجّله ${e.by}`;
+  $('baInfo').textContent=`طريق ${i.road} من كم ${i.from}${i.to?' إلى '+i.to:''} · ${fd(e.date)} · ${stText(i)} · سجّله ${e.by}`;
   $('baImgs').innerHTML=`<figure><img src="${e.before}"><figcaption>قبل</figcaption></figure><figure><img src="${e.after}"><figcaption>بعد</figcaption></figure>`;
   $('baAch').innerHTML=e.ach?'<span class="okchip">في المنجزات</span>':(mineItem(i)?'<button class="btn grn" id="baAdd">إضافة للمنجزات</button>':'');
-  if($('baAdd'))$('baAdd').onclick=()=>{e.ach=true;addLog(i.reg+'|'+i.prog,`أضاف ${label(i)} للمنجزات`);save();openBA(id);render()};
+  if($('baAdd'))$('baAdd').onclick=()=>{e.ach=true;addLog(i.reg,`أضاف ${label(i)} للمنجزات`);save();openBA(id);render()};
   $('ovBA').classList.add('on')}
 $('bAch').onclick=()=>{const L=S.items.filter(i=>i.exec&&i.exec.ach&&(!R().reg||i.reg===R().reg)&&(!myCons()||myCons().includes(i.con)));
-  $('achCap').textContent=L.length?`${plural(L.length,'منجز واحد','منجزان','منجزات','منجزاً')} — تُضاف تلقائياً عند تسجيل التنفيذ بصور قبل وبعد.`:'لا منجزات بعد. سجّل تنفيذ احتياج بصورتين قبل وبعد ليظهر هنا.';
-  $('achList').innerHTML=L.map(i=>`<div class="achrow"><img src="${i.exec.before}"><img src="${i.exec.after}"><div><b>${esc(titleOf(i))}</b><div class="muted">${esc(i.reg)} · طريق ${esc(i.road)} كم ${esc(i.from)} · ${esc(i.prog)} · ${fd(i.exec.date)} · ${esc(stText(i))}</div></div></div>`).join('');
+  $('achCap').textContent=L.length?`${plural(L.length,'منجز واحد','منجزان','منجزات','منجزاً')} — تُضاف تلقائياً عند تسجيل التنفيذ بصور قبل وبعد.`:'لا منجزات بعد.';
+  $('achList').innerHTML=L.map(i=>`<div class="achrow"><img src="${i.exec.before}"><img src="${i.exec.after}"><div><b>${esc(titleOf(i))}</b><div class="muted">${esc(i.reg)} · طريق ${esc(i.road)} كم ${esc(i.from)} · ${esc(i.src)} · ${fd(i.exec.date)} · ${esc(stText(i))}</div></div></div>`).join('');
   $('ovAchL').classList.add('on')};
 
-/* ---------- budget and quantities ---------- */
+/* ---------- initiative budget (from the budget form) ---------- */
+const B_=s=>S.budget[s]=S.budget[s]||{env:{},alloc:{},form:null};
+const budAlloc=(s,r,no)=>+((B_(s).alloc[r]||{})[no])||0;
+const budEnv=(s,r)=>{const b=B_(s);if(b.env[r])return+b.env[r];return Object.entries(b.alloc[r]||{}).reduce((a,[no,q])=>a+q*fwPrice(no),0)};
+const fwLines=(s,r,exceptId)=>S.items.filter(i=>i.src===s&&i.reg===r&&i.id!==exceptId).flatMap(i=>i.lines.filter(l=>l.ch==='fw'));
+const budReq=(s,r,no,exceptId)=>fwLines(s,r,exceptId).filter(l=>l.code===no).reduce((a,l)=>a+(+l.qty||0),0);
+const budPlanned=(s,r,exceptId)=>Math.round(fwLines(s,r,exceptId).reduce((a,l)=>a+lVal(l),0));
+const budDone=(s,r)=>Math.round(fwLines(s,r).reduce((a,l)=>a+(+l.done||0)*lPrice(l),0));
+const bud21=(s,r)=>Math.round(S.items.filter(i=>i.src===s&&i.reg===r).flatMap(i=>i.lines.filter(l=>l.ch==='21')).reduce((a,l)=>a+lVal(l),0));
+function regState(s,r){const e=budEnv(s,r),p=budPlanned(s,r),w=windowInfo(r);if(e&&p>e)return{k:'over',t:'تجاوز'};if(e&&p<e&&w&&!w.open)return{k:'save',t:'وفر'};if(e&&!w)return{k:'none',t:'لم تُرفع قائمة'};return{k:'ok',t:e?'ضمن الميزانية':'—'}}
 function visRegions(){return R().reg?[R().reg]:REGIONS}
 function renderBud(){
-  const p=budProg,cat=CATS[p],B=S.budget[p],core=role==='core';
-  if(!budItem||!cat.some(c=>c.no===budItem))budItem=cat[0].no;
-  $('budTabs').innerHTML=Object.keys(CATS).map(x=>`<button class="${x===p?'on':''}" data-b="${x}">${x==='المبادرات'?'المبادرات — مبادرة الحواجز':'21 بند — بنود السلامة'}</button>`).join('');
-  $('budTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{budProg=b.dataset.b;budItem=null;render()});
-  $('budCap').textContent=core?'أنت تعدّل: غيّر الكمية أو المبلغ لأي منطقة، والطرف الثاني يتحدث بسعر الوحدة. وغيّر سعر الوحدة فتتحدث مبالغ كل المناطق.':'عرض فقط. الكورتيم يحدد الكميات والأسعار. تظهر لك منطقتك فقط.';
-  const al=[];visRegions().forEach(r=>cat.forEach(c=>{const s=budState(p,r,c.no);if(s.k==='over')al.push(`<li class="bad"><b>تجاوز</b> — ${r}: «${c.name}» مطلوب ${num(s.q)} ${c.unit} والمخصص ${num(s.a)} (زيادة ${num(-s.left)} = ${fmt(-s.left*priceOf(p,c.no))} ر.س)</li>`);
-    if(s.k==='save')al.push(`<li class="good"><b>وفر</b> — ${r}: «${c.name}» متبقٍ ${num(s.left)} ${c.unit} = ${fmt(s.left*priceOf(p,c.no))} ر.س بعد انتهاء مهلة المراجعة. يمكن نقله لمنطقة أخرى.</li>`)}));
+  const s=budProg,b=B_(s),core=role==='core';
+  $('budTabs').innerHTML=INITS.map(x=>`<button class="${x===s?'on':''}" data-b="${x}">${x}</button>`).join('');
+  $('budTabs').querySelectorAll('button').forEach(t=>t.onclick=()=>{budProg=t.dataset.b;budReg=null;render()});
+  $('budCap').textContent=core?'الميزانية تتحدث من «نموذج الميزانية» اللي يرفعه الكورتيم (مبلغ كل منطقة وكميات البنود). تقدر بعدها تعدّل الكمية أو المبلغ أو سعر الوحدة يدوياً، وكل تعديل يُسجّل.':'عرض فقط. الكورتيم يرفع نموذج الميزانية. تظهر لك منطقتك فقط.';
+  const tot=REGIONS.reduce((a,r)=>a+budEnv(s,r),0);
+  $('budForm').innerHTML=b.form?`آخر نموذج: <b>${esc(b.form.f)}</b> · ${fd(b.form.d)} · إجمالي المبادرة ${fmt(tot)} ر.س`:`لم يُرفع نموذج لهذه المبادرة بعد${tot?` (المبالغ الحالية مُدخلة يدوياً: ${fmt(tot)} ر.س)`:''}.`;
+  const al=[];visRegions().forEach(r=>{const e=budEnv(s,r),p=budPlanned(s,r),st=regState(s,r);
+    if(st.k==='over')al.push(`<li class="bad"><b>تجاوز</b> — ${r}: المطلوب بالإطارية ${fmt(p)} ر.س والمخصص ${fmt(e)} (زيادة ${fmt(p-e)})</li>`);
+    if(st.k==='save')al.push(`<li class="good"><b>وفر</b> — ${r}: متبقٍ ${fmt(e-p)} ر.س بعد انتهاء مهلة المراجعة. يمكن نقله لمنطقة أخرى.</li>`);
+    Object.keys(b.alloc[r]||{}).forEach(no=>{const a=budAlloc(s,r,no),q=budReq(s,r,no);if(q>a)al.push(`<li class="bad"><b>تجاوز بند</b> — ${r}: «${item(no).name}» مطلوب ${num(q)} ${item(no).unit} والمخصص ${num(a)}</li>`)})});
   $('budAlerts').innerHTML=al.length?`<ul class="alerts">${al.join('')}</ul>`:`<div class="muted">لا تنبيهات. ${$('simLate').checked?'':'تنبيه «الوفر» يظهر بعد انتهاء مهلة المراجعة — جرّب «محاكاة: مرّ أسبوع».'}</div>`;
-  $('budPrices').innerHTML=`<table class="bt"><thead><tr><th>البند</th><th>الوحدة</th><th>سعر الوحدة (ر.س)</th><th>المخصص (كل المناطق)</th><th>المبلغ</th><th>المطلوب</th><th>المنفّذ</th></tr></thead><tbody>${cat.map(c=>{const ta=REGIONS.reduce((a,r)=>a+alloc(p,r,c.no),0),tq=REGIONS.reduce((a,r)=>a+reqQty(p,r,c.no),0),td=REGIONS.reduce((a,r)=>a+doneQty(p,r,c.no),0);
-    return `<tr class="${c.no===budItem?'sel':''}" data-it="${c.no}"><td><b>${c.name}</b><div class="muted">بند ${c.no}</div></td><td>${c.unit}</td><td>${core?`<input class="bin" data-price="${c.no}" type="number" min="0" step="any" value="${priceOf(p,c.no)}">`:num(priceOf(p,c.no))}</td><td>${num(ta)}</td><td>${fmt(ta*priceOf(p,c.no))}</td><td>${num(tq)}</td><td>${num(td)}</td></tr>`}).join('')}</tbody></table>`;
-  $('budPrices').querySelectorAll('tr[data-it]').forEach(tr=>tr.onclick=e=>{if(e.target.tagName==='INPUT')return;budItem=tr.dataset.it;render()});
-  $('budPrices').querySelectorAll('[data-price]').forEach(inp=>inp.onchange=()=>{const no=inp.dataset.price,old=priceOf(p,no),nv=+inp.value||0;if(nv===old)return;B.price[no]=nv;S.blog.push({w:R().name,d:today(),t:`غيّر سعر «${catItem(p,no).name}» من ${num(old)} إلى ${num(nv)} ر.س — تحدّثت مبالغ كل المناطق وقيم الاحتياجات في القوائم`});save();render();toast('تحدّث السعر ومبالغ كل المناطق')});
-  const c=catItem(p,budItem);
-  $('budItemH').textContent=`«${c.name}» — الكمية (${c.unit})، سعر الوحدة ${num(priceOf(p,c.no))} ر.س`;
-  $('budRegions').innerHTML=`<table class="bt rt"><thead><tr><th>المنطقة</th><th>المخصص (${c.unit})</th><th>المخصص (ر.س)</th><th>المطلوب في القوائم</th><th>المنفّذ</th><th>المتبقي</th><th>الحالة</th></tr></thead><tbody>${visRegions().map(r=>{const s=budState(p,r,c.no),pr=priceOf(p,c.no);
-    return `<tr><td data-l="المنطقة"><b>${r}</b></td><td data-l="المخصص (${c.unit})">${core?`<input class="bin" data-q="${r}" type="number" min="0" step="any" value="${s.a||''}">`:num(s.a)}</td><td data-l="المخصص (ر.س)">${core?`<input class="bin" data-v="${r}" type="number" min="0" step="any" value="${s.a?Math.round(s.a*pr):''}">`:fmt(s.a*pr)}</td><td data-l="المطلوب">${num(s.q)}</td><td data-l="المنفّذ">${num(s.d)}</td><td data-l="المتبقي" style="color:${s.left<0?'var(--brick)':'inherit'}">${num(s.left)}</td><td data-l="الحالة"><span class="bst ${s.k}">${s.t}</span></td></tr>`}).join('')}</tbody></table>`;
-  const setQ=(r,q)=>{B.alloc[r]=B.alloc[r]||{};const old=alloc(p,r,c.no);B.alloc[r][c.no]=q;S.blog.push({w:R().name,d:today(),t:`${r}: «${c.name}» من ${num(old)} إلى ${num(q)} ${c.unit} (${fmt(q*priceOf(p,c.no))} ر.س)`});save();render()};
-  $('budRegions').querySelectorAll('[data-q]').forEach(inp=>inp.onchange=()=>setQ(inp.dataset.q,+inp.value||0));
-  $('budRegions').querySelectorAll('[data-v]').forEach(inp=>inp.onchange=()=>{const pr=priceOf(p,c.no);if(!pr){toast('حدّد سعر الوحدة أولاً');return}setQ(inp.dataset.v,Math.round((+inp.value||0)/pr))});
+  const regs=visRegions();if(!budReg||!regs.includes(budReg))budReg=regs.includes(reg)?reg:regs[0];
+  $('budRegs').innerHTML=`<table class="bt rt"><thead><tr><th>المنطقة</th><th>المخصص (ر.س)</th><th>المطلوب بالإطارية</th><th>المتبقي</th><th>المنفّذ بالإطارية</th><th>بالـ21 بند (على عقد الصيانة)</th><th>الحالة</th></tr></thead><tbody>${regs.map(r=>{const e=budEnv(s,r),p=budPlanned(s,r),st=regState(s,r);
+    return `<tr data-r="${r}" class="${r===budReg?'sel':''}" style="cursor:pointer"><td data-l="المنطقة"><b>${r}</b></td><td data-l="المخصص">${core?`<input class="bin" data-env="${r}" type="number" min="0" step="any" value="${B_(s).env[r]||''}" placeholder="${e?Math.round(e):''}">`:fmt(e)}</td><td data-l="المطلوب">${fmt(p)}</td><td data-l="المتبقي" style="color:${e-p<0?'var(--brick)':'inherit'}">${e?fmt(e-p):'—'}</td><td data-l="المنفّذ">${fmt(budDone(s,r))}</td><td data-l="بالـ21 بند" class="muted">${fmt(bud21(s,r))}</td><td data-l="الحالة"><span class="bst ${st.k}">${st.t}</span></td></tr>`}).join('')}</tbody></table>`;
+  $('budRegs').querySelectorAll('tr[data-r]').forEach(tr=>tr.onclick=e=>{if(e.target.tagName==='INPUT')return;budReg=tr.dataset.r;render()});
+  $('budRegs').querySelectorAll('[data-env]').forEach(inp=>inp.onchange=()=>{const r=inp.dataset.env,old=B_(s).env[r]||0,nv=+inp.value||0;B_(s).env[r]=nv;S.blog.push({w:R().name,d:today(),t:`${s} — ${r}: المبلغ المخصص من ${fmt(old)} إلى ${fmt(nv)} ر.س (تعديل يدوي)`});save();render()});
+  // items of the chosen region: allocated vs requested (framework lines)
+  const r=budReg,codes=[...new Set([...Object.keys(b.alloc[r]||{}),...fwLines(s,r).map(l=>l.code)])];
+  $('budItemH').textContent=`بنود «${s}» — ${r}`;
+  $('budItems').innerHTML=codes.length?`<table class="bt"><thead><tr><th>البند</th><th>الوحدة</th><th>سعر الوحدة (الإطارية)</th><th>الكمية المخصصة</th><th>المبلغ المخصص</th><th>المطلوب في القائمة</th><th>المتبقي</th><th>الحالة</th></tr></thead><tbody>${codes.map(no=>{const c=item(no),a=budAlloc(s,r,no),q=budReq(s,r,no),pr=fwPrice(no);const k=a?(q>a?'over':'ok'):'none';
+    return `<tr><td><b>${esc(c.name)}</b><div class="muted">بند ${no}</div></td><td>${c.unit}</td><td>${core?`<input class="bin" data-price="${no}" type="number" min="0" step="any" value="${pr}">`:num(pr)}</td><td>${core?`<input class="bin" data-q="${no}" type="number" min="0" step="any" value="${a||''}">`:num(a)}</td><td>${core?`<input class="bin" data-v="${no}" type="number" min="0" step="any" value="${a?Math.round(a*pr):''}">`:fmt(a*pr)}</td><td>${num(q)}</td><td style="color:${a-q<0?'var(--brick)':'inherit'}">${a?num(a-q):'—'}</td><td><span class="bst ${k}">${a?(q>a?'تجاوز':'ضمن المخصص'):'بلا مخصص للبند'}</span></td></tr>`}).join('')}</tbody></table>`:'<div class="muted">لا بنود لهذه المنطقة بعد — لم يُرفع لها كميات ولا احتياجات بالإطارية.</div>';
+  const setQ=(no,q)=>{const al=B_(s).alloc;al[r]=al[r]||{};const old=budAlloc(s,r,no);al[r][no]=q;S.blog.push({w:R().name,d:today(),t:`${s} — ${r}: «${item(no).name}» من ${num(old)} إلى ${num(q)} ${item(no).unit} (${fmt(q*fwPrice(no))} ر.س)`});save();render()};
+  $('budItems').querySelectorAll('[data-q]').forEach(inp=>inp.onchange=()=>setQ(inp.dataset.q,+inp.value||0));
+  $('budItems').querySelectorAll('[data-v]').forEach(inp=>inp.onchange=()=>{const pr=fwPrice(inp.dataset.v);if(!pr){toast('حدّد سعر الوحدة أولاً');return}setQ(inp.dataset.v,Math.round((+inp.value||0)/pr))});
+  $('budItems').querySelectorAll('[data-price]').forEach(inp=>inp.onchange=()=>{const no=inp.dataset.price,old=fwPrice(no),nv=+inp.value||0;if(nv===old)return;S.prices[no]=nv;S.blog.push({w:R().name,d:today(),t:`غيّر سعر «${item(no).name}» (الإطارية) من ${num(old)} إلى ${num(nv)} ر.س — تحدّثت كل المبالغ`});save();render()});
   $('budLog').innerHTML=S.blog.slice().reverse().slice(0,12).map(l=>`<li>${esc(l.t)}<div class="w">${esc(l.w)} · ${fd(l.d)}</div></li>`).join('')||'<li class="muted">لا تعديلات.</li>';
 }
+// budget form: template + upload
+const BCOLS=['المبادرة','المنطقة','رقم البند','البند','الكمية','سعر الوحدة','المبلغ (ر.س)'];
+$('bBudTpl').onclick=()=>{const s=budProg,rows=[BCOLS];REGIONS.forEach(r=>rows.push([s,r,'','إجمالي المنطقة','','',B_(s).env[r]||'']));
+  rows.push([s,'تبوك','6011401',item('6011401').name,2000,fwPrice('6011401'),2000*fwPrice('6011401')],[s,'تبوك','6010103',item('6010103').name,2400,fwPrice('6010103'),2400*fwPrice('6010103')]);
+  xlsx([['الميزانية',rows]],`نموذج_ميزانية_${s.replace(/\s+/g,'_')}.xlsx`)};
+let bRows=[],bName='';
+$('bBudImp').onclick=()=>{bRows=[];$('bMsg').innerHTML='';$('bPrev').hidden=true;$('bOk').disabled=true;$('bfile').value='';$('ovBud').classList.add('on')};
+$('bdrop').onclick=()=>$('bfile').click();
+['dragover','dragenter'].forEach(e=>$('bdrop').addEventListener(e,ev=>{ev.preventDefault();$('bdrop').classList.add('hot')}));
+['dragleave','drop'].forEach(e=>$('bdrop').addEventListener(e,ev=>{ev.preventDefault();$('bdrop').classList.remove('hot')}));
+$('bdrop').addEventListener('drop',ev=>{const f=ev.dataTransfer.files[0];if(f)readBud(f)});
+$('bfile').onchange=()=>{const f=$('bfile').files[0];if(f)readBud(f)};
+function readBud(f){if(!window.XLSX){$('bMsg').innerHTML='<div class="warn">تعذّر تحميل مكتبة Excel.</div>';return}
+  const rd=new FileReader();rd.onload=e=>{try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});const aoa=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:false});
+    const hi=aoa.findIndex(r=>r.some(c=>norm(c)===norm('المنطقة')));if(hi<0){$('bMsg').innerHTML='<div class="warn">لم أجد صف العناوين. نزّل «نموذج الميزانية» واستخدم نفس العناوين.</div>';return}
+    const H=aoa[hi].map(norm),col=n=>H.findIndex(h=>h.startsWith(norm(n)));bName=f.name;
+    bRows=aoa.slice(hi+1).filter(r=>r.some(c=>String(c).trim())).map((r,ix)=>{const g=n=>{const j=col(n);return j<0?'':String(r[j]).trim()};const n2=s=>+String(s).replace(/[^\d.]/g,'')||0;
+      const o={line:hi+ix+2,src:pickFrom(INITS,g('المبادرة')),reg:pickFrom(REGIONS,g('المنطقة')),code:g('رقم البند'),qty:n2(g('الكمية')),price:n2(g('سعر الوحدة')),amt:n2(g('المبلغ'))};
+      if(!o.code&&g('البند')&&!/اجمالي|إجمالي/.test(g('البند'))){const c=FW.find(x=>norm(x.name)===norm(g('البند')));if(c)o.code=c.no}
+      if(o.code&&!FW.some(x=>x.no===o.code))o.unk=true;
+      o.err=[!o.src&&'المبادرة',!o.reg&&'المنطقة',o.code&&o.unk&&'رقم بند غير موجود في البنود',o.code&&!o.qty&&!o.amt&&'الكمية أو المبلغ',!o.code&&!o.amt&&'المبلغ'].filter(Boolean);return o});
+    const ok=bRows.filter(x=>!x.err.length),bad=bRows.length-ok.length,envs=ok.filter(x=>!x.code),its=ok.filter(x=>x.code),tot=envs.reduce((a,x)=>a+x.amt,0);
+    $('bMsg').innerHTML=`<div class="${bad?'warn':'okm'}">${esc(f.name)}: ${envs.length} مبلغ منطقة (الإجمالي ${fmt(tot)} ر.س) و${its.length} صف بنود${bad?`، و${bad} فيها نقص (بالأحمر) لن تُستخدم`:''}.</div>`;
+    $('bPrev').innerHTML=`<table><thead><tr><th>سطر</th><th>المبادرة</th><th>المنطقة</th><th>البند</th><th>الكمية</th><th>المبلغ</th><th>ملاحظة</th></tr></thead><tbody>${bRows.map(x=>`<tr class="${x.err.length?'bad':''}"><td>${x.line}</td><td>${esc(x.src||'؟')}</td><td>${esc(x.reg||'؟')}</td><td>${x.code?esc(item(x.code).name):'إجمالي المنطقة'}</td><td>${x.qty||''}</td><td>${x.amt?num(x.amt):''}</td><td>${x.err.length?'ناقص: '+x.err.join('، '):''}</td></tr>`).join('')}</tbody></table>`;
+    $('bPrev').hidden=false;$('bOk').disabled=!ok.length}catch(err){$('bMsg').innerHTML='<div class="warn">تعذّرت قراءة الملف: '+esc(err.message)+'</div>'}};rd.readAsArrayBuffer(f)}
+$('bOk').onclick=()=>{const ok=bRows.filter(x=>!x.err.length),srcs=new Set();
+  ok.forEach(x=>{const b=B_(x.src);srcs.add(x.src);if(!x.code)b.env[x.reg]=x.amt;else{b.alloc[x.reg]=b.alloc[x.reg]||{};const pr=x.price||fwPrice(x.code);if(x.price)S.prices[x.code]=x.price;b.alloc[x.reg][x.code]=x.qty||Math.round(x.amt/pr)}});
+  srcs.forEach(s=>{B_(s).form={d:today(),f:bName,total:REGIONS.reduce((a,r)=>a+budEnv(s,r),0)};S.blog.push({w:R().name,d:today(),t:`رفع نموذج ميزانية «${s}» (${bName}): ${ok.filter(x=>x.src===s).length} صفاً — الإجمالي ${fmt(B_(s).form.total)} ر.س`})});
+  save();$('ovBud').classList.remove('on');budProg=[...srcs][0]||budProg;render();toast('تحدّثت الميزانية من النموذج')};
 
 /* ---------- core dashboard (Talal #10) ---------- */
-const NEEDS=()=>[...CATB.map(c=>c.name),...CAT21.map(c=>c.name),...TYPES].filter((x,i,a)=>a.indexOf(x)===i);
-const needNames=i=>isCat(i)?i.lines.map(l=>lname(i.prog,l)):[i.type];
-function dashItems(){return S.items.filter(i=>(!df.reg||i.reg===df.reg)&&(!df.prog||i.prog===df.prog)&&(!df.kind||kindOf(i.prog)===df.kind)&&(!df.need||needNames(i).includes(df.need))&&(!df.st||stKey(i)===df.st)&&(!df.src||(df.src==='irap'?i.site!=null:i.site==null)))}
-const rankOf=i=>{const a=ord(i.reg+'|'+i.prog);return a.indexOf(i.id)+1||''};
-function aggBy(L,keyF){const m={};L.forEach(i=>{[].concat(keyF(i)).forEach(k=>{const a=m[k]=m[k]||{n:0,v:0,new:0,sent:0,partial:0,p21:0,done:0};a.n++;a.v+=valOf(i);a[stKey(i)]++})});return m}
+const needNames=i=>i.lines.map(lname);
+function dashItems(){return S.items.filter(i=>(!df.reg||i.reg===df.reg)&&(!df.prog||i.src===df.prog)&&(!df.kind||chOf(i)===df.kind)&&(!df.need||needNames(i).includes(df.need))&&(!df.st||stKey(i)===df.st)&&(!df.src||(df.src==='irap'?i.site!=null:i.site==null)))}
+const rankOf=i=>{const a=ord(i.reg);return a.indexOf(i.id)+1||''};
+function aggBy(L,keyF){const m={};L.forEach(i=>{[].concat(keyF(i)).forEach(k=>{const a=m[k]=m[k]||{n:0,v:0,f:0,new:0,sent:0,partial:0,done:0};a.n++;a.v+=valOf(i);a.f+=fwVal(i);a[stKey(i)]++})});return m}
 let DX={};
 function tbl(head,rows){return `<table class="bt"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${head.length}" class="empty">لا نتائج حسب الفلاتر.</td></tr>`}</tbody></table>`}
 function renderDash(){
   const opt=(id,list,cur,all)=>{$(id).innerHTML=`<option value="">${all||'الكل'}</option>`+list.map(([v,t])=>`<option value="${esc(v)}" ${v===cur?'selected':''}>${esc(t)}</option>`).join('')};
-  opt('dReg',REGIONS.map(r=>[r,r]),df.reg,'كل المناطق');opt('dProg',PROGS.map(p=>[p,p]),df.prog);opt('dNeed',NEEDS().map(n=>[n,n]),df.need);opt('dSt',Object.keys(ST_L).map(k=>[k,k==='sent'?'تم رفع الاحتياج ضمن مشروع':ST_L[k]]),df.st);
+  opt('dReg',REGIONS.map(r=>[r,r]),df.reg,'كل المناطق');opt('dProg',SRCS.map(p=>[p,p]),df.prog);opt('dNeed',FW.map(c=>[c.name,c.name]),df.need);opt('dSt',Object.keys(ST_L).map(k=>[k,ST_L[k]]),df.st);
   $('dKind').value=df.kind;$('dSrc').value=df.src;
-  const L=dashItems(),tot=L.reduce((a,i)=>a+valOf(i),0),cnt=k=>L.filter(i=>stKey(i)===k).length;
-  const kp=[['الاحتياجات',L.length,fmt(tot)+' ر.س','tot'],['لم يُرفع ضمن أي مشروع',cnt('new'),'',''],['مرفوع ضمن مشروع',cnt('sent'),'',''],['تنفيذ جزئي',cnt('partial')+cnt('p21'),cnt('p21')?`منها ${cnt('p21')} ضمن الـ21 بند لمشروع جذري`:'',''],['تم التنفيذ',cnt('done'),L.length?Math.round(cnt('done')/L.length*100)+'% من الاحتياجات':'','']];
+  const L=dashItems(),tot=L.reduce((a,i)=>a+valOf(i),0),tf=L.reduce((a,i)=>a+fwVal(i),0),cnt=k=>L.filter(i=>stKey(i)===k).length;
+  const kp=[['الاحتياجات',L.length,fmt(tot)+' ر.س','tot'],['بالاتفاقية الإطارية',fmt(tf),'ر.س — تُخصم من المبادرات',''],['بالـ21 بند',fmt(tot-tf),'ر.س — على عقود الصيانة',''],['لم يُرفع',cnt('new'),cnt('sent')+' مرفوع/موجّه',''],['تنفيذ جزئي / كامل',cnt('partial')+' / '+cnt('done'),L.length?Math.round(cnt('done')/L.length*100)+'% منفّذ كاملاً':'','']];
   $('dKpis').innerHTML=kp.map(([t,v,s,c])=>`<div class="kpi ${c}"><div class="t">${t}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
-  const SH=['العدد','القيمة (ر.س)','لم يُرفع','مرفوع','جزئي','منفّذ'];
-  const row=(k,a)=>[k,a.n,Math.round(a.v),a.new,a.sent,a.partial+a.p21,a.done];
-  const byReg=aggBy(L,i=>i.reg),byProg=aggBy(L,i=>i.prog);
+  const SH=['العدد','القيمة (ر.س)','منها بالإطارية','لم يُرفع','مرفوع','جزئي','منفّذ'];
+  const row=(k,a)=>[k,a.n,Math.round(a.v),Math.round(a.f),a.new,a.sent,a.partial,a.done];
+  const byReg=aggBy(L,i=>i.reg),byProg=aggBy(L,i=>i.src);
   DX.reg=[['المنطقة',...SH],...Object.keys(byReg).sort((a,b)=>byReg[b].v-byReg[a].v).map(k=>row(k,byReg[k]))];
-  DX.prog=[['نوع المشروع',...SH],...PROGS.filter(p=>byProg[p]).map(k=>row(k,byProg[k]))];
-  const nm={};L.forEach(i=>{if(isCat(i))i.lines.forEach(l=>{const c=catItem(i.prog,l.code)||{name:l.code,unit:''};const a=nm[c.name]=nm[c.name]||{n:0,q:0,d:0,u:c.unit,v:0};a.n++;a.q+=+l.qty||0;a.d+=+l.done||0;a.v+=(+l.qty||0)*priceOf(i.prog,l.code)});else{const a=nm[i.type]=nm[i.type]||{n:0,q:0,d:0,u:'—',v:0};a.n++;a.v+=+i.val||0;if(i.status==='done')a.d++}});
-  DX.need=[['نوع الاحتياج (البند)','عدد الاحتياجات','الكمية المطلوبة','الوحدة','المنفّذ','المتبقي','القيمة (ر.س)'],...Object.entries(nm).sort((a,b)=>b[1].v-a[1].v).map(([k,a])=>[k,a.n,a.u==='—'?'—':a.q,a.u,a.u==='—'?a.d+' مشروع':a.d,a.u==='—'?'—':Math.max(0,a.q-a.d),Math.round(a.v)])];
-  DX.list=[['المنطقة','نوع المشروع','ترتيب المنطقة','البنود / نوع التدخل','الكميات','رقم الطريق','من كم','إلى كم','خط العرض','خط الطول','العقد','القيمة (ر.س)','الحالة','سبب الأولوية (كبير المهندسين)','سبب الأولوية (مهندس الفحص)','مرتبط بـ','المصدر','حوادث الوفيات','تاريخ الإضافة'],
-    ...L.map(i=>[i.reg,i.prog,rankOf(i),titleOf(i),isCat(i)?i.lines.map(l=>num(l.qty)+' '+((catItem(i.prog,l.code)||{}).unit||'')+(l.done?` (نُفّذ ${num(l.done)})`:'')).join(' + '):'',i.road,i.from,i.to||'',i.lat||'',i.lng||'',i.con,valOf(i),stText(i),(i.why||{}).senior||'',(i.why||{}).insp||'',i.child?'له تنفيذ جزئي ضمن الـ21 بند':i.parent?'تنفيذ مؤقت لمشروع جذري':'',i.site!=null?'التحليل (iRAP)':'ميداني أو ملف',i.snap?i.snap.fa:'',fd(i.added)])];
-  const fmtRows=(rows,moneyIx)=>rows.slice(1).map(r=>r.map((c,j)=>moneyIx.includes(j)?`<b>${fmt(c)}</b>`:esc(c)));
-  $('dByReg').innerHTML=tbl(DX.reg[0],fmtRows(DX.reg,[2]));
-  $('dByProg').innerHTML=tbl(DX.prog[0],fmtRows(DX.prog,[2]));
-  $('dByNeed').innerHTML=tbl(DX.need[0],DX.need.slice(1).map(r=>r.map((c,j)=>j===6?`<b>${fmt(c)}</b>`:typeof c==='number'?num(c):esc(c))));
+  DX.prog=[['مصدر الاحتياج',...SH],...SRCS.filter(p=>byProg[p]).map(k=>row(k,byProg[k]))];
+  const nm={};L.forEach(i=>i.lines.forEach(l=>{const c=item(l.code);const k=c.name+'|'+l.ch;const a=nm[k]=nm[k]||{name:c.name,ch:l.ch,n:0,q:0,d:0,u:c.unit,v:0};a.n++;a.q+=+l.qty||0;a.d+=+l.done||0;a.v+=lVal(l)}));
+  DX.need=[['البند','طريقة التنفيذ','عدد الاحتياجات','الكمية المطلوبة','الوحدة','المنفّذ','المتبقي','القيمة (ر.س)'],...Object.values(nm).sort((a,b)=>b.v-a.v).map(a=>[a.name,CH_L[a.ch],a.n,a.q,a.u,a.d,Math.max(0,a.q-a.d),Math.round(a.v)])];
+  DX.list=[['المنطقة','مصدر الاحتياج','ترتيب المنطقة','البنود','الكميات وطريقة التنفيذ','طريقة التنفيذ','رقم الطريق','من كم','إلى كم','خط العرض','خط الطول','العقد','القيمة (ر.س)','منها بالإطارية','الحالة','سبب الأولوية (كبير المهندسين)','سبب الأولوية (مهندس الفحص)','المصدر','حوادث الوفيات','تاريخ الإضافة'],
+    ...L.map(i=>[i.reg,i.src,rankOf(i),titleOf(i),i.lines.map(l=>`${sname(l.code)} ${num(l.qty)} ${item(l.code).unit} (${CH_L[l.ch]}، ${LST[l.ch][l.st]}${l.done&&l.st!=='done'?`، نُفّذ ${num(l.done)}`:''})`).join(' + '),CH_L[chOf(i)],i.road,i.from,i.to||'',i.lat||'',i.lng||'',i.con,valOf(i),fwVal(i),stText(i),(i.why||{}).senior||'',(i.why||{}).insp||'',i.site!=null?'التحليل (iRAP)':'ميداني أو ملف',i.snap?i.snap.fa:'',fd(i.added)])];
+  const fmtRows=(rows,mi)=>rows.slice(1).map(r=>r.map((c,j)=>mi.includes(j)?`<b>${fmt(c)}</b>`:esc(c)));
+  $('dByReg').innerHTML=tbl(DX.reg[0],fmtRows(DX.reg,[2,3]));
+  $('dByProg').innerHTML=tbl(DX.prog[0],fmtRows(DX.prog,[2,3]));
+  $('dByNeed').innerHTML=tbl(DX.need[0],DX.need.slice(1).map(r=>r.map((c,j)=>j===7?`<b>${fmt(c)}</b>`:typeof c==='number'?num(c):esc(c))));
   $('dListH').textContent=`النتائج — ${plural(L.length,'احتياج واحد','احتياجان','احتياجات','احتياجاً')}`;
-  $('dList').innerHTML=tbl(['المنطقة','نوع المشروع','الترتيب','البنود / نوع التدخل','الموقع','القيمة','الحالة','سبب الأولوية'],L.map(i=>[esc(i.reg),esc(i.prog),rankOf(i),esc(titleOf(i))+(i.child?'<div><span class="tag">جزء منه ضمن الـ21 بند</span></div>':i.parent?'<div><span class="tag">تنفيذ مؤقت لمشروع جذري</span></div>':''),`طريق ${esc(i.road)} كم ${esc(i.from)}<div class="coord">${coordTxt(i)}</div>`,`<b>${fmt(valOf(i))}</b>`,`<span style="color:${ST_C[stKey(i)]};font-weight:600;font-size:12px">${esc(stText(i))}</span>`,esc((i.why||{}).senior||(i.why||{}).insp||'')]));
+  $('dList').innerHTML=tbl(['المنطقة','المصدر','الترتيب','البنود وطريقة التنفيذ','الموقع','القيمة','الحالة','سبب الأولوية'],L.map(i=>[esc(i.reg),esc(i.src),rankOf(i),i.lines.map(l=>`${esc(sname(l.code))} <span class="muted">(${CH_L[l.ch]})</span>`).join('<br>'),`طريق ${esc(i.road)} كم ${esc(i.from)}<div class="coord">${coordTxt(i)}</div>`,`<b>${fmt(valOf(i))}</b>`,`<span style="color:${ST_C[stKey(i)]};font-weight:600;font-size:12px">${esc(stText(i))}</span>`,esc((i.why||{}).senior||(i.why||{}).insp||'')]));
 }
 ['dReg','dProg','dKind','dNeed','dSt','dSrc'].forEach(id=>$(id).onchange=()=>{df[{dReg:'reg',dProg:'prog',dKind:'kind',dNeed:'need',dSt:'st',dSrc:'src'}[id]]=$(id).value;renderDash()});
 $('dClear').onclick=()=>{df={...DF};renderDash()};
 const fname=()=>[df.reg||'كل_المناطق',df.prog,df.need].filter(Boolean).join('_').replace(/\s+/g,'_');
 function xlsx(sheets,file){if(!window.XLSX){toast('تعذّر تحميل مكتبة Excel — تحقق من الاتصال');return}const wb=XLSX.utils.book_new();sheets.forEach(([n,aoa])=>{const ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=aoa[0].map(()=>({wch:18}));XLSX.utils.book_append_sheet(wb,ws,n.slice(0,30))});wb.Workbook={Views:[{RTL:true}]};XLSX.writeFile(wb,file);toast('صُدّر الملف')}
-const DXN={reg:'حسب المنطقة',prog:'حسب نوع المشروع',need:'حسب نوع الاحتياج',list:'النتائج'};
+const DXN={reg:'حسب المنطقة',prog:'حسب مصدر الاحتياج',need:'حسب البند',list:'النتائج'};
 document.querySelectorAll('[data-dx]').forEach(b=>b.onclick=()=>{const k=b.dataset.dx;xlsx([[DXN[k],DX[k]]],`لوحة_الكورتيم_${DXN[k].replace(/\s+/g,'_')}_${fname()}_${today()}.xlsx`)});
 $('dExpAll').onclick=()=>xlsx(['list','reg','prog','need'].map(k=>[DXN[k],DX[k]]),`لوحة_الكورتيم_${fname()}_${today()}.xlsx`);
 
 /* ---------- export (priority lists) ---------- */
 $('bExp').onclick=()=>{
   const regs=R().reg?[R().reg]:REGIONS;
-  const COLS=['نوع المشروع','المنطقة','ترتيب المنطقة','ترتيب مهندس الفحص','سبب الأولوية (كبير المهندسين)','سبب الأولوية (مهندس الفحص)','البند / نوع التدخل','رقم البند','الكمية','الوحدة','المنفّذ','المتبقي','المواصفات','تفاصيل الاحتياج','رقم الطريق','من كم','إلى كم','خط العرض','خط الطول','العقد','القيمة (ر.س)','الحالة','مرتبط بـ','حوادث الوفيات عند الإضافة','TIER','متوسط النجوم','توصية iRAP','تاريخ الإضافة'];
-  const sheets=PROGS.map(p=>{const rows=[COLS];regs.forEach(r=>{const k=r+'|'+p,em={};engOrd(k).forEach((id,ix)=>em[id]=ix+1);ord(k).forEach((id,ix)=>{const i=byId(id);if(!i||myCons()&&!myCons().includes(i.con))return;const s=i.snap||{},w=i.why||{};
-      const base=[p,r,ix+1,em[id]||'',w.senior||'',w.insp||''],tail=[i.details||'',i.road,i.from,i.to||'',i.lat||'',i.lng||'',i.con],tail2=[stText(i),i.child?'له تنفيذ جزئي ضمن الـ21 بند':i.parent?'تنفيذ مؤقت لمشروع جذري':'',s.fa??'',s.tier??'',s.avg??'',i.site!=null?SITES[i.site].rec.map(x=>REC[x].l).join('، '):'',fd(i.added)];
-      if(isCat(i))i.lines.forEach(l=>{const c=catItem(p,l.code)||{};rows.push([...base,c.name||l.code,l.code,l.qty,c.unit||'',l.done||0,Math.max(0,(+l.qty||0)-(+l.done||0)),specText(l.spec),...tail,Math.round((+l.qty||0)*priceOf(p,l.code)),...tail2])});
-      else rows.push([...base,i.type,'','','','','','',...tail,valOf(i),...tail2])})});return[p,rows]});
-  Object.keys(CATS).forEach(p=>{const rows=[['البند','رقم البند','الوحدة','سعر الوحدة','المنطقة','المخصص','المخصص (ر.س)','المطلوب','المنفّذ','المتبقي','الحالة']];CATS[p].forEach(c=>regs.forEach(r=>{const s=budState(p,r,c.no);if(s.a||s.q)rows.push([c.name,c.no,c.unit,priceOf(p,c.no),r,s.a,Math.round(s.a*priceOf(p,c.no)),s.q,s.d,s.left,s.t])}));sheets.push(['ميزانية '+p,rows])});
-  sheets.push(['سجل التعديلات',[['نوع المشروع','المنطقة','التاريخ','المستخدم','التعديل','السبب'],...S.logs.filter(l=>regs.includes(l.k.split('|')[0])).map(l=>[l.k.split('|')[1],l.k.split('|')[0],fd(l.d),l.w,l.t,l.r||''])]]);
+  const COLS=['مصدر الاحتياج','المنطقة','ترتيب المنطقة','ترتيب مهندس الفحص','سبب الأولوية (كبير المهندسين)','سبب الأولوية (مهندس الفحص)','البند','رقم البند','الكمية','الوحدة','طريقة التنفيذ','حالة البند','المنفّذ','المتبقي','سعر الوحدة','القيمة (ر.س)','المواصفات','تفاصيل الاحتياج','رقم الطريق','من كم','إلى كم','خط العرض','خط الطول','العقد','حالة الاحتياج','حوادث الوفيات عند الإضافة','TIER','متوسط النجوم','توصية iRAP','تاريخ الإضافة'];
+  const rowsFor=f=>{const rows=[['ترتيب داخل القائمة',...COLS]];regs.forEach(r=>{const em={};engOrd(r).forEach((id,ix)=>em[id]=ix+1);let n=0;ord(r).forEach((id,ix)=>{const i=byId(id);if(!i||myCons()&&!myCons().includes(i.con)||!f(i))return;n++;const s=i.snap||{},w=i.why||{};
+      i.lines.forEach(l=>{const c=item(l.code);rows.push([n,i.src,r,ix+1,em[id]||'',w.senior||'',w.insp||'',c.name,l.ch==='21'?(CODE21[l.code]||l.code):l.code,l.qty,c.unit,CH_L[l.ch],LST[l.ch][l.st],l.done||0,Math.max(0,(+l.qty||0)-(+l.done||0)),lPrice(l),Math.round(lVal(l)),specText(l.spec),i.details||'',i.road,i.from,i.to||'',i.lat||'',i.lng||'',i.con,stText(i),s.fa??'',s.tier??'',s.avg??'',i.site!=null?SITES[i.site].rec.map(x=>REC[x].l).join('، '):'',fd(i.added)])})})});return rows};
+  const sheets=[['قائمة المنطقة (كل الأولويات)',rowsFor(()=>true)],...SRCS.map(p=>[p,rowsFor(i=>i.src===p)])];
+  INITS.forEach(s=>{const rows=[['المنطقة','المخصص (ر.س)','المطلوب بالإطارية','المتبقي','المنفّذ بالإطارية','بالـ21 بند (على عقد الصيانة)','الحالة']];regs.forEach(r=>{const e=budEnv(s,r),p=budPlanned(s,r);if(e||p)rows.push([r,Math.round(e),p,Math.round(e-p),budDone(s,r),bud21(s,r),regState(s,r).t])});sheets.push(['ميزانية '+s.replace('مبادرة ',''),rows])});
+  sheets.push(['سجل التعديلات',[['المصدر','المنطقة','التاريخ','المستخدم','التعديل','السبب'],...S.logs.filter(l=>regs.includes(l.k.split('|')[0])).map(l=>[l.k.split('|')[1],l.k.split('|')[0],fd(l.d),l.w,l.t,l.r||''])]]);
   xlsx(sheets,'قائمة_الأولويات_'+(R().reg||'كل_المناطق')+'_'+today()+'.xlsx');
 };
 
 /* ---------- import (core) ---------- */
-const IMP=['نوع المشروع','المنطقة','ترتيب الأولوية','البند أو نوع التدخل','الكمية','رقم الطريق','من كم','إلى كم','خط العرض','خط الطول','العقد','القيمة التقديرية','تفاصيل الاحتياج'];
-$('bTpl').onclick=()=>xlsx([['البنود',[IMP,['المبادرات','الباحة',1,'حواجز معدنية',800,'246','68+369','75+027',20.011,41.465,'1001','','حماية منحدر اتجاه الراكب'],['المبادرات','الباحة',2,'حواجز خرسانية (نيوجيرسي) — وجه واحد',600,'15','2010+000','2016+500','','','1002','','فصل الاتجاهين'],['21 بند','تبوك',1,'الحواجز المعدنية',600,'15','2427+000','2430+000',28.33,36.56,'1202','','حماية منحدر عند الدوران'],['الاتفاقية الإطارية','حائل',1,'تحسين تقاطع','','70','330+000','',27.48,41.73,'603',2700000,'حارة تباطؤ وإنارة']]]],'نموذج_استيراد_الأولويات.xlsx');
+const IMP=['مصدر الاحتياج','المنطقة','ترتيب الأولوية','رقم البند أو اسمه','الكمية','طريقة التنفيذ','رقم الطريق','من كم','إلى كم','خط العرض','خط الطول','العقد','تفاصيل الاحتياج'];
+$('bTpl').onclick=()=>xlsx([['البنود',[IMP,['مبادرة الحواجز','الباحة',1,'6010103',800,'إطارية','246','68+369','75+027',20.011,41.465,'1001','حماية منحدر اتجاه الراكب'],['مبادرة الحواجز','الباحة',1,'6010552',4,'إطارية','246','68+369','75+027',20.011,41.465,'1001','نهايات الحاجز'],['مبادرة الحواجز','الباحة',2,'حاجز خرساني نيوجيرسي — وجه واحد',600,'','15','2010+000','2016+500','','','1002','فصل الاتجاهين'],['احتياج ميداني','تبوك',1,'9030301',600,'21 بند','15','2427+000','2430+000',28.33,36.56,'1202','إعادة دهان خط الحافة']]]],'نموذج_استيراد_الأولويات.xlsx');
 let impRows=[];
 $('bImp').onclick=()=>{impRows=[];$('impMsg').innerHTML='';$('impPrev').hidden=true;$('impOk').disabled=true;$('file').value='';$('ovImp').classList.add('on')};
 $('drop').onclick=()=>$('file').click();
@@ -1077,56 +1079,54 @@ function readFile(f){
     if(hi<0){$('impMsg').innerHTML='<div class="warn">لم أجد صف العناوين (عمود «رقم الطريق»). نزّل نموذج الملف واستخدم نفس العناوين.</div>';return}
     const H=aoa[hi].map(norm),col=n=>H.indexOf(norm(n));
     impRows=aoa.slice(hi+1).filter(r=>r.some(c=>String(c).trim())).map((r,ix)=>{const g=n=>{const j=col(n);return j<0?'':String(r[j]).trim()};
-      const o={line:hi+ix+2,prog:pickFrom(PROGS,g('نوع المشروع')||g('البرنامج')),reg:pickFrom(REGIONS,g('المنطقة')),rank:+g('ترتيب الأولوية')||null,type:g('البند أو نوع التدخل')||g('نوع التدخل'),road:g('رقم الطريق'),from:g('من كم'),to:g('إلى كم'),lat:+g('خط العرض')||null,lng:+g('خط الطول')||null,con:g('العقد'),val:+String(g('القيمة التقديرية')).replace(/[^\d.]/g,'')||0,details:g('تفاصيل الاحتياج')||g('ملاحظة'),qty:+String(g('الكمية')).replace(/[^\d.]/g,'')||0};
-      const cat=o.prog&&CATS[o.prog];o.cat=cat?cat.find(c=>norm(c.name)===norm(o.type)||c.no===String(o.type).trim()):null;
-      if(o.cat)o.type=o.cat.name;else if(!cat)o.type=pickFrom(TYPES,o.type)||o.type;
-      o.err=[!o.prog&&'نوع المشروع',!o.reg&&'المنطقة',!o.type&&'البند',cat&&o.type&&!o.cat&&('ليس من بنود '+CATNAME[o.prog]),cat&&o.cat&&!o.qty&&'الكمية',!o.road&&'رقم الطريق',!o.from&&'من كم'].filter(Boolean);return o});
-    const ok=impRows.filter(x=>!x.err.length),bad=impRows.length-ok.length,regs=[...new Set(ok.map(x=>x.reg))],noC=ok.filter(x=>!x.lat||!x.lng).length;
-    $('impMsg').innerHTML=`<div class="${bad?'warn':'okm'}">${esc(f.name)}: ${plural(impRows.length,'صف واحد','صفان','صفوف','صفاً')} — الجاهز للاستيراد ${ok.length} في ${plural(regs.length,'منطقة واحدة','منطقتين','مناطق','منطقة')}${bad?`، وفيه نقص في ${bad} (بالأحمر) ولن يُستورد`:''}${noC?`. ${noC} بلا إحداثيات: تُستورد ويظهر عليها «بلا إحداثيات»`:''}.</div>`;
-    $('impPrev').innerHTML=`<table><thead><tr><th>سطر</th><th>النوع</th><th>المنطقة</th><th>الترتيب</th><th>البند</th><th>الكمية</th><th>الطريق</th><th>من كم</th><th>الإحداثيات</th><th>ملاحظة</th></tr></thead><tbody>${impRows.map(x=>`<tr class="${x.err.length?'bad':''}"><td>${x.line}</td><td>${esc(x.prog||'؟')}</td><td>${esc(x.reg||'؟')}</td><td>${x.rank||''}</td><td>${esc(x.type||'؟')}</td><td>${x.qty||''}</td><td>${esc(x.road)}</td><td>${esc(x.from)}</td><td>${x.lat&&x.lng?'✓':'—'}</td><td>${x.err.length?'ناقص: '+x.err.join('، '):esc(x.details)}</td></tr>`).join('')}</tbody></table>`;
+      const it=g('رقم البند أو اسمه')||g('البند');const c=FW.find(x=>x.no===it||(CODE21[x.no]===it))||FW.find(x=>norm(x.name)===norm(it));const chs=norm(g('طريقة التنفيذ'));
+      const o={line:hi+ix+2,src:pickFrom(SRCS,g('مصدر الاحتياج')||g('نوع المشروع')),reg:pickFrom(REGIONS,g('المنطقة')),rank:+g('ترتيب الأولوية')||null,c,road:g('رقم الطريق'),from:g('من كم'),to:g('إلى كم'),lat:+g('خط العرض')||null,lng:+g('خط الطول')||null,con:g('العقد'),details:g('تفاصيل الاحتياج')||g('ملاحظة'),qty:+String(g('الكمية')).replace(/[^\d.]/g,'')||0};
+      o.ch=c?(/21/.test(chs)&&in21(c.no)?'21':/اطار/.test(chs)?'fw':in21(c.no)?'21':'fw'):null;
+      o.err=[!o.src&&'مصدر الاحتياج',!o.reg&&'المنطقة',!c&&'البند (رقم أو اسم من القائمة)',c&&!o.qty&&'الكمية',!o.road&&'رقم الطريق',!o.from&&'من كم'].filter(Boolean);return o});
+    const ok=impRows.filter(x=>!x.err.length),bad=impRows.length-ok.length,noC=ok.filter(x=>!x.lat||!x.lng).length;
+    $('impMsg').innerHTML=`<div class="${bad?'warn':'okm'}">${esc(f.name)}: ${plural(impRows.length,'صف واحد','صفان','صفوف','صفاً')} — الجاهز ${ok.length}${bad?`، ونقص في ${bad} (بالأحمر)`:''}${noC?`. ${noC} بلا إحداثيات`:''}. الصفوف بنفس المنطقة والمصدر والطريق و«من كم» تُجمع في احتياج واحد.</div>`;
+    $('impPrev').innerHTML=`<table><thead><tr><th>سطر</th><th>المصدر</th><th>المنطقة</th><th>الترتيب</th><th>البند</th><th>الكمية</th><th>التنفيذ</th><th>الطريق</th><th>من كم</th><th>ملاحظة</th></tr></thead><tbody>${impRows.map(x=>`<tr class="${x.err.length?'bad':''}"><td>${x.line}</td><td>${esc(x.src||'؟')}</td><td>${esc(x.reg||'؟')}</td><td>${x.rank||''}</td><td>${esc(x.c?x.c.name:'؟')}</td><td>${x.qty||''}</td><td>${x.ch?CH_L[x.ch]:''}</td><td>${esc(x.road)}</td><td>${esc(x.from)}</td><td>${x.err.length?'ناقص: '+x.err.join('، '):esc(x.details)}</td></tr>`).join('')}</tbody></table>`;
     $('impPrev').hidden=false;$('impOk').disabled=!ok.length;
   }catch(err){$('impMsg').innerHTML='<div class="warn">تعذّرت قراءة الملف: '+esc(err.message)+'</div>'}};
   rd.readAsArrayBuffer(f);
 }
 $('impOk').onclick=()=>{
   const good=impRows.filter(x=>!x.err.length),groups={};
-  good.forEach(x=>{const k=x.reg+'|'+x.prog;(groups[k]=groups[k]||[]).push(x)});
+  good.forEach(x=>{const k=x.reg;(groups[k]=groups[k]||[]).push(x)});
+  let n=0;
   Object.entries(groups).forEach(([k,rows])=>{
     rows.sort((a,b)=>(a.rank??1e9)-(b.rank??1e9)||a.line-b.line);
-    const isNew=!ord(k).length;
-    rows.forEach(x=>{const it={id:++S.seq,prog:x.prog,reg:x.reg,type:x.cat?null:x.type,road:x.road,from:x.from,to:x.to,lat:x.lat,lng:x.lng,con:x.con,val:x.cat?null:x.val,lines:x.cat?[{code:x.cat.no,qty:x.qty,spec:{},done:0}]:null,status:'new',details:x.details,site:null,snap:null,why:{},added:today()};S.items.push(it);ord(k).push(it.id)});
+    const isNew=!ord(k).length,needs={};
+    rows.forEach(x=>{const nk=x.src+'|'+x.road+'|'+x.from;let it=needs[nk];
+      if(!it){it={id:++S.seq,src:x.src,reg:x.reg,road:x.road,from:x.from,to:x.to,lat:x.lat,lng:x.lng,con:x.con,lines:[],details:x.details,site:null,snap:null,why:{},added:today()};needs[nk]=it;S.items.push(it);ord(k).push(it.id);n++}
+      if(!it.lines.some(l=>l.code===x.c.no))it.lines.push({code:x.c.no,qty:x.qty,spec:{},ch:x.ch,st:'new',done:0});if(x.details&&!it.details.includes(x.details))it.details+=(it.details?' — ':'')+x.details});
     if(isNew)S.meta[k]={start:today(),src:'ملف مستورد'};
-    S.logs.push({k,w:R().name,d:today(),t:`استورد ${plural(rows.length,'احتياجاً واحداً','احتياجين','احتياجات','احتياجاً')} من ملف${isNew?` بترتيب الملف. بدأت مهلة المراجعة حتى ${fd(addDays(today(),7))}`:'، في آخر القائمة'}`,r:null});
+    S.logs.push({k,w:R().name,d:today(),t:`استورد ${Object.keys(needs).length} احتياجاً (${rows.length} بنداً) من ملف${isNew?` بترتيب الملف. بدأت مهلة المراجعة حتى ${fd(addDays(today(),7))}`:'، في آخر القائمة'}`,r:null});
   });
   save();$('ovImp').classList.remove('on');
-  const f=good[0];if(f){reg=f.reg;plProg=f.prog;proj=f.prog}view='pl';con='';conCard=null;render();toast(`استُورد ${plural(good.length,'احتياج واحد','احتياجان','احتياجات','احتياجاً')} في ${plural(Object.keys(groups).length,'قائمة واحدة','قائمتين','قوائم','قائمة')}`);
+  const f=good[0];if(f){reg=f.reg;proj='';plCh=''}view='pl';con='';conCard=null;render();toast(`استُورد ${plural(n,'احتياج واحد','احتياجان','احتياجات','احتياجاً')}`);
 };
 
 /* ---------- requests map ---------- */
 const REQS=[
- ['فلتر TIER من 1 إلى 4 كأزرار، تختار منها ما تريد','«التحليل والاحتياجات» ← الفلاتر ← TIER'],
+ ['فلاتر TIER والتقييم النجمي وحوادث الوفيات','«التحليل والاحتياجات» ← الفلاتر'],
  ['إعادة صياغة بنود الاحتياجات','بانتظار ملف الإدارة',1],
- ['التقييم النجمي مثل TIER، كل النجوم','«التحليل والاحتياجات» ← الفلاتر ← التقييم النجمي (1 إلى 5)'],
- ['فلتر الحوادث: الكل / حادث واحد / أكثر من حادث','«التحليل والاحتياجات» ← حوادث الوفيات'],
- ['«ترتيب الأولوية» بدل «#»','عمود الجدول في الصفحتين'],
- ['الترتيب حسب الحوادث أو التقييم النجمي، وكبير المهندسين أو مهندس الفحص يعيد الترتيب بالسحب والإفلات','«الترتيب حسب» في التحليل، و«قائمة الأولويات المعتمدة»: سحب أو أسهم، و«اقترح ترتيباً»'],
- ['«نوع المكان» يصير «نوع التدخل» في إضافة الاحتياج','تحسين جزئي = بنود السلامة من الـ21 بند فقط، وتحسين جذري = المبادرات أو الاتفاقية الإطارية'],
- ['فلتر نوع المشروع: مبادرات / الاتفاقية الإطارية / 21 بند','الفلاتر أعلى الصفحة، وتبويبات القائمة المعتمدة'],
- ['كروت للعقود قبل الخريطة: عدد التدخلات المطلوبة وقيمتها','«التدخلات المطلوبة لكل عقد» أعلى الصفحتين'],
- ['استيراد ملف مبادرة الحواجز المرتب، مهلة أسبوع للمراجعة، وبعد الأسبوع يُطلب سبب ويُسجّل مين عدّل','دور الكورتيم ← «استيراد ملف». جرّب «محاكاة: مرّ أسبوع» ثم غيّر الترتيب واحفظ، وافتح «سجل التعديلات»'],
- ['مهندس الفحص يرى عقوده ويرتب أولوياته، وكبير المهندسين يرتب المنطقة ككل','بدّل الدور بين «مهندس فحص» و«كبير مهندسين»'],
- ['الاحتياج يكون واضحاً: خانات التفاصيل لكل بند والكمية بالوحدة الصحيحة','«+ إضافة احتياج ميداني» ← اختر البنود. «تفاصيل الاحتياج» إلزامية'],
- ['صفحة للكورتيم فيها بنود المبادرات والـ21 بند: الكمية والسعر لكل منطقة، وتنبيه عند الوفر والتجاوز','«الميزانية والكميات» (جرّبها بدور الكورتيم)'],
- ['بعد التنفيذ: صورة قبل وبعد إلزامية، وتُربط بالمنجزات','زر «تسجيل التنفيذ» في عمود الحالة، وزر «المنجزات» في القائمة'],
- ['(طلال 1) «الترتيب حسب» ترتيب مهندس الفحص أو كبير المهندسين، فينعكس ترتيب قائمة الأولويات على التحليل','«التحليل والاحتياجات» ← «الترتيب حسب» ← «ترتيب مهندس الفحص» أو «ترتيب كبير المهندسين» (حسب نوع المشروع المختار)'],
- ['(طلال 2) «أضف للأولويات» بدل «أضف للقائمة»، والاحتياج يُعدّل بعد إضافته (الموقع تغيّر بعد مسح 2023)','زر «أضف للأولويات» في التحليل: تظهر توصية iRAP وبنودها، وتعدّلها. وبعد الإضافة زر «تعديل» لمهندس الفحص وكبير المهندسين'],
- ['(طلال 3 و7) اختيار أكثر من بند في الاحتياج، ولكل بند كميته','نافذة الاحتياج ← «البنود»: علّم أكثر من بند، وتظهر لكل بند خاناته وكميته (مطلوبة)'],
- ['(طلال 4) الجهة حسب iRAP: اتجاه الراكب / اتجاه السائق / كلا الاتجاهين','خانة «الجهة (حسب iRAP)» في بنود الحواجز والسياج'],
- ['(طلال 5) تحسين جذري يُنفّذ جزء منه مؤقتاً من الـ21 بند، ويبقى في قائمته بوسم، وتفتحه فتلقى المنفّذ والمتبقي','«الاتفاقية الإطارية» ← «تحسين فتحة دوران — طريق 255»: وسم «جزء منه ضمن الـ21 بند» و«المنفّذ والمتبقي». ولمشروع آخر: «تعديل» ← «+ تنفيذ جزئي مؤقت ضمن الـ21 بند»'],
- ['(طلال 6) الإحداثيات إلزامية، والموقع (الطريق والكيلو والإحداثيات) أعلى النافذة','نافذة الاحتياج: قسم «الموقع — البيانات الأساسية» أولاً، وزر «استخدم موقعي الحالي»'],
- ['(طلال 8) الحالة: لم يتم رفع الاحتياج ضمن أي مشروع / تم رفعه ضمن مشروع كذا / تم التنفيذ / تم تنفيذ جزئي ضمن الـ21 بند','عمود «الحالة» في القائمة، وعمود «في الأولويات والحالة» في التحليل، وفلتر «الحالة» في لوحة الكورتيم'],
- ['(طلال 9) سبب الأولوية: إذا قدّم المهندس موقعاً على ترتيب البيانات يكتب ليش','عمود «سبب الأولوية» في القائمة. قدّم موقعاً بالأسهم واحفظ: تُطلب الأسباب. مثال جاهز: «تحسين تقاطع — طريق 30» في الاتفاقية الإطارية'],
- ['(طلال 10) صفحة الكورتيم كداشبورد: فلاتر المنطقة ونوع الاحتياج ونوع المشروع والحالة…، وتصدير Excel لكل نتيجة','دور الكورتيم ← «لوحة الكورتيم»: زر «⇩ Excel» على كل جدول، و«تصدير كل النتائج»'],
+ ['«ترتيب الأولوية» والترتيب بالسحب أو الأسهم، و«اقترح ترتيباً»','«قائمة الأولويات المعتمدة»'],
+ ['مهندس الفحص يرى عقوده ويرتب أولوياته، وكبير المهندسين يرتب المنطقة','بدّل الدور فوق'],
+ ['استيراد ملف مبادرة الحواجز، مهلة أسبوع للمراجعة، وبعدها سبب وسجل','دور الكورتيم ← «استيراد ملف»، و«محاكاة: مرّ أسبوع»'],
+ ['التنفيذ بصورتي قبل وبعد، ويُضاف للمنجزات','«تسجيل التنفيذ» في عمود الحالة، وزر «المنجزات»'],
+ ['(طلال 1) «الترتيب حسب» ترتيب مهندس الفحص أو كبير المهندسين','«التحليل والاحتياجات» ← «الترتيب حسب» (حسب مصدر الاحتياج المختار)'],
+ ['(طلال 2) «أضف للأولويات»، وتوصية iRAP، والتعديل بعد الإضافة','زر «أضف للأولويات» في التحليل، و«تعديل» في القائمة'],
+ ['(طلال 3 و7) أكثر من بند، ولكل بند كميته','نافذة الاحتياج ← «البنود» مع خانة بحث'],
+ ['(طلال 4) الجهة: اتجاه الراكب / اتجاه السائق / كلا الاتجاهين','خانة «الجهة (حسب iRAP)» في الحواجز والسياج'],
+ ['(طلال 5) جزء يُنفّذ بالـ21 بند والباقي بالإطارية في نفس الاحتياج','«مبادرة التقاطعات» ← «فتحة الدوران — طريق 255»: الدهانات نُفّذت بالـ21 بند، والباقي مرفوع بالإطارية، وزر «المنفّذ والمتبقي»'],
+ ['(طلال 6) الإحداثيات إلزامية، والموقع أعلى النافذة','قسم «الموقع — البيانات الأساسية» أولاً، وزر «استخدم موقعي الحالي»'],
+ ['(طلال 8) الحالة: لم يتم رفع الاحتياج / تم رفعه (بالإطارية أو بالـ21 بند) / تم تنفيذ جزئي / تم التنفيذ','عمود «الحالة»، وحالة كل بند'],
+ ['(طلال 9) سبب الأولوية عند تقديم موقع على ترتيب البيانات','عمود «سبب الأولوية». مثال: «ألواح إشارات + 2 — طريق 30» في مبادرة التقاطعات'],
+ ['(طلال 10) لوحة الكورتيم بالفلاتر وتصدير Excel لكل نتيجة','دور الكورتيم ← «لوحة الكورتيم»'],
+ ['(v6) قائمة أولويات وحدة لكل منطقة بترتيب كبير المهندسين، وكل احتياج عليه مصدره (مبادرة الحواجز / السياج / التقاطعات / بدون مبادرة)','«قائمة الأولويات المعتمدة»: فلتر «المصدر» و«التنفيذ» يعرض المواقع بنفس الترتيب، ورقم ترتيبها داخل الفلتر (ترتيب المبادرة للوزارة)، والتصدير فيه ورقة لكل مصدر'],
+ ['(v6) كل بند له طريقة تنفيذ: الـ21 بند مباشرة، أو الاتفاقية الإطارية بطلب شراء. البند الموجود في الـ21 عليه «ممكن بالـ21 بند»','نافذة الاحتياج: البنود من جدول الإطارية (بنود السلامة) ومعها بنود الـ21'],
+ ['(v6) ميزانية المبادرة بالمبلغ لكل منطقة من «نموذج الميزانية»، وتنبيه عند التجاوز. بنود الـ21 بند لا تُخصم من المبادرة','«ميزانية المبادرات» ← «نموذج الميزانية» و«رفع نموذج الميزانية» (دور الكورتيم)'],
 ];
 $('reqList').innerHTML=REQS.map((r,i)=>`<li class="${r[2]?'wait':''}"><span class="k">${i+1}</span><div>${r[0]}<div class="w">${r[1]}</div></div></li>`).join('');
 $('bReqs').onclick=()=>$('ovReq').classList.add('on');
